@@ -26,3 +26,14 @@ venv/
 # Other Temp Files
 *.log
 *.tmp
+
+# dbt — compiled/generated artifacts (auto-regenerated on dbt run)
+target/
+dbt_packages/
+*.msgpack
+
+# Airflow Logs
+Test 3/airflow/logs/
+
+# Raw Data CSVs (large files, not needed in repo — use import_csv_to_postgres.py)
+Test 3/airflow/data/*.csv
