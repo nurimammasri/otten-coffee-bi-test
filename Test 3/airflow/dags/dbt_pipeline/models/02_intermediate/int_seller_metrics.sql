@@ -85,5 +85,4 @@ SELECT
 FROM seller_base sb
 LEFT JOIN seller_top_category stc ON stc.seller_id = sb.seller_id
 GROUP BY sb.seller_id, stc.top_category
-ORDER BY total_revenue DESC;
-
+ORDER BY total_revenue DESC

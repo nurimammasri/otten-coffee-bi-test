@@ -91,5 +91,4 @@ SELECT
     reference_date                         AS reference_date_used
 
 FROM segmented
-ORDER BY total_spend DESC;
-
+ORDER BY total_spend DESC

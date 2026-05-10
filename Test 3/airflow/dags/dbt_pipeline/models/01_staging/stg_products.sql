@@ -41,5 +41,4 @@ SELECT
 FROM products p
 LEFT JOIN product_category_name_translation t
     ON t.product_category_name = p.product_category_name
-WHERE p.product_id IS NOT NULL;
-
+WHERE p.product_id IS NOT NULL

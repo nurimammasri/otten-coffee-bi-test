@@ -80,5 +80,4 @@ SELECT
     )                                                     AS ytd_orders
 
 FROM monthly_base
-ORDER BY month;
-
+ORDER BY month

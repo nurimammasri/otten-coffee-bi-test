@@ -75,5 +75,4 @@ FROM customer_base cb
 LEFT JOIN customer_state_mode csm
     ON csm.customer_unique_id = cb.customer_unique_id
 GROUP BY cb.customer_unique_id, csm.preferred_state
-ORDER BY total_spend DESC;
-
+ORDER BY total_spend DESC

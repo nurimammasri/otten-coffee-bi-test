@@ -96,5 +96,4 @@ SELECT
 
 FROM product_sales ps
 JOIN category_totals ct ON ct.category = ps.category
-ORDER BY revenue_rank;
-
+ORDER BY revenue_rank

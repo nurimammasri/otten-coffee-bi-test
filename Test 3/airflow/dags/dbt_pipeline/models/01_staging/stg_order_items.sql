@@ -32,5 +32,4 @@ SELECT
 FROM order_items
 WHERE order_id     IS NOT NULL
   AND product_id   IS NOT NULL
-  AND price        IS NOT NULL;
-
+  AND price        IS NOT NULL

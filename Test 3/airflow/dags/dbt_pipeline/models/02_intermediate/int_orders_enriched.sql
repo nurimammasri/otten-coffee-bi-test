@@ -125,5 +125,4 @@ FROM {{ ref('stg_orders') }} o
 JOIN {{ ref('stg_customers') }} c          ON c.customer_id = o.customer_id
 LEFT JOIN order_agg oa        ON oa.order_id   = o.order_id
 LEFT JOIN payment_agg pa      ON pa.order_id   = o.order_id
-LEFT JOIN review_agg ra       ON ra.order_id   = o.order_id;
-
+LEFT JOIN review_agg ra       ON ra.order_id   = o.order_id

@@ -32,5 +32,4 @@ SELECT
     order_estimated_delivery_date  AS estimated_delivery_at
 
 FROM orders
-WHERE order_id IS NOT NULL;
-
+WHERE order_id IS NOT NULL

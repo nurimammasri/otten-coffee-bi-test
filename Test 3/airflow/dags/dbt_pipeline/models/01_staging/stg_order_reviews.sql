@@ -39,5 +39,4 @@ SELECT
 
 FROM order_reviews
 WHERE order_id IS NOT NULL
-  AND review_score IS NOT NULL;
-
+  AND review_score IS NOT NULL

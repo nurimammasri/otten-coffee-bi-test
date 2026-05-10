@@ -28,5 +28,4 @@ SELECT
     UPPER(customer_state)                 AS state
 
 FROM customers
-WHERE customer_id IS NOT NULL;
-
+WHERE customer_id IS NOT NULL

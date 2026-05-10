@@ -29,5 +29,4 @@ SELECT
 FROM order_payments
 WHERE order_id IS NOT NULL
   AND payment_value IS NOT NULL
-  AND payment_value >= 0;
-
+  AND payment_value >= 0
