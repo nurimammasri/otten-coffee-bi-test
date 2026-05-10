@@ -1,66 +1,70 @@
-# Airflow DAG for dbt with Astronomer Cosmos
+# Airflow DAG for dbt with Astronomer Cosmos (Docker Compose)
 
-Direktori ini berisi DAG (Directed Acyclic Graph) Apache Airflow yang digunakan untuk mengorkestrasi transformasi data dbt secara native menggunakan **Astronomer Cosmos**.
+Direktori ini berisi DAG (Directed Acyclic Graph) Apache Airflow yang digunakan untuk mengorkestrasi transformasi data dbt secara native menggunakan **Astronomer Cosmos**. Setup ini menggunakan instalasi **Official Apache Airflow via Docker Compose**.
 
-## Kenapa menggunakan Astronomer Cosmos?
-Berbeda dengan `BashOperator` biasa yang mengeksekusi `dbt run` sebagai satu *black-box task*, Cosmos secara otomatis membaca file `dbt_project.yml` dan merepresentasikan setiap model dbt (staging, intermediate, mart) sebagai **task individual** di dalam Airflow UI. 
-
-Hal ini memberikan:
-- **Visibilitas penuh:** Kita bisa melihat lineage dbt (Staging -> Intermediate -> Mart) langsung di UI Airflow.
-- **Granularity:** Jika model `mart_monthly_revenue` gagal, kita hanya perlu merestart model itu saja dari UI Airflow, tanpa menjalankan ulang `staging`.
-- **Integrasi native:** Testing (`dbt test`) otomatis menjadi task di Airflow.
-
----
-
-## Tahapan Menjalankan DAG Ini di Lokal (Docker)
-
-Jika kamu ingin menjalankan dan melihat DAG ini di komputermu sendiri, kamu bisa menggunakan Docker dengan Astro CLI (cara termudah menjalankan Airflow lokal).
+## Tahapan Menjalankan DAG Ini di Lokal (Docker Compose)
 
 ### Prasyarat
 1. Telah menginstal [Docker Desktop](https://www.docker.com/products/docker-desktop).
-2. Telah menginstal [Astro CLI](https://docs.astronomer.io/astro/cli/install-cli).
 
 ### Langkah-langkah Eksekusi
 
-**1. Inisialisasi Project Airflow Lokal**
-Buka terminal dan buat folder baru untuk environment Airflow, lalu jalankan inisialisasi:
+**1. Masuk ke Folder Airflow**
+Buka terminal dan navigasi ke direktori ini:
 ```bash
-mkdir my-astro-project
-cd my-astro-project
-astro dev init
+cd "Test 3/airflow"
 ```
 
-**2. Masukkan File DAG dan dbt Project**
-- Copy file `otten_dbt_dag.py` yang ada di folder ini ke dalam folder `dags/` di `my-astro-project`.
-- Masukkan seluruh folder dbt project kamu ke dalam folder `dags/` dengan nama folder `dbt_pipeline`. 
-
-**3. Install Dependencies (Astronomer Cosmos)**
-Buka file `requirements.txt` yang ada di dalam `my-astro-project`, dan tambahkan baris berikut:
-```text
-astronomer-cosmos
-dbt-postgres
-```
-
-**4. Jalankan Airflow**
-Di dalam folder `my-astro-project`, jalankan perintah ini di terminal:
+**2. Persiapkan Folder Pendukung**
+Jalankan perintah berikut (jika kamu menggunakan Linux/Mac/WSL) untuk memastikan folder-folder ini ada dan punya izin yang tepat:
 ```bash
-astro dev start
+mkdir -p ./dags ./logs ./plugins ./config
+echo -e "AIRFLOW_UID=$(id -u)" > .env
 ```
-*Docker akan mendownload image Airflow dan mengaktifkan web server.*
+*(Catatan: File `.env` dengan `AIRFLOW_UID=50000` sudah saya buatkan secara default untuk pengguna Windows/Mac).*
 
-**5. Akses Airflow Web UI**
+**3. Letakkan dbt Project Kamu**
+Copy/masukkan seluruh folder `dbt` project milikmu ke dalam direktori `dags/` (misal dengan nama `dbt_pipeline`). Hal ini diperlukan agar container Airflow dapat mengakses konfigurasi `dbt_project.yml` milikmu.
+
+**4. Build Image Docker (Sangat Penting)**
+Karena kita menggunakan library tambahan (`astronomer-cosmos` dan `dbt-postgres`), kita harus mem-build custom Docker image berdasarkan `Dockerfile` yang telah disediakan, jangan memakai image polosnya:
+```bash
+docker compose build
+```
+
+**5. Inisialisasi Database Airflow**
+Jalankan perintah ini SATU KALI SAJA di awal untuk membuat tabel-tabel metadata Airflow di Postgres:
+```bash
+docker compose up airflow-init
+```
+Tunggu hingga proses selesai dan muncul tulisan `airflow-init_1 exited with code 0`.
+
+**6. Jalankan Airflow Secara Penuh**
+Nyalakan seluruh kontainer Airflow (Webserver, Scheduler, Celery Workers, dll) di latar belakang:
+```bash
+docker compose up -d
+```
+
+**7. Akses Airflow Web UI**
 - Buka browser dan pergi ke `http://localhost:8080`.
-- Login menggunakan kredensial default (Username: `admin`, Password: `admin`).
+- Login menggunakan kredensial default:
+  - **Username**: `airflow`
+  - **Password**: `airflow`
 
-**6. Konfigurasi Koneksi Database**
+**8. Konfigurasi Koneksi Database**
 - Di Airflow UI, pilih menu **Admin** -> **Connections**.
 - Buat koneksi baru:
   - **Connection Id**: `postgres_default`
   - **Connection Type**: `Postgres`
   - **Host, Schema, Login, Password, Port**: *(Isi dengan kredensial database PostgreSQL kamu tempat dbt berjalan)*.
 
-**7. Trigger DAG**
+**9. Trigger DAG**
 - Kembali ke halaman utama (DAGs).
 - Cari DAG bernama `otten_coffee_dbt_cosmos_pipeline`.
 - Nyalakan *toggle switch* (Unpause) dan klik tombol **Play (Trigger DAG)**.
-- Klik nama DAG-nya dan pergi ke tab **Graph** untuk melihat setiap tahapan dbt tervisualisasi dan berjalan secara berurutan!
+
+**10. Mematikan Airflow**
+Jika sudah selesai mengetes, matikan server dengan perintah:
+```bash
+docker compose down
+```
