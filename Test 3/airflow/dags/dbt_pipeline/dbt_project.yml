@@ -1,0 +1,25 @@
+name: 'otten_coffee'
+version: '1.0.0'
+config-version: 2
+profile: 'otten_coffee_dwh'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  otten_coffee:
+    01_staging:
+      +materialized: view
+    02_intermediate:
+      +materialized: view
+    03_mart:
+      +materialized: table

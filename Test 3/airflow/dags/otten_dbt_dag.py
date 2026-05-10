@@ -15,7 +15,7 @@ from cosmos.profiles import PostgresUserPasswordProfileMapping
 # Konfigurasi Path untuk dbt project di environment Airflow
 # Asumsi: folder dbt bernama 'dbt_pipeline' berada di dalam folder dags/
 DEFAULT_DBT_ROOT_PATH = os.getenv("DBT_ROOT_PATH", "/opt/airflow/dags/dbt_pipeline")
-DBT_EXECUTABLE_PATH = os.getenv("DBT_EXECUTABLE_PATH", "/opt/airflow/dbt_venv/bin/dbt")
+DBT_EXECUTABLE_PATH = os.getenv("DBT_EXECUTABLE_PATH", "/home/airflow/.local/bin/dbt")
 
 # Konfigurasi Profil dbt menggunakan Airflow Connection (Postgres)
 # Airflow Connection ID: 'postgres_default' (dapat dikonfigurasi di Airflow UI)
