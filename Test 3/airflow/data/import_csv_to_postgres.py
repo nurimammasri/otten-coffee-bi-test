@@ -28,7 +28,7 @@ def main():
     db_password = "nurimammasri"
 
     try:
-        engine = create_engine(f"postgresql+psycopg2://postgres:{db_password}@localhost:5432/postgres")
+        engine = create_engine(f"postgresql+psycopg2://postgres:{db_password}@localhost:5432/otten_coffee")
         engine.connect()
         print("[OK] Koneksi ke PostgreSQL berhasil!\n")
     except Exception as e:
