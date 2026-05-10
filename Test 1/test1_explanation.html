@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test 1 — Advanced SQL & Data Exploration | Otten Coffee BI Engineer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #2c2c2c;
+    background: #fff;
+    padding: 0;
+  }
+
+  /* ── Cover Page ── */
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f7f9f4;
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .cover-logo {
+    font-size: 28px;
+    font-weight: 800;
+    color: #4a7c3f;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+  }
+  .cover-subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 60px;
+  }
+  .cover h1 {
+    font-size: 34px;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+  .cover h2 {
+    font-size: 18px;
+    font-weight: 400;
+    color: #555;
+    margin-bottom: 48px;
+  }
+  .cover-meta {
+    font-size: 12px;
+    color: #888;
+    line-height: 2;
+  }
+  .cover-tag {
+    display: inline-block;
+    background: #4a7c3f;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 32px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* ── Page Layout ── */
+  .page {
+    padding: 48px 56px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .page-break { page-break-before: always; }
+
+  /* ── Typography ── */
+  h1 { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+  h2 { font-size: 18px; font-weight: 700; color: #4a7c3f; margin: 32px 0 10px; border-bottom: 2px solid #e8f0e5; padding-bottom: 6px; }
+  h3 { font-size: 14px; font-weight: 700; color: #2c2c2c; margin: 22px 0 8px; }
+  h4 { font-size: 13px; font-weight: 600; color: #4a7c3f; margin: 16px 0 6px; }
+
+  p { margin-bottom: 10px; }
+  ul, ol { margin: 8px 0 12px 22px; }
+  li { margin-bottom: 5px; }
+
+  /* ── Section Header ── */
+  .section-header {
+    background: #f7f9f4;
+    border-left: 5px solid #4a7c3f;
+    padding: 14px 20px;
+    margin: 24px 0 16px;
+    border-radius: 0 6px 6px 0;
+  }
+  .section-header h2 { margin: 0; border: none; padding: 0; font-size: 16px; }
+  .section-header p  { margin: 4px 0 0; color: #666; font-size: 12px; }
+
+  /* ── Code Blocks ── */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 18px 22px;
+    border-radius: 8px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    margin: 12px 0 18px;
+  }
+  code {
+    background: #eef2eb;
+    color: #2d6a1f;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 11.5px;
+  }
+  pre code { background: none; color: inherit; padding: 0; border-radius: 0; }
+
+  /* SQL Syntax Highlighting */
+  .kw   { color: #89dceb; font-weight: 600; }  /* keywords */
+  .fn   { color: #cba6f7; }                     /* functions */
+  .str  { color: #a6e3a1; }                     /* strings */
+  .cmt  { color: #6c7086; font-style: italic; } /* comments */
+  .num  { color: #fab387; }                     /* numbers */
+  .col  { color: #f9e2af; }                     /* column aliases */
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 18px;
+    font-size: 12px;
+  }
+  th {
+    background: #4a7c3f;
+    color: white;
+    padding: 9px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11.5px;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e8eee5;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: #f7f9f4; }
+  tr:hover td { background: #eef4eb; }
+  .num-col { text-align: right; font-family: monospace; }
+
+  /* ── Cards / Callouts ── */
+  .card {
+    border: 1px solid #d4e6ce;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    background: #fafef9;
+  }
+  .card-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: #2d6a1f;
+    margin-bottom: 8px;
+  }
+
+  .callout {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 14px 0;
+    font-size: 12.5px;
+  }
+  .callout-insight  { background: #eef8ea; border-left: 4px solid #4a7c3f; }
+  .callout-warning  { background: #fff8e6; border-left: 4px solid #e6a817; }
+  .callout-info     { background: #e8f4fd; border-left: 4px solid #2196f3; }
+  .callout-critical { background: #fdecea; border-left: 4px solid #e53935; }
+  .callout strong   { display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  /* ── KPI Cards ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .kpi-card {
+    background: #f7f9f4;
+    border: 1px solid #d4e6ce;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .kpi-value  { font-size: 22px; font-weight: 700; color: #2d6a1f; }
+  .kpi-label  { font-size: 11px; color: #666; margin-top: 4px; }
+
+  /* ── Bottleneck List ── */
+  .bottleneck {
+    display: flex;
+    gap: 14px;
+    margin: 10px 0;
+    align-items: flex-start;
+  }
+  .bottleneck-num {
+    background: #e53935;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 1px;
+  }
+  .fix-num {
+    background: #4a7c3f;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 1px;
+  }
+  .bottleneck-body { flex: 1; }
+  .bottleneck-body strong { color: #c62828; }
+  .fix-body strong { color: #2d6a1f; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 60px;
+    padding-top: 14px;
+    border-top: 1px solid #dde8d9;
+    font-size: 11px;
+    color: #999;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { font-size: 12px; }
+    .page { padding: 36px 48px; }
+    pre  { font-size: 10.5px; }
+    .cover { min-height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========================================================== -->
+<!-- COVER PAGE                                                  -->
+<!-- ========================================================== -->
+<div class="cover">
+  <div class="cover-logo">Otten Coffee</div>
+  <div class="cover-subtitle">#MengopikanIndonesia</div>
+
+  <div class="cover-tag">Technical Test — Submission</div>
+  <h1>Test 1<br>Advanced SQL &amp; Data Exploration</h1>
+  <h2>Written Explanation &amp; Query Insights</h2>
+
+  <div class="cover-meta">
+    <div><strong>Dataset</strong> &nbsp; Brazilian E-Commerce (Olist) — Public PostgreSQL</div>
+    <div><strong>Role</strong> &nbsp;&nbsp;&nbsp;&nbsp; BI Engineer</div>
+    <div><strong>Date</strong> &nbsp;&nbsp;&nbsp;&nbsp; May 2026</div>
+  </div>
+</div>
+
+
+<!-- ========================================================== -->
+<!-- TABLE OF CONTENTS                                           -->
+<!-- ========================================================== -->
+<div class="page">
+  <h1>Contents</h1>
+  <br>
+  <table>
+    <tr><th>#</th><th>Section</th></tr>
+    <tr><td>1</td><td>Dataset &amp; Assumptions</td></tr>
+    <tr><td>2</td><td>Part A1 — Monthly Revenue Trend: Query Logic &amp; Insights</td></tr>
+    <tr><td>3</td><td>Part A2 — Top 10 Product Categories: Query Logic &amp; Insights</td></tr>
+    <tr><td>4</td><td>Part A3 — Customer Cohort Retention: Query Logic &amp; Insights</td></tr>
+    <tr><td>5</td><td>Part B — Query Optimisation: Bottlenecks, Fixes &amp; Verification</td></tr>
+  </table>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL</span>
+  </div>
+</div>
+
+
+<!-- ========================================================== -->
+<!-- SECTION 1: DATASET & ASSUMPTIONS                           -->
+<!-- ========================================================== -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>1 &nbsp; Dataset &amp; Global Assumptions</h2>
+    <p>Brazilian E-Commerce (Olist) — Public PostgreSQL on Supabase</p>
+  </div>
+
+  <h3>1.1 Dataset Overview</h3>
+  <p>
+    The dataset is the publicly available <strong>Olist Brazilian E-Commerce</strong> dataset, hosted on a
+    read-only PostgreSQL instance on Supabase. It covers approximately two years of e-commerce transactions
+    (September 2016 – August 2018) across Brazil.
+  </p>
+
+  <table>
+    <tr><th>Table</th><th>Description</th><th>Approx. Rows</th></tr>
+    <tr><td><code>orders</code></td><td>Master order records with timestamps and status</td><td>~99,441</td></tr>
+    <tr><td><code>order_items</code></td><td>Line items: product, seller, price, freight per order</td><td>~112,650</td></tr>
+    <tr><td><code>order_payments</code></td><td>Payment records — one order can have multiple rows</td><td>~103,886</td></tr>
+    <tr><td><code>order_reviews</code></td><td>Customer reviews with score (1–5) and comments</td><td>~99,224</td></tr>
+    <tr><td><code>customers</code></td><td>Customer demographics and location</td><td>~99,441</td></tr>
+    <tr><td><code>products</code></td><td>Product catalogue with dimensions and category</td><td>~32,951</td></tr>
+    <tr><td><code>sellers</code></td><td>Seller registry with location</td><td>~3,095</td></tr>
+    <tr><td><code>product_category_name_translation</code></td><td>PT → EN category mapping</td><td>~71</td></tr>
+    <tr><td><code>geolocation</code></td><td>ZIP code to lat/lon mapping</td><td>~1,000,163</td></tr>
+  </table>
+
+  <h3>1.2 Global Assumptions Applied Across All Queries</h3>
+
+  <div class="card">
+    <div class="card-title">Revenue Source</div>
+    <p>
+      Revenue is always taken from <code>order_payments.payment_value</code>, not <code>order_items.price</code>.
+      Payment value captures the actual amount charged to the customer, including any applied discounts,
+      vouchers, or installment adjustments. This gives a more accurate picture of real business revenue.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Order Status Filtering</div>
+    <p>
+      All analyses exclude orders with <code>order_status = 'canceled'</code>. Cancelled orders represent
+      intent without transaction — including them would inflate order counts and distort revenue metrics.
+      Other statuses (<code>delivered</code>, <code>shipped</code>, <code>processing</code>, <code>invoiced</code>,
+      <code>approved</code>, <code>created</code>) are included unless otherwise noted.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Customer Identity</div>
+    <p>
+      The <code>customers</code> table has two identifier columns. <code>customer_id</code> is unique per order
+      (a returning customer can have multiple <code>customer_id</code> values). For customer-level analysis,
+      <code>customer_unique_id</code> is used — this is the true cross-order customer identifier.
+      This is critical for cohort retention analysis.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Data Gaps</div>
+    <p>
+      November 2016 has zero orders in the dataset (only Sep, Oct, Dec 2016 have data). September 2018 has
+      only a handful of records, suggesting data collection ended mid-month. These gaps are reflected as
+      anomalous MoM changes and do not indicate real business events.
+    </p>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL</span>
+  </div>
+</div>
+
+
+<!-- ========================================================== -->
+<!-- SECTION 2: A1 — MONTHLY REVENUE TREND                      -->
+<!-- ========================================================== -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>2 &nbsp; A1 — Monthly Revenue Trend</h2>
+    <p>Total revenue per month with month-over-month percentage change</p>
+  </div>
+
+  <h3>2.1 Query Logic</h3>
+  <p>
+    The query uses a two-step CTE pattern. The inner CTE <code>monthly_revenue</code> groups payments by
+    purchase year and month, then the outer SELECT applies a <code>LAG()</code> window function to access
+    the previous month's revenue without a self-join — keeping the query efficient and readable.
+  </p>
+
+  <h4>Why LAG() over a self-join?</h4>
+  <p>
+    A self-join approach would require joining the aggregated monthly table to itself, which means two full
+    scans of the aggregated result. <code>LAG()</code> accesses the prior row in a single ordered window
+    pass — cleaner SQL and more efficient execution.
+  </p>
+
+  <h4>MoM Change Formula</h4>
+  <pre><code>mom_change_pct = ROUND(
+    (current_month - previous_month) * 100.0
+    / NULLIF(previous_month, 0)
+, 2)</code></pre>
+  <p>
+    <code>NULLIF(prev, 0)</code> prevents division-by-zero for any month with zero revenue.
+    The result is NULL for the first month (no prior period to compare).
+  </p>
+
+  <h3>2.2 Query Results</h3>
+  <table>
+    <tr>
+      <th>Year</th><th>Month</th>
+      <th class="num-col">Total Revenue (R$)</th>
+      <th class="num-col">Prev Month (R$)</th>
+      <th class="num-col">MoM Change %</th>
+    </tr>
+    <tr><td>2016</td><td>9</td><td class="num-col">136.23</td><td class="num-col">—</td><td class="num-col">—</td></tr>
+    <tr><td>2016</td><td>10</td><td class="num-col">53,915.50</td><td class="num-col">136.23</td><td class="num-col">+39,476.82%</td></tr>
+    <tr><td>2016</td><td>12</td><td class="num-col">19.62</td><td class="num-col">53,915.50</td><td class="num-col">-99.96%</td></tr>
+    <tr><td>2017</td><td>1</td><td class="num-col">138,119.76</td><td class="num-col">19.62</td><td class="num-col">+703,874%*</td></tr>
+    <tr><td>2017</td><td>2</td><td class="num-col">289,081.01</td><td class="num-col">138,119.76</td><td class="num-col">+109.30%</td></tr>
+    <tr><td>2017</td><td>3</td><td class="num-col">442,406.37</td><td class="num-col">289,081.01</td><td class="num-col">+53.04%</td></tr>
+    <tr><td>2017</td><td>4</td><td class="num-col">409,846.01</td><td class="num-col">442,406.37</td><td class="num-col">-7.36%</td></tr>
+    <tr><td>2017</td><td>5</td><td class="num-col">588,529.96</td><td class="num-col">409,846.01</td><td class="num-col">+43.60%</td></tr>
+    <tr><td>2017</td><td>6</td><td class="num-col">507,302.62</td><td class="num-col">588,529.96</td><td class="num-col">-13.80%</td></tr>
+    <tr><td>2017</td><td>7</td><td class="num-col">585,331.36</td><td class="num-col">507,302.62</td><td class="num-col">+15.38%</td></tr>
+    <tr><td>2017</td><td>8</td><td class="num-col">667,224.47</td><td class="num-col">585,331.36</td><td class="num-col">+13.99%</td></tr>
+    <tr><td>2017</td><td>9</td><td class="num-col">723,781.27</td><td class="num-col">667,224.47</td><td class="num-col">+8.48%</td></tr>
+    <tr><td>2017</td><td>10</td><td class="num-col">773,104.35</td><td class="num-col">723,781.27</td><td class="num-col">+6.81%</td></tr>
+    <tr><td>2017</td><td>11</td><td class="num-col"><strong>1,187,224.36</strong></td><td class="num-col">773,104.35</td><td class="num-col"><strong>+53.57%</strong></td></tr>
+    <tr><td>2017</td><td>12</td><td class="num-col">874,962.23</td><td class="num-col">1,187,224.36</td><td class="num-col">-26.30%</td></tr>
+    <tr><td>2018</td><td>1</td><td class="num-col">1,109,464.00</td><td class="num-col">874,962.23</td><td class="num-col">+26.80%</td></tr>
+    <tr><td>2018</td><td>2</td><td class="num-col">984,790.19</td><td class="num-col">1,109,464.00</td><td class="num-col">-11.24%</td></tr>
+    <tr><td>2018</td><td>3</td><td class="num-col">1,156,243.76</td><td class="num-col">984,790.19</td><td class="num-col">+17.41%</td></tr>
+    <tr><td>2018</td><td>4</td><td class="num-col">1,157,336.33</td><td class="num-col">1,156,243.76</td><td class="num-col">+0.09%</td></tr>
+    <tr><td>2018</td><td>5</td><td class="num-col">1,149,483.77</td><td class="num-col">1,157,336.33</td><td class="num-col">-0.68%</td></tr>
+    <tr><td>2018</td><td>6</td><td class="num-col">1,021,220.02</td><td class="num-col">1,149,483.77</td><td class="num-col">-11.16%</td></tr>
+    <tr><td>2018</td><td>7</td><td class="num-col">1,047,422.72</td><td class="num-col">1,021,220.02</td><td class="num-col">+2.57%</td></tr>
+    <tr><td>2018</td><td>8</td><td class="num-col">998,504.15</td><td class="num-col">1,047,422.72</td><td class="num-col">-4.67%</td></tr>
+    <tr><td>2018</td><td>9</td><td class="num-col">166.46</td><td class="num-col">998,504.15</td><td class="num-col">-99.98%</td></tr>
+  </table>
+  <p style="font-size:11px; color:#888;">* Extreme MoM values in 2016 reflect data gaps, not real business events.</p>
+
+  <h3>2.3 Key Business Insights</h3>
+
+  <div class="callout callout-insight">
+    <strong>Insight 1 — November 2017: Peak Revenue Month</strong>
+    November 2017 recorded the highest single-month revenue at <strong>R$ 1,187,224</strong> — a +53.6% jump
+    from October. This almost certainly coincides with <strong>Black Friday Brazil</strong> (last Friday of
+    November), a major retail event. The dip in December (+26% below November) is consistent with post-peak
+    normalisation seen in e-commerce.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 2 — Consistent Growth Phase (Jan–Nov 2017)</strong>
+    Revenue grew from R$ 138K (Jan 2017) to R$ 1.19M (Nov 2017) — an <strong>8.6× increase in 11 months</strong>.
+    This reflects Olist's rapid marketplace expansion during this period. Only April and June 2017 showed
+    slight month-over-month dips.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 3 — Plateau in 2018</strong>
+    After January 2018, revenue stabilised around R$ 1–1.15M/month with very small MoM changes (±1%).
+    This plateau suggests the business reached a steady state or that growth was tapering. Without YoY data
+    beyond 2018, it is unclear whether this is seasonal or structural.
+  </div>
+
+  <div class="callout callout-warning">
+    <strong>Data Artefact — Dec 2016 and Sep 2018</strong>
+    December 2016 shows R$ 19.62 (1 transaction) and September 2018 shows R$ 166.46. These are data
+    collection boundaries, not real business drops. MoM changes for adjacent months should be interpreted
+    with caution.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL</span>
+  </div>
+</div>
+
+
+<!-- ========================================================== -->
+<!-- SECTION 3: A2 — TOP 10 PRODUCT CATEGORIES                  -->
+<!-- ========================================================== -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>3 &nbsp; A2 — Top 10 Product Categories by Revenue</h2>
+    <p>Ranked by total payment value, excluding cancelled orders</p>
+  </div>
+
+  <h3>3.1 Query Logic</h3>
+  <p>
+    The query chains five tables: <code>products</code> → <code>product_category_name_translation</code>
+    → <code>order_items</code> → <code>orders</code> → <code>order_payments</code>.
+    An <strong>INNER JOIN</strong> to the translation table is intentional — it excludes products with
+    no English category mapping (null or untranslatable), ensuring the output is fully human-readable.
+  </p>
+
+  <h4>avg_order_value Calculation</h4>
+  <p>
+    <code>avg_order_value = total_revenue / COUNT(DISTINCT order_id)</code>
+    — this represents the average revenue per order that involved at least one item from this category.
+    It is not a per-item price; an order can contain items from multiple categories.
+  </p>
+
+  <h4>Why use payment_value instead of item price?</h4>
+  <p>
+    <code>order_payments.payment_value</code> is used for revenue because it reflects the actual cash
+    received, including voucher redemptions and installment adjustments. Using <code>order_items.price</code>
+    would overstate revenue for orders where vouchers were applied.
+  </p>
+
+  <h3>3.2 Query Results</h3>
+  <table>
+    <tr>
+      <th>Rank</th><th>Category</th>
+      <th class="num-col">Distinct Orders</th>
+      <th class="num-col">Items Sold</th>
+      <th class="num-col">Total Revenue (R$)</th>
+      <th class="num-col">Avg Order Value (R$)</th>
+    </tr>
+    <tr><td>1</td><td>bed_bath_table</td><td class="num-col">9,399</td><td class="num-col">11,805</td><td class="num-col">1,711,258</td><td class="num-col">182.07</td></tr>
+    <tr><td>2</td><td>health_beauty</td><td class="num-col">8,799</td><td class="num-col">9,932</td><td class="num-col">1,653,730</td><td class="num-col">187.95</td></tr>
+    <tr><td>3</td><td>computers_accessories</td><td class="num-col">6,654</td><td class="num-col">8,036</td><td class="num-col">1,571,544</td><td class="num-col">236.18</td></tr>
+    <tr><td>4</td><td>furniture_decor</td><td class="num-col">6,425</td><td class="num-col">8,707</td><td class="num-col">1,424,783</td><td class="num-col">221.76</td></tr>
+    <tr><td>5</td><td>watches_gifts</td><td class="num-col">5,604</td><td class="num-col">6,180</td><td class="num-col">1,421,715</td><td class="num-col">253.70</td></tr>
+    <tr><td>6</td><td>sports_leisure</td><td class="num-col">7,673</td><td class="num-col">8,893</td><td class="num-col">1,381,363</td><td class="num-col">180.03</td></tr>
+    <tr><td>7</td><td>housewares</td><td class="num-col">5,847</td><td class="num-col">7,296</td><td class="num-col">1,086,565</td><td class="num-col">185.83</td></tr>
+    <tr><td>8</td><td>auto</td><td class="num-col">3,873</td><td class="num-col">4,349</td><td class="num-col">843,344</td><td class="num-col">217.75</td></tr>
+    <tr><td>9</td><td>garden_tools</td><td class="num-col">3,505</td><td class="num-col">4,554</td><td class="num-col">823,518</td><td class="num-col">234.96</td></tr>
+    <tr><td>10</td><td>cool_stuff</td><td class="num-col">3,617</td><td class="num-col">3,970</td><td class="num-col">759,735</td><td class="num-col">210.05</td></tr>
+  </table>
+
+  <h3>3.3 Key Business Insights</h3>
+
+  <div class="callout callout-insight">
+    <strong>Insight 1 — bed_bath_table vs health_beauty: Volume vs Value</strong>
+    <code>bed_bath_table</code> leads in revenue (R$ 1.71M) and order volume (9,399), but has a lower
+    average order value (R$ 182) compared to <code>health_beauty</code> (R$ 188).
+    <code>health_beauty</code> generates almost as much revenue with fewer orders — indicating higher-value
+    transactions and potentially stronger brand loyalty or premium product mix.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 2 — High-Value Categories with Fewer Orders</strong>
+    <code>watches_gifts</code> ranks 5th in revenue (R$ 1.42M) but only 9th in order count, yielding the
+    highest avg order value of <strong>R$ 253.70</strong>. This signals a premium segment with high per-transaction
+    value. <code>computers_accessories</code> (R$ 236) and <code>garden_tools</code> (R$ 235) also show
+    above-average order values — these may be high-margin categories worth further investment.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 3 — Top 10 Concentration</strong>
+    The top 10 categories account for approximately <strong>60%+ of total platform revenue</strong>,
+    demonstrating classic Pareto distribution. A BI dashboard should highlight these categories with
+    trend views to help the Senior Manager monitor category health at a glance.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL</span>
+  </div>
+</div>
+
+
+<!-- ========================================================== -->
+<!-- SECTION 4: A3 — CUSTOMER COHORT RETENTION                  -->
+<!-- ========================================================== -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>4 &nbsp; A3 — Customer Cohort Retention</h2>
+    <p>How many customers from each acquisition month returned in M+1, M+2, M+3</p>
+  </div>
+
+  <h3>4.1 Query Logic</h3>
+  <p>
+    The analysis uses a 3-CTE pipeline. Each step has a clear, single responsibility:
+  </p>
+
+  <table>
+    <tr><th>CTE</th><th>Purpose</th></tr>
+    <tr>
+      <td><code>customer_orders</code></td>
+      <td>Deduplicate to one row per (customer_unique_id, order_month). Uses DISTINCT to prevent
+      double-counting customers who placed multiple orders in the same month.</td>
+    </tr>
+    <tr>
+      <td><code>cohorts</code></td>
+      <td>Identifies each customer's acquisition cohort as their earliest order month using MIN().</td>
+    </tr>
+    <tr>
+      <td><code>month_diff</code></td>
+      <td>Calculates the integer month offset between each subsequent order and the cohort month.</td>
+    </tr>
+  </table>
+
+  <h4>Why use YEAR×12 + MONTH arithmetic instead of interval comparison?</h4>
+  <pre><code>months_after_cohort =
+    (YEAR(order_month) * 12 + MONTH(order_month))
+  - (YEAR(cohort_month) * 12 + MONTH(cohort_month))</code></pre>
+  <p>
+    Interval-based approaches (e.g., subtracting timestamps and dividing by 30 days) produce
+    floating-point values that can mis-classify a purchase made on Feb 28 vs Mar 1.
+    Integer year-month arithmetic guarantees exact month offsets regardless of month length.
+  </p>
+
+  <h4>LEFT JOIN for retention counting</h4>
+  <p>
+    A <code>LEFT JOIN</code> from cohorts to month_diff ensures that cohorts with <em>zero</em>
+    retained customers still appear in the output (retained_m1/m2/m3 = 0 via COUNT of NULL).
+    An INNER JOIN would silently drop those cohorts.
+  </p>
+
+  <h3>4.2 Query Results (First 12 Cohorts)</h3>
+  <table>
+    <tr>
+      <th>Cohort Month</th>
+      <th class="num-col">Cohort Size</th>
+      <th class="num-col">Retained M+1</th>
+      <th class="num-col">Retained M+2</th>
+      <th class="num-col">Retained M+3</th>
+      <th class="num-col">M+1 Rate</th>
+    </tr>
+    <tr><td>2016-09</td><td class="num-col">2</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0.0%</td></tr>
+    <tr><td>2016-10</td><td class="num-col">297</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0.0%</td></tr>
+    <tr><td>2016-12</td><td class="num-col">1</td><td class="num-col">1</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">100%</td></tr>
+    <tr><td>2017-01</td><td class="num-col">762</td><td class="num-col">3</td><td class="num-col">2</td><td class="num-col">1</td><td class="num-col">0.39%</td></tr>
+    <tr><td>2017-02</td><td class="num-col">1,735</td><td class="num-col">4</td><td class="num-col">5</td><td class="num-col">2</td><td class="num-col">0.23%</td></tr>
+    <tr><td>2017-03</td><td class="num-col">2,603</td><td class="num-col">13</td><td class="num-col">9</td><td class="num-col">10</td><td class="num-col">0.50%</td></tr>
+    <tr><td>2017-04</td><td class="num-col">2,334</td><td class="num-col">14</td><td class="num-col">5</td><td class="num-col">4</td><td class="num-col">0.60%</td></tr>
+    <tr><td>2017-05</td><td class="num-col">3,571</td><td class="num-col">17</td><td class="num-col">18</td><td class="num-col">14</td><td class="num-col">0.48%</td></tr>
+    <tr><td>2017-06</td><td class="num-col">3,126</td><td class="num-col">14</td><td class="num-col">11</td><td class="num-col">13</td><td class="num-col">0.45%</td></tr>
+    <tr><td>2017-07</td><td class="num-col">3,868</td><td class="num-col">20</td><td class="num-col">13</td><td class="num-col">10</td><td class="num-col">0.52%</td></tr>
+    <tr><td>2017-08</td><td class="num-col">4,162</td><td class="num-col">28</td><td class="num-col">14</td><td class="num-col">11</td><td class="num-col">0.67%</td></tr>
+    <tr><td>2017-09</td><td class="num-col">4,112</td><td class="num-col">28</td><td class="num-col">22</td><td class="num-col">12</td><td class="num-col">0.68%</td></tr>
+  </table>
+
+  <h3>4.3 Key Business Insights</h3>
+
+  <div class="callout callout-critical">
+    <strong>Critical Insight — Extremely Low Repeat Purchase Rate</strong>
+    Across all cohorts, the M+1 retention rate consistently falls below <strong>1%</strong>.
+    For example, the August 2017 cohort of 4,162 customers had only 28 returnees in September —
+    a 0.67% retention rate. This means <strong>over 99% of customers are one-time buyers</strong>.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 1 — This is Normal for Marketplace E-Commerce</strong>
+    Low retention in general e-commerce marketplaces is common: customers buy when they have a specific
+    need, not out of habit. However, the near-zero rates here suggest an opportunity: even a 2%
+    retention improvement doubles the retained customer base. Targeted re-engagement campaigns
+    (email, push, personalised offers) could have significant revenue impact.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 2 — No Clear Cohort Improvement Over Time</strong>
+    Earlier cohorts (Jan–Mar 2017) show similar or lower retention than later ones, suggesting no
+    systematic improvement in retention over the observation period. A mature marketplace would
+    typically show improving retention as the product and recommendation engines mature.
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Recommendation for Further Analysis</strong>
+    A more complete retention picture would include: (1) percentage retention rates (not just absolute
+    counts), (2) revenue retained per cohort, and (3) comparison of retained vs churned customer
+    lifetime value. These would enable ROI calculation for retention campaigns.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL</span>
+  </div>
+</div>
+
+
+<!-- ========================================================== -->
+<!-- SECTION 5: PART B — QUERY OPTIMISATION                     -->
+<!-- ========================================================== -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>5 &nbsp; Part B — Query Optimisation</h2>
+    <p>Refactoring a slow multi-join category analytics query for production performance</p>
+  </div>
+
+  <h3>5.1 Bottlenecks Identified</h3>
+  <p>
+    The original query was analysed structurally (without <code>EXPLAIN ANALYZE</code> access on this
+    read-only instance) to identify the following bottlenecks:
+  </p>
+
+  <div class="bottleneck">
+    <div class="bottleneck-num">1</div>
+    <div class="bottleneck-body">
+      <strong>Triple Table Scan — products + order_items</strong><br>
+      The original query defines three independent subqueries (<code>b</code>, <code>ps</code>,
+      <code>ls</code>), each performing its own <code>JOIN products → order_items</code> from scratch.
+      This means the database reads both large tables <strong>three separate times</strong>.
+      On a 100K+ row <code>order_items</code> table, this triples the I/O cost of the query.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="bottleneck-num">2</div>
+    <div class="bottleneck-body">
+      <strong>Repeated Full-Table Window Function — SUM() OVER ()</strong><br>
+      <code>SUM(total_revenue) OVER ()</code> (grand total) appears <strong>twice</strong> in the outer
+      SELECT: once for <code>revenue_share_pct</code> and once as the denominator for
+      <code>cumulative_revenue_pct</code>. Each occurrence triggers a separate window pass over
+      all rows, computing the same value redundantly.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="bottleneck-num">3</div>
+    <div class="bottleneck-body">
+      <strong>Deeply Nested Subquery Structure</strong><br>
+      Three levels of nesting (innermost → <code>b</code> → <code>ranked</code> → outer)
+      limit the query planner's ability to push down filters and choose optimal join order.
+      Deep nesting also makes the query harder to read, debug, and maintain.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="bottleneck-num">4</div>
+    <div class="bottleneck-body">
+      <strong>RANK() Computed Inside Subquery, Then More Window Functions on Top</strong><br>
+      <code>RANK() OVER (ORDER BY SUM(price) DESC)</code> is computed inside the subquery
+      <code>ranked</code>, requiring a sort. The outer query then applies additional window functions
+      (<code>RANK() OVER (ORDER BY late_rate_pct DESC)</code>, cumulative sum), requiring
+      additional sort passes over the already-sorted data.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="bottleneck-num">5</div>
+    <div class="bottleneck-body">
+      <strong>COUNT(DISTINCT order_id) Recomputed for late_rate_pct</strong><br>
+      The expression <code>ROUND(ls.late_count * 100.0 / NULLIF(COUNT(DISTINCT b.order_id), 0), 1)</code>
+      recalculates <code>COUNT(DISTINCT order_id)</code> even though this value was already computed
+      as <code>total_orders</code> in the same GROUP BY. The database must re-evaluate the aggregate
+      for the denominator.
+    </div>
+  </div>
+
+  <h3>5.2 Optimisation Strategy Applied</h3>
+
+  <div class="bottleneck">
+    <div class="fix-num">1</div>
+    <div class="bottleneck-body">
+      <strong style="color:#2d6a1f">Single-Pass CTE with FILTER Aggregation</strong><br>
+      All three subqueries (<code>b</code>, <code>ps</code>, <code>ls</code>) are consolidated into
+      one CTE (<code>category_stats</code>) with a single join chain. The payment type breakdown
+      (<code>credit_card</code>, <code>boleto</code>) is handled using PostgreSQL's
+      <code>FILTER (WHERE payment_type = '...')</code> clause — this computes multiple conditional
+      aggregates in one pass, eliminating the separate <code>ps</code> subquery entirely.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="fix-num">2</div>
+    <div class="bottleneck-body">
+      <strong style="color:#2d6a1f">Pre-computed Grand Total via Scalar CTE + CROSS JOIN</strong><br>
+      A separate CTE (<code>total</code>) pre-computes the grand total revenue once.
+      It is joined to the main result using <code>CROSS JOIN</code> (one row × N rows = N rows,
+      no expansion). Both <code>revenue_share_pct</code> and <code>cumulative_revenue_pct</code>
+      reference <code>t.grand_total</code> — a single pre-computed value — instead of triggering
+      two separate window scans.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="fix-num">3</div>
+    <div class="bottleneck-body">
+      <strong style="color:#2d6a1f">Flattened Nesting — CTE-first Architecture</strong><br>
+      All intermediate computations are expressed as named CTEs. The final SELECT contains only
+      window functions and column references — no nested subqueries. This gives the query planner
+      maximum visibility into the full execution graph and allows it to choose optimal join strategies.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="fix-num">4</div>
+    <div class="bottleneck-body">
+      <strong style="color:#2d6a1f">All Window Functions in Final SELECT Only</strong><br>
+      <code>RANK()</code> and the cumulative sum are moved to the outermost SELECT only, applied once
+      to the final aggregated result set. This reduces the number of sort operations from multiple
+      passes to a single ordered window evaluation over the compact grouped result.
+    </div>
+  </div>
+
+  <div class="bottleneck">
+    <div class="fix-num">5</div>
+    <div class="bottleneck-body">
+      <strong style="color:#2d6a1f">Reuse Computed Columns</strong><br>
+      <code>late_rate_pct</code> is computed by referencing <code>cs.total_orders</code> (already
+      computed in the CTE) rather than re-evaluating <code>COUNT(DISTINCT order_id)</code>.
+      Similarly, <code>avg_order_value</code> reuses <code>cs.total_revenue / cs.total_orders</code>.
+    </div>
+  </div>
+
+  <h3>5.3 Index Recommendations</h3>
+  <p>
+    These indexes would significantly accelerate the optimised query in a writable environment:
+  </p>
+
+  <pre><code><span class="cmt">-- Enable fast product → item joins (most critical: order_items is the largest table)</span>
+<span class="kw">CREATE INDEX</span> idx_order_items_product_id
+    <span class="kw">ON</span> order_items (product_id);
+
+<span class="cmt">-- Enable fast payment type filtering without full scan</span>
+<span class="kw">CREATE INDEX</span> idx_order_payments_order_id_type
+    <span class="kw">ON</span> order_payments (order_id, payment_type);
+
+<span class="cmt">-- Enable fast delivery date comparison for late delivery calculation</span>
+<span class="kw">CREATE INDEX</span> idx_orders_delivery_dates
+    <span class="kw">ON</span> orders (order_delivered_customer_date, order_estimated_delivery_date)
+    <span class="kw">WHERE</span> order_delivered_customer_date <span class="kw">IS NOT NULL</span>;
+
+<span class="cmt">-- Enable fast product category grouping</span>
+<span class="kw">CREATE INDEX</span> idx_products_category
+    <span class="kw">ON</span> products (product_category_name);</code></pre>
+
+  <div class="callout callout-info">
+    <strong>Note on Partial Index</strong>
+    The <code>WHERE order_delivered_customer_date IS NOT NULL</code> partial index on orders reduces
+    index size significantly, since NULL-delivered orders are irrelevant to the delivery analysis.
+    PostgreSQL will use this index only when the query also filters on this condition.
+  </div>
+
+  <h3>5.4 How to Verify the Improvement in a Real Environment</h3>
+
+  <h4>Step 1 — Capture baseline plan</h4>
+  <pre><code><span class="kw">EXPLAIN</span> (ANALYZE, BUFFERS, FORMAT TEXT) <original_query>;</code></pre>
+  <p>Record: <code>cost=</code>, <code>actual time=</code>, <code>Buffers: shared hit/read</code>, and whether scans are <code>Seq Scan</code> or <code>Index Scan</code>.</p>
+
+  <h4>Step 2 — Run optimised query and compare</h4>
+  <pre><code><span class="kw">EXPLAIN</span> (ANALYZE, BUFFERS, FORMAT TEXT) <optimised_query>;</code></pre>
+  <p>
+    Look for: reduction in <code>Seq Scan</code> nodes, lower <code>cost=</code> estimates,
+    lower <code>actual time=</code>, fewer <code>shared read</code> buffer accesses.
+  </p>
+
+  <h4>Step 3 — Warm cache and time both queries</h4>
+  <pre><code><span class="kw">SELECT</span> pg_stat_reset();  <span class="cmt">-- reset stats</span>
+
+<span class="cmt">-- Run each query 3 times to warm cache, then compare \timing output in psql</span>
+\timing
+<original_query>;
+<optimised_query>;</code></pre>
+
+  <h4>Step 4 — Monitor pg_stat_statements</h4>
+  <pre><code><span class="kw">SELECT</span> query, mean_exec_time, total_exec_time, calls
+<span class="kw">FROM</span>   pg_stat_statements
+<span class="kw">WHERE</span>  query <span class="kw">ILIKE</span> <span class="str">'%category_stats%'</span>
+<span class="kw">ORDER BY</span> mean_exec_time <span class="kw">DESC</span>;</code></pre>
+  <p>This shows real average execution time across all calls, accounting for cache warm-up.</p>
+
+  <h3>5.5 Summary of Changes</h3>
+  <table>
+    <tr><th>Dimension</th><th>Original Query</th><th>Optimised Query</th></tr>
+    <tr><td>Table scans (products + order_items)</td><td class="num-col">3×</td><td class="num-col"><strong>1×</strong></td></tr>
+    <tr><td>Grand total computation (SUM OVER ())</td><td class="num-col">2× window pass</td><td class="num-col"><strong>1× CTE</strong></td></tr>
+    <tr><td>Subquery nesting depth</td><td class="num-col">3 levels</td><td class="num-col"><strong>1 level (CTE)</strong></td></tr>
+    <tr><td>RANK() computations</td><td class="num-col">Inside subquery + outer</td><td class="num-col"><strong>Final SELECT only</strong></td></tr>
+    <tr><td>Estimated execution time (large data)</td><td class="num-col">Baseline</td><td class="num-col"><strong>~50–70% reduction</strong></td></tr>
+    <tr><td>Code readability / maintainability</td><td class="num-col">Complex nested</td><td class="num-col"><strong>Clear CTE layers</strong></td></tr>
+  </table>
+
+  <div class="callout callout-insight">
+    <strong>Key Principle Applied</strong>
+    The optimisation follows the principle of <em>"materialise once, reference many"</em>: compute each
+    expensive operation exactly once in a named CTE, then compose the final result by referencing those
+    pre-computed values. This is both more efficient for the database and more readable for the analyst.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL &nbsp;|&nbsp; End of Document</span>
+  </div>
+</div>
+
+</body>
+</html>

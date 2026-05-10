@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test 3 — Analytics Engineering & Pipeline Design | Otten Coffee BI Engineer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #2c2c2c;
+    background: #fff;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f4f7ff;
+    text-align: center;
+    padding: 60px 40px;
+  }
+  .cover-logo  { font-size: 28px; font-weight: 800; color: #3a5fc8; letter-spacing: -1px; margin-bottom: 6px; }
+  .cover-sub   { font-size: 13px; color: #888; margin-bottom: 60px; }
+  .cover h1    { font-size: 34px; font-weight: 700; color: #1a1a1a; line-height: 1.25; margin-bottom: 12px; }
+  .cover h2    { font-size: 18px; font-weight: 400; color: #555; margin-bottom: 48px; }
+  .cover-meta  { font-size: 12px; color: #888; line-height: 2; }
+  .cover-tag   {
+    display: inline-block; background: #3a5fc8; color: white;
+    font-size: 11px; font-weight: 600; padding: 4px 14px;
+    border-radius: 20px; margin-bottom: 32px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+
+  /* ── Page ── */
+  .page { padding: 48px 56px; max-width: 900px; margin: 0 auto; }
+  .page-break { page-break-before: always; }
+
+  /* ── Typography ── */
+  h1 { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+  h2 { font-size: 17px; font-weight: 700; color: #3a5fc8; margin: 30px 0 10px; border-bottom: 2px solid #dde5f8; padding-bottom: 6px; }
+  h3 { font-size: 14px; font-weight: 700; color: #2c2c2c; margin: 20px 0 8px; }
+  h4 { font-size: 13px; font-weight: 600; color: #3a5fc8; margin: 14px 0 6px; }
+  p  { margin-bottom: 10px; }
+  ul, ol { margin: 8px 0 12px 22px; }
+  li { margin-bottom: 5px; }
+
+  /* ── Section Header ── */
+  .section-header {
+    background: #f4f7ff; border-left: 5px solid #3a5fc8;
+    padding: 14px 20px; margin: 24px 0 16px;
+    border-radius: 0 6px 6px 0;
+  }
+  .section-header h2 { margin: 0; border: none; padding: 0; font-size: 16px; }
+  .section-header p  { margin: 4px 0 0; color: #666; font-size: 12px; }
+
+  /* ── Code ── */
+  pre {
+    background: #1e1e2e; color: #cdd6f4;
+    padding: 16px 20px; border-radius: 8px;
+    font-family: 'Consolas', monospace; font-size: 11px;
+    line-height: 1.6; overflow-x: auto; margin: 10px 0 16px;
+  }
+  code {
+    background: #e8edf8; color: #2a46a0;
+    padding: 2px 6px; border-radius: 4px;
+    font-family: 'Consolas', monospace; font-size: 11.5px;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  /* SQL colours */
+  .kw  { color: #89dceb; font-weight: 600; }
+  .fn  { color: #cba6f7; }
+  .str { color: #a6e3a1; }
+  .cmt { color: #6c7086; font-style: italic; }
+  .num { color: #fab387; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; font-size: 12px; }
+  th { background: #3a5fc8; color: white; padding: 9px 12px; text-align: left; font-weight: 600; font-size: 11.5px; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e5eaf8; vertical-align: top; }
+  tr:nth-child(even) td { background: #f4f7ff; }
+  .center { text-align: center; }
+  .badge-yes  { background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-no   { background: #f8d7da; color: #721c24; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .badge-opt  { background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+
+  /* ── Callouts ── */
+  .callout { border-radius: 8px; padding: 14px 18px; margin: 14px 0; font-size: 12.5px; }
+  .callout-insight  { background: #eef2ff; border-left: 4px solid #3a5fc8; }
+  .callout-warning  { background: #fff8e6; border-left: 4px solid #e6a817; }
+  .callout-info     { background: #e8f4fd; border-left: 4px solid #2196f3; }
+  .callout-success  { background: #e8f8ee; border-left: 4px solid #28a745; }
+  .callout-danger   { background: #fdecea; border-left: 4px solid #e53935; }
+  .callout strong   { display: block; margin-bottom: 4px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #555; }
+
+  /* ── Cards ── */
+  .card { border: 1px solid #c8d5f5; border-radius: 8px; padding: 16px 20px; margin: 12px 0; background: #fafbff; }
+  .card-title { font-weight: 700; font-size: 13px; color: #2a46a0; margin-bottom: 8px; }
+
+  /* ── Architecture Diagram ── */
+  .arch-diagram {
+    background: #f8faff;
+    border: 1px solid #c8d5f5;
+    border-radius: 10px;
+    padding: 28px 20px;
+    margin: 18px 0;
+    font-family: 'Consolas', monospace;
+    font-size: 11.5px;
+    line-height: 1.8;
+  }
+  .arch-row { display: flex; align-items: center; justify-content: center; gap: 0; margin: 6px 0; flex-wrap: wrap; }
+  .arch-box {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .arch-source  { background: #fff3cd; border: 2px solid #ffc107; color: #856404; }
+  .arch-bronze  { background: #fce4ec; border: 2px solid #e91e63; color: #880e4f; }
+  .arch-silver  { background: #e3f2fd; border: 2px solid #2196f3; color: #0d47a1; }
+  .arch-gold    { background: #e8f5e9; border: 2px solid #4caf50; color: #1b5e20; }
+  .arch-bi      { background: #f3e5f5; border: 2px solid #9c27b0; color: #4a148c; }
+  .arch-arrow   { font-size: 20px; color: #999; margin: 0 8px; line-height: 1; }
+  .arch-label   { font-size: 10.5px; color: #888; text-align: center; margin-top: 4px; font-weight: 400; }
+
+  .layer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 16px 0; }
+  .layer-card { border-radius: 8px; padding: 14px 16px; }
+  .layer-stg  { background: #fce4ec; border: 2px solid #e91e63; }
+  .layer-int  { background: #e3f2fd; border: 2px solid #2196f3; }
+  .layer-mart { background: #e8f5e9; border: 2px solid #4caf50; }
+  .layer-title { font-weight: 700; font-size: 12px; margin-bottom: 8px; }
+  .layer-files { font-size: 11px; line-height: 1.9; }
+
+  /* ── Orchestration Comparison ── */
+  .orch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
+  .orch-card { border-radius: 8px; padding: 16px; }
+  .orch-recommended { background: #e8f5e9; border: 2px solid #4caf50; }
+  .orch-alt         { background: #f4f7ff; border: 1px solid #c8d5f5; }
+  .orch-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+  .badge-rec  { background: #28a745; color: white; }
+  .badge-alt  { background: #6c757d; color: white; }
+
+  /* ── DQ Checks ── */
+  .dq-layer { margin: 14px 0; }
+  .dq-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+  .dq-not-null  { background: #dc3545; color: white; }
+  .dq-unique    { background: #fd7e14; color: white; }
+  .dq-ref       { background: #6f42c1; color: white; }
+  .dq-accepted  { background: #20c997; color: white; }
+  .dq-expr      { background: #0d6efd; color: white; }
+  .dq-fresh     { background: #198754; color: white; }
+  .dq-custom    { background: #6c757d; color: white; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 60px; padding-top: 14px;
+    border-top: 1px solid #dde5f8;
+    font-size: 11px; color: #999;
+    display: flex; justify-content: space-between;
+  }
+
+  @media print {
+    body { font-size: 12px; }
+    .page { padding: 36px 48px; }
+    pre  { font-size: 10px; }
+    .cover { min-height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<!-- COVER                                                             -->
+<!-- ================================================================ -->
+<div class="cover">
+  <div class="cover-logo">Otten Coffee</div>
+  <div class="cover-sub">#MengopikanIndonesia</div>
+
+  <div class="cover-tag">Technical Test — Submission</div>
+  <h1>Test 3<br>Analytics Engineering &amp;<br>Pipeline Design</h1>
+  <h2>dbt Layer Architecture · ELT Pipeline · Data Quality</h2>
+
+  <div class="cover-meta">
+    <div><strong>Dataset</strong> &nbsp; Brazilian E-Commerce (Olist) — Public PostgreSQL</div>
+    <div><strong>Role</strong> &nbsp;&nbsp;&nbsp;&nbsp; BI Engineer</div>
+    <div><strong>Date</strong> &nbsp;&nbsp;&nbsp;&nbsp; May 2026</div>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- TABLE OF CONTENTS                                                 -->
+<!-- ================================================================ -->
+<div class="page">
+  <h1>Contents</h1><br>
+  <table>
+    <tr><th>#</th><th>Section</th></tr>
+    <tr><td>1</td><td>Architecture Overview — Layered ELT Design</td></tr>
+    <tr><td>2</td><td>Staging Layer (stg_*) — Model Design Decisions</td></tr>
+    <tr><td>3</td><td>Intermediate Layer (int_*) — Business Logic &amp; Enrichment</td></tr>
+    <tr><td>4</td><td>Mart Layer (mart_*) — Aggregated Outputs for BI</td></tr>
+    <tr><td>5</td><td>Loading Strategy — Incremental vs Full Refresh</td></tr>
+    <tr><td>6</td><td>Orchestration Tool — Choice &amp; Justification</td></tr>
+    <tr><td>7</td><td>Data Quality — Checks at Every Layer</td></tr>
+    <tr><td>8</td><td>Schema Change Handling</td></tr>
+  </table>
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 1: ARCHITECTURE OVERVIEW                                  -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>1 &nbsp; Architecture Overview — Layered ELT Design</h2>
+    <p>Staging → Intermediate → Mart: separating concerns across transformation layers</p>
+  </div>
+
+  <h3>1.1 End-to-End Pipeline</h3>
+
+  <div class="arch-diagram">
+    <div class="arch-row">
+      <div>
+        <div class="arch-box arch-source">PostgreSQL<br><small>Source DB (Olist)</small></div>
+        <div class="arch-label">Raw source tables</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box arch-bronze">Staging Layer<br><small>stg_*</small></div>
+        <div class="arch-label">Bronze / Clean</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box arch-silver">Intermediate Layer<br><small>int_*</small></div>
+        <div class="arch-label">Silver / Enriched</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box arch-gold">Mart Layer<br><small>mart_*</small></div>
+        <div class="arch-label">Gold / Aggregated</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box arch-bi">BI Dashboard<br><small>Superset / Metabase</small></div>
+        <div class="arch-label">Consumption layer</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>1.2 Why This Three-Layer Architecture?</h3>
+  <p>
+    Each layer has a single, clearly bounded responsibility. This separation yields four concrete benefits:
+    <strong>debuggability</strong> (isolate failures to one layer), <strong>reusability</strong>
+    (multiple mart models can share one intermediate model), <strong>testability</strong>
+    (data quality checks can be scoped per layer), and <strong>maintainability</strong>
+    (changing business logic in one model does not break unrelated models).
+  </p>
+
+  <div class="layer-grid">
+    <div class="layer-card layer-stg">
+      <div class="layer-title" style="color:#880e4f">🔴 Staging (stg_*)</div>
+      <div class="layer-files">
+        stg_orders.sql<br>
+        stg_order_items.sql<br>
+        stg_customers.sql<br>
+        stg_products.sql<br>
+        stg_order_reviews.sql<br>
+        stg_order_payments.sql
+      </div>
+    </div>
+    <div class="layer-card layer-int">
+      <div class="layer-title" style="color:#0d47a1">🔵 Intermediate (int_*)</div>
+      <div class="layer-files">
+        int_orders_enriched.sql<br>
+        int_seller_metrics.sql<br>
+        int_customer_metrics.sql
+      </div>
+    </div>
+    <div class="layer-card layer-mart">
+      <div class="layer-title" style="color:#1b5e20">🟢 Mart (mart_*)</div>
+      <div class="layer-files">
+        mart_monthly_revenue.sql<br>
+        mart_customer_segments.sql<br>
+        mart_product_performance.sql
+      </div>
+    </div>
+  </div>
+
+  <h3>1.3 Lineage Graph (Model Dependencies)</h3>
+  <div class="arch-diagram" style="font-size:11px;">
+    <table style="font-family:monospace; font-size:11px; border:none; width:100%;">
+      <tr>
+        <td style="width:25%; border:none; padding:4px;"><strong>SOURCE</strong></td>
+        <td style="width:25%; border:none; padding:4px;"><strong>STAGING</strong></td>
+        <td style="width:25%; border:none; padding:4px;"><strong>INTERMEDIATE</strong></td>
+        <td style="width:25%; border:none; padding:4px;"><strong>MART</strong></td>
+      </tr>
+      <tr><td style="border:none; padding:2px 4px; color:#856404;">orders</td>         <td style="border:none; padding:2px 4px;">→ stg_orders</td>            <td style="border:none; padding:2px 4px;">→ int_orders_enriched</td> <td style="border:none; padding:2px 4px;">→ mart_monthly_revenue</td></tr>
+      <tr><td style="border:none; padding:2px 4px; color:#856404;">customers</td>      <td style="border:none; padding:2px 4px;">→ stg_customers</td>          <td style="border:none; padding:2px 4px;">→ int_orders_enriched</td> <td style="border:none; padding:2px 4px;">→ mart_customer_segments</td></tr>
+      <tr><td style="border:none; padding:2px 4px; color:#856404;">order_items</td>    <td style="border:none; padding:2px 4px;">→ stg_order_items</td>        <td style="border:none; padding:2px 4px;">→ int_orders_enriched</td> <td style="border:none; padding:2px 4px;">→ mart_product_performance</td></tr>
+      <tr><td style="border:none; padding:2px 4px; color:#856404;">order_payments</td> <td style="border:none; padding:2px 4px;">→ stg_order_payments</td>     <td style="border:none; padding:2px 4px;">→ int_orders_enriched</td> <td style="border:none; padding:2px 4px;"></td></tr>
+      <tr><td style="border:none; padding:2px 4px; color:#856404;">order_reviews</td>  <td style="border:none; padding:2px 4px;">→ stg_order_reviews</td>      <td style="border:none; padding:2px 4px;">→ int_orders_enriched</td> <td style="border:none; padding:2px 4px;"></td></tr>
+      <tr><td style="border:none; padding:2px 4px; color:#856404;">products +<br>translation</td> <td style="border:none; padding:2px 4px;">→ stg_products</td> <td style="border:none; padding:2px 4px;">→ int_seller_metrics<br>→ int_customer_metrics</td> <td style="border:none; padding:2px 4px;"></td></tr>
+    </table>
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Design Principle: No Staging → Mart Shortcuts</strong>
+    All mart models consume from intermediate models, never directly from staging.
+    This prevents business logic from being duplicated across multiple mart models and ensures
+    that the intermediate layer is the single source of truth for enriched metrics.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 2: STAGING LAYER                                          -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>2 &nbsp; Staging Layer (stg_*)</h2>
+    <p>Clean mirror of source — rename, cast, null-handle. Zero business logic.</p>
+  </div>
+
+  <h3>2.1 Design Rules Applied to All Staging Models</h3>
+
+  <table>
+    <tr><th>Rule</th><th>Implementation</th><th>Rationale</th></tr>
+    <tr>
+      <td><strong>Rename columns</strong></td>
+      <td>Source names → clear snake_case<br>(e.g., <code>order_purchase_timestamp</code> → <code>purchased_at</code>)</td>
+      <td>Downstream models reference clean names; source typos are fixed once here</td>
+    </tr>
+    <tr>
+      <td><strong>Explicit type casts</strong></td>
+      <td><code>price::numeric(10,2)</code>, <code>review_score::int</code></td>
+      <td>Prevents implicit cast errors in downstream aggregations; makes schema self-documenting</td>
+    </tr>
+    <tr>
+      <td><strong>Null filtering</strong></td>
+      <td><code>WHERE order_id IS NOT NULL</code></td>
+      <td>Orphaned records without PKs would corrupt downstream joins</td>
+    </tr>
+    <tr>
+      <td><strong>No business logic</strong></td>
+      <td>No CASE WHEN, no joins between source tables (except stg_products)</td>
+      <td>Keeps staging as a stable, predictable foundation; business logic changes belong in int_*</td>
+    </tr>
+    <tr>
+      <td><strong>Empty string → NULL</strong></td>
+      <td><code>NULLIF(TRIM(review_comment_title), '')</code></td>
+      <td>Standardises absence of data; avoids '' vs NULL inconsistency in analytics</td>
+    </tr>
+  </table>
+
+  <h3>2.2 Notable Design Decisions Per Model</h3>
+
+  <h4>stg_products — Exception: One JOIN Allowed</h4>
+  <div class="card">
+    <div class="card-title">Why stg_products joins the translation table</div>
+    <p>
+      The <code>product_category_name_translation</code> table is a pure reference/lookup table with no
+      business semantics — it simply maps Portuguese names to English equivalents.
+      Including this join in staging eliminates the need to replicate it in every downstream model that
+      needs English category names. A <code>LEFT JOIN</code> is used (not INNER) to preserve products
+      with untranslated categories, which fall back to <code>'uncategorized'</code> via COALESCE.
+    </p>
+    <p style="margin-top:8px;">
+      <strong>Exception criteria:</strong> A staging JOIN is acceptable when the joined table is a
+      static reference/lookup (no business logic, rarely changes, no PK ambiguity).
+    </p>
+  </div>
+
+  <h4>stg_products — Typo Fix in Source Column Names</h4>
+  <pre><code><span class="cmt">-- Source has typos: "lenght" instead of "length" (missing 't')</span>
+p.product_name_lenght        <span class="kw">AS</span> product_name_length,
+p.product_description_lenght <span class="kw">AS</span> description_length</code></pre>
+  <p>
+    The original Olist dataset has misspelled column names. Staging is the <strong>only</strong> place
+    where these are corrected — all downstream models use the clean <code>_length</code> spelling.
+  </p>
+
+  <h4>stg_order_reviews — Derived boolean: is_low_score</h4>
+  <pre><code>(review_score &lt;= <span class="num">2</span>) <span class="kw">AS</span> is_low_score</code></pre>
+  <p>
+    This is the only derived column in staging. It is placed here because: (1) it is a simple,
+    non-contextual rule (score ≤ 2 = poor), (2) it will be consumed by multiple downstream models
+    (<code>int_orders_enriched</code>, <code>mart_product_performance</code>), and (3) it requires no
+    joins to compute. If the threshold were to change, it would only need updating in one place.
+  </p>
+
+  <h4>stg_order_payments — Keeps Raw Payment Grain</h4>
+  <div class="callout callout-info">
+    <strong>Design Note: One Row Per Payment Record</strong>
+    A single order can have multiple payment rows (e.g., credit card + voucher, or instalments recorded
+    separately). <code>stg_order_payments</code> preserves this grain. Aggregation to order-level
+    (total_payment, primary_payment_type) happens in <code>int_orders_enriched</code>, where the
+    business context of "per-order payment" is appropriate.
+  </div>
+
+  <h3>2.3 Complete Model Summary</h3>
+  <table>
+    <tr><th>Model</th><th>Source</th><th>Key Transformations</th><th>PK</th></tr>
+    <tr><td><code>stg_orders</code></td><td>orders</td><td>Rename all timestamp cols to *_at; status kept as-is</td><td>order_id</td></tr>
+    <tr><td><code>stg_order_items</code></td><td>order_items</td><td>Cast price/freight to NUMERIC(10,2); add total_item_cost</td><td>order_id + item_sequence</td></tr>
+    <tr><td><code>stg_customers</code></td><td>customers</td><td>INITCAP city; UPPER state; rename zip_code</td><td>customer_id</td></tr>
+    <tr><td><code>stg_products</code></td><td>products + translation</td><td>LEFT JOIN translation; fix typo columns; COALESCE category</td><td>product_id</td></tr>
+    <tr><td><code>stg_order_reviews</code></td><td>order_reviews</td><td>Cast score; derive is_low_score boolean; NULLIF blanks</td><td>(none — source has no PK)</td></tr>
+    <tr><td><code>stg_order_payments</code></td><td>order_payments</td><td>Cast payment_value to NUMERIC(10,2); filter negative values</td><td>order_id + payment_seq</td></tr>
+  </table>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 3: INTERMEDIATE LAYER                                     -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>3 &nbsp; Intermediate Layer (int_*)</h2>
+    <p>Business logic, cross-model joins, and derived metrics. The "facts" of the warehouse.</p>
+  </div>
+
+  <h3>3.1 Design Philosophy</h3>
+  <p>
+    The intermediate layer is where domain knowledge lives. Models here answer the question:
+    <em>"What does the business need to know about each entity, combining all relevant context?"</em>
+    Each intermediate model has a clearly defined grain (one row per order, seller, or customer)
+    and provides reusable, pre-computed metrics that multiple mart models can consume.
+  </p>
+
+  <div class="callout callout-insight">
+    <strong>Intermediate models are never queried directly by BI tools.</strong>
+    They are stepping stones — too granular for a Senior Manager dashboard, but too aggregated for
+    a staging model. Their purpose is to enable mart models to be simple SELECT + GROUP BY operations.
+  </div>
+
+  <h3>3.2 int_orders_enriched — The Central Fact Model</h3>
+
+  <div class="card">
+    <div class="card-title">Grain: One row per order_id</div>
+    <p><strong>Sources joined:</strong> stg_orders ⋈ stg_customers ⋈ stg_order_items (aggregated) ⋈ stg_order_payments (aggregated) ⋈ stg_order_reviews (aggregated)</p>
+  </div>
+
+  <h4>Key Derived Metrics</h4>
+  <table>
+    <tr><th>Column</th><th>Formula</th><th>Business Meaning</th></tr>
+    <tr>
+      <td><code>delivery_delay_days</code></td>
+      <td><code>EPOCH(delivered_at - estimated_delivery_at) / 86400</code></td>
+      <td>Positive = late by N days. Negative = early. NULL = not yet delivered. Rounds to 1 decimal for precision without noise.</td>
+    </tr>
+    <tr>
+      <td><code>is_late_delivery</code></td>
+      <td><code>delivered_at > estimated_delivery_at</code></td>
+      <td>Boolean flag for easy COUNT/SUM in aggregations downstream. Avoids repeating the date comparison in every mart model.</td>
+    </tr>
+    <tr>
+      <td><code>total_delivery_days</code></td>
+      <td><code>EPOCH(delivered_at - purchased_at) / 86400</code></td>
+      <td>End-to-end fulfilment time from customer perspective. Different from delay_days which measures against the promise.</td>
+    </tr>
+    <tr>
+      <td><code>primary_payment_type</code></td>
+      <td>Payment type with highest payment_amount in order</td>
+      <td>Identifies dominant payment method for orders split across multiple payment types.</td>
+    </tr>
+    <tr>
+      <td><code>has_low_score</code></td>
+      <td><code>BOOL_OR(is_low_score)</code> from review_agg</td>
+      <td>TRUE if any review for this order is 1–2 stars. Used as a quality flag in product and seller analytics.</td>
+    </tr>
+  </table>
+
+  <h4>Why Use CTEs Within the Model (not subqueries)?</h4>
+  <pre><code><span class="kw">WITH</span> order_agg <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> order_id, <span class="fn">SUM</span>(item_price) <span class="kw">AS</span> total_items_price ...
+    <span class="kw">FROM</span> stg_order_items <span class="kw">GROUP BY</span> order_id
+),
+payment_agg <span class="kw">AS</span> ( ... ),
+review_agg  <span class="kw">AS</span> ( ... )
+<span class="kw">SELECT</span> o.*, c.*, oa.*, pa.*, ra.*, <span class="cmt">-- delivery metrics ...</span>
+<span class="kw">FROM</span> stg_orders o
+<span class="kw">JOIN</span> stg_customers c <span class="kw">ON</span> ...
+<span class="kw">LEFT JOIN</span> order_agg oa <span class="kw">ON</span> oa.order_id = o.order_id ...</code></pre>
+  <p>
+    Each upstream model (order_items, payments, reviews) is aggregated to order-grain in its own CTE
+    <em>before</em> joining to orders. This prevents the fan-out problem — if orders were joined to
+    non-aggregated items first, each order would appear N times (once per item), causing inflated
+    aggregations downstream.
+  </p>
+
+  <h3>3.3 int_seller_metrics — Operational Performance per Seller</h3>
+  <div class="card">
+    <div class="card-title">Grain: One row per seller_id</div>
+    <p>
+      Aggregates all completed orders containing items from each seller.
+      Provides: revenue, volume, customer satisfaction (avg review score, low-score rate),
+      and delivery performance (late rate, avg days late).
+      Also identifies each seller's top category by revenue using <code>DISTINCT ON</code>.
+    </p>
+  </div>
+
+  <h3>3.4 int_customer_metrics — Lifetime Behaviour per Customer</h3>
+  <div class="card">
+    <div class="card-title">Grain: One row per customer_unique_id</div>
+    <p>
+      Derives RFM-adjacent metrics: total orders, total spend, first/last order dates,
+      customer lifetime days, avg days between purchases (frequency), and preferred state.
+      These feed directly into <code>mart_customer_segments</code>.
+    </p>
+    <p style="margin-top:8px;">
+      <code>avg_days_between_orders</code> uses <code>(lifetime_days) / (total_orders - 1)</code>
+      to measure true inter-purchase intervals, and returns NULL for one-time buyers
+      (where the denominator would be 0).
+    </p>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 4: MART LAYER                                             -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>4 &nbsp; Mart Layer (mart_*)</h2>
+    <p>Business-ready aggregations — directly consumed by BI dashboards and Senior Manager reports</p>
+  </div>
+
+  <h3>4.1 Design Philosophy</h3>
+  <p>
+    Mart models are designed for <strong>BI consumption</strong>: wide, flat, pre-aggregated tables
+    that a Senior Manager or a BI tool can query without complex joins. Each mart model answers a
+    specific business question, and column names are chosen for clarity over technical precision.
+  </p>
+
+  <h3>4.2 mart_monthly_revenue</h3>
+  <div class="card">
+    <div class="card-title">Business Question: "How is our revenue performing month-on-month?"</div>
+    <table style="margin-top:10px;">
+      <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>month</code></td><td>date</td><td>First day of the calendar month</td></tr>
+      <tr><td><code>total_revenue</code></td><td>numeric</td><td>Sum of all payment values for the month</td></tr>
+      <tr><td><code>total_orders</code></td><td>int</td><td>Count of distinct orders placed</td></tr>
+      <tr><td><code>unique_customers</code></td><td>int</td><td>Distinct customer_unique_ids who ordered</td></tr>
+      <tr><td><code>avg_order_value</code></td><td>numeric</td><td>Revenue / orders for the month</td></tr>
+      <tr><td><code>mom_revenue_growth_pct</code></td><td>numeric</td><td>% change vs prior month revenue</td></tr>
+      <tr><td><code>ytd_revenue</code></td><td>numeric</td><td>Cumulative revenue within the calendar year</td></tr>
+      <tr><td><code>late_delivery_rate_pct</code></td><td>numeric</td><td>% of orders delivered after promise date</td></tr>
+    </table>
+  </div>
+
+  <h3>4.3 mart_customer_segments</h3>
+  <div class="card">
+    <div class="card-title">Business Question: "Who are our customers and how do we retain them?"</div>
+    <p>
+      Classifies every customer into one of four segments based on purchase recency and frequency.
+      Designed to drive CRM targeting and retention campaign prioritisation.
+    </p>
+    <table style="margin-top:10px;">
+      <tr><th>Segment</th><th>Rule</th><th>Count (dataset)</th><th>Avg Spend (R$)</th></tr>
+      <tr><td><strong>new</strong></td><td>Exactly 1 order ever</td><td>92,635</td><td>161.56</td></tr>
+      <tr><td><strong>returning</strong></td><td>2+ orders, last order ≤ 180 days ago</td><td>1,239</td><td>321.31</td></tr>
+      <tr><td><strong>at_risk</strong></td><td>2+ orders, last order 181–365 days ago</td><td>1,136</td><td>303.39</td></tr>
+      <tr><td><strong>churned</strong></td><td>2+ orders, last order &gt; 365 days ago</td><td>549</td><td>285.31</td></tr>
+    </table>
+
+    <div class="callout callout-danger" style="margin-top:12px;">
+      <strong>Critical Business Insight from Segmentation</strong>
+      96.8% of customers (92,635 out of ~95,500) made only one purchase — they are classified as
+      "new" indefinitely. Returning customers spend <strong>2× more</strong> (R$ 321 vs R$ 162)
+      than one-time buyers. This makes retention the highest-ROI business initiative:
+      converting even 1% of new customers to returning adds ~R$ 15M in incremental revenue.
+    </div>
+
+    <p style="margin-top:10px;">
+      <strong>Why use dataset max date (not NOW()) as reference?</strong><br>
+      The segmentation uses <code>MAX(purchased_at)</code> from the dataset as the reference date
+      instead of <code>CURRENT_TIMESTAMP</code>. This makes the model <strong>reproducible</strong>:
+      running the same query twice at different times produces the same result for historical analysis.
+      Using NOW() would continuously re-classify customers as time passes, making historical snapshots
+      inconsistent.
+    </p>
+  </div>
+
+  <h3>4.4 mart_product_performance</h3>
+  <div class="card">
+    <div class="card-title">Business Question: "Which products drive revenue and which need attention?"</div>
+    <p>
+      Provides product-level metrics combining commercial performance (revenue, units sold) with
+      quality signals (review scores, low-score rates, late delivery rates). Includes three ranking
+      dimensions:
+    </p>
+    <ul style="margin-top:8px;">
+      <li><code>revenue_rank</code> — global rank across all products</li>
+      <li><code>category_revenue_rank</code> — rank within the product's category (enables "best in category" analysis)</li>
+      <li><code>quality_adjusted_rank</code> — ranks by <code>avg_review_score × total_revenue</code>, penalising high-revenue products with poor ratings</li>
+    </ul>
+    <p style="margin-top:8px;">
+      The quality-adjusted ranking is designed to surface products that are commercially important
+      but risk eroding brand trust — a signal for Senior Managers to investigate product quality issues.
+    </p>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 5: LOADING STRATEGY                                       -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>5 &nbsp; Loading Strategy — Incremental vs Full Refresh</h2>
+    <p>How raw data is loaded into each layer, and why</p>
+  </div>
+
+  <h3>5.1 Strategy per Layer</h3>
+
+  <table>
+    <tr>
+      <th>Layer</th><th>Strategy</th><th>Unique Key / Watermark</th><th>Rationale</th>
+    </tr>
+    <tr>
+      <td><strong>Staging</strong><br><small>stg_*</small></td>
+      <td><strong>Incremental — Deduped</strong><br>(<code>unique_key</code> merge)</td>
+      <td><code>order_id</code>, <code>customer_id</code>, <code>product_id</code>, etc.</td>
+      <td>
+        New orders arrive daily; existing orders can update status (<code>processing → delivered</code>).
+        Dedup-on-unique-key captures both inserts and updates without full scans.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Intermediate</strong><br><small>int_*</small></td>
+      <td><strong>Incremental — Watermark</strong><br>(filter on <code>purchased_at</code>)</td>
+      <td><code>purchased_at >= max(purchased_at) - 3 days</code></td>
+      <td>
+        Derived from staging; only re-processes orders whose purchase date is within the lookback window.
+        The 3-day buffer handles late-arriving payment or review records.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Mart</strong><br><small>mart_*</small></td>
+      <td><strong>Full Refresh</strong></td>
+      <td>N/A (full table rebuild)</td>
+      <td>
+        Aggregations (MoM growth, customer segments, rankings) are non-idempotent with incremental
+        loading — a new order in January would change January's total even after it was already
+        computed. Full refresh guarantees consistency. Mart tables are small enough for this to be fast.
+      </td>
+    </tr>
+  </table>
+
+  <div class="callout callout-warning">
+    <strong>Exception: mart_customer_segments — Snapshot Strategy Recommended</strong>
+    For production use, <code>mart_customer_segments</code> should use a <strong>Type 2 SCD snapshot</strong>
+    pattern: store a daily snapshot of each customer's segment, not just the current state.
+    This allows tracking of segment transitions over time (e.g., "how many customers moved from
+    'returning' to 'at_risk' this quarter?"). For this test, a full refresh is used for simplicity.
+  </div>
+
+  <h3>5.2 dbt Materialisation Config</h3>
+  <pre><code><span class="cmt">-- dbt_project.yml (materialisation defaults per layer)</span>
+models:
+  olist_dbt:
+    staging:
+      +materialized: incremental
+      +incremental_strategy: merge
+      +unique_key: order_id          <span class="cmt"># varies per model</span>
+
+    intermediate:
+      +materialized: incremental
+      +incremental_strategy: delete+insert
+      +partition_by:
+        field: purchased_at
+        data_type: timestamp
+        granularity: day
+
+    mart:
+      +materialized: table           <span class="cmt"># full refresh on every run</span>
+      +post-hook: "ANALYZE {{ this }}"  <span class="cmt"># update planner statistics after refresh</span></code></pre>
+
+  <h3>5.3 Late-Arriving Data Handling</h3>
+  <p>
+    In e-commerce pipelines, two types of late-arriving records are common:
+  </p>
+  <ol>
+    <li><strong>Late payments</strong> — A payment record can arrive hours after the order is created (async payment processing). The 3-day lookback buffer in the intermediate layer ensures these are captured without a full reprocessing.</li>
+    <li><strong>Late reviews</strong> — Customers can submit reviews days or weeks after delivery. For review-dependent metrics (avg_review_score, has_low_score), mart models should be considered eventually-consistent rather than point-in-time accurate.</li>
+  </ol>
+
+  <div class="callout callout-success">
+    <strong>Idempotency Guarantee</strong>
+    All models are designed to be idempotent: running the same dbt run twice produces the same result.
+    Incremental models use <code>unique_key</code> merge (not append) to prevent duplicate rows.
+    Mart models use full refresh, which is inherently idempotent.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 6: ORCHESTRATION                                          -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>6 &nbsp; Orchestration Tool — Choice &amp; Justification</h2>
+    <p>Scheduling, monitoring, and dependency management for the ELT pipeline</p>
+  </div>
+
+  <h3>6.1 Tool Comparison</h3>
+
+  <div class="orch-grid">
+    <div class="orch-card orch-recommended">
+      <strong style="font-size:14px; color:#1b5e20;">dbt Cloud <span class="orch-badge badge-rec">RECOMMENDED</span></strong>
+      <hr style="margin:10px 0; border-color:#a5d6a7;">
+      <ul style="font-size:12px;">
+        <li>Native dbt integration — zero configuration overhead</li>
+        <li>Built-in scheduler (cron expressions)</li>
+        <li>Web UI for run monitoring, logs, and alerts</li>
+        <li>Automatic lineage graph and documentation generation</li>
+        <li>Slim CI/CD: only runs changed models + downstream</li>
+        <li>dbt Cloud IDE for collaborative model development</li>
+        <li>Managed infrastructure — no DevOps required</li>
+      </ul>
+    </div>
+    <div class="orch-card orch-alt">
+      <strong style="font-size:14px; color:#1a1a1a;">Apache Airflow <span class="orch-badge badge-alt">ALTERNATIVE</span></strong>
+      <hr style="margin:10px 0; border-color:#c8d5f5;">
+      <ul style="font-size:12px;">
+        <li>More powerful for multi-system orchestration</li>
+        <li>Can trigger extracts (e.g., Airbyte, Fivetran) before dbt runs</li>
+        <li>Custom retry logic, branching, and complex DAG patterns</li>
+        <li>Open source — no licensing cost</li>
+        <li>Requires infrastructure setup and maintenance (Kubernetes / Compose)</li>
+        <li>Use <code>astronomer-cosmos</code> for native dbt task integration</li>
+        <li>Better for multi-source pipelines (not just PostgreSQL → PostgreSQL)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>6.2 Why dbt Cloud is Recommended for This Use Case</h3>
+
+  <table>
+    <tr><th>Criterion</th><th>dbt Cloud</th><th>Apache Airflow</th></tr>
+    <tr>
+      <td>Setup time</td>
+      <td class="center"><span class="badge-yes">Minutes</span></td>
+      <td class="center"><span class="badge-opt">Hours–Days</span></td>
+    </tr>
+    <tr>
+      <td>Operational overhead</td>
+      <td class="center"><span class="badge-yes">Managed SaaS</span></td>
+      <td class="center"><span class="badge-no">Self-hosted infra</span></td>
+    </tr>
+    <tr>
+      <td>dbt native support</td>
+      <td class="center"><span class="badge-yes">First-class</span></td>
+      <td class="center"><span class="badge-opt">Via cosmos plugin</span></td>
+    </tr>
+    <tr>
+      <td>Lineage &amp; docs</td>
+      <td class="center"><span class="badge-yes">Built-in UI</span></td>
+      <td class="center"><span class="badge-no">dbt docs separately</span></td>
+    </tr>
+    <tr>
+      <td>Multi-source orchestration</td>
+      <td class="center"><span class="badge-no">dbt only</span></td>
+      <td class="center"><span class="badge-yes">Any system</span></td>
+    </tr>
+    <tr>
+      <td>Best fit for this pipeline</td>
+      <td class="center"><span class="badge-yes">✓ Single DB, pure ELT</span></td>
+      <td class="center"><span class="badge-opt">Overkill for this scope</span></td>
+    </tr>
+  </table>
+
+  <div class="callout callout-info">
+    <strong>When to Choose Airflow Instead</strong>
+    If Otten Coffee's data pipeline grows to include: (1) extractions from multiple sources (Shopify,
+    GA4, CRM, ads platforms), (2) custom Python transformation steps, or (3) triggers based on
+    external events (webhooks, file arrivals) — then migrating to Airflow with the
+    <code>astronomer-cosmos</code> dbt operator becomes the right choice. dbt Cloud can coexist
+    with Airflow if needed (Airflow triggers dbt Cloud jobs via API).
+  </div>
+
+  <h3>6.3 Recommended Schedule</h3>
+  <pre><code><span class="cmt">-- dbt Cloud Job Schedule (production recommended)</span>
+
+Job: "Daily Full Pipeline"
+  Schedule  : 0 3 * * *   (3:00 AM local time, low-traffic window)
+  Command   : dbt build   (runs models + tests together)
+  On failure: Slack alert + email to data team
+
+Job: "Hourly Staging Refresh" (optional, for near-real-time orders)
+  Schedule  : 0 * * * *
+  Command   : dbt run --select staging.*
+  On failure: PagerDuty alert (staging failure = downstream data stale)
+
+Job: "Weekly Full Refresh Mart"
+  Schedule  : 0 4 * * 0   (Sunday 4:00 AM)
+  Command   : dbt run --full-refresh --select mart.*
+  Purpose   : Ensure no incremental drift has accumulated in mart tables</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 7: DATA QUALITY                                           -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>7 &nbsp; Data Quality — Checks at Every Layer</h2>
+    <p>Preventive tests that catch bad data before it reaches the dashboard</p>
+  </div>
+
+  <h3>7.1 Philosophy: Test Early, Fail Fast</h3>
+  <p>
+    Data quality checks are placed as early in the pipeline as possible.
+    A broken row in staging is cheaper to catch than a broken KPI in a Senior Manager dashboard.
+    dbt's <code>schema.yml</code> tests run automatically after each model build using
+    <code>dbt build</code> (which runs models + tests in dependency order).
+  </p>
+
+  <h3>7.2 Staging Layer — Structural Validity</h3>
+  <p>
+    At this layer, checks focus on the <em>shape</em> of source data: are primary keys unique?
+    Are mandatory fields populated? Do foreign keys resolve?
+  </p>
+
+  <pre><code><span class="cmt"># schema.yml — staging layer tests</span>
+
+models:
+  - name: stg_orders
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: order_status
+        tests:
+          - accepted_values:
+              values: [<span class="str">'delivered'</span>,<span class="str">'shipped'</span>,<span class="str">'canceled'</span>,<span class="str">'invoiced'</span>,
+                       <span class="str">'processing'</span>,<span class="str">'created'</span>,<span class="str">'approved'</span>,<span class="str">'unavailable'</span>]
+      - name: purchased_at
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"purchased_at >= '2016-01-01'"</span>
+
+  - name: stg_order_reviews
+    columns:
+      - name: score
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+
+  - name: stg_order_payments
+    columns:
+      - name: payment_amount
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"payment_amount >= 0"</span></code></pre>
+
+  <h3>7.3 Intermediate Layer — Business Logic Validity</h3>
+  <p>
+    At this layer, checks validate derived metrics and joined data integrity.
+    The key question: <em>"Do computed fields make business sense?"</em>
+  </p>
+
+  <pre><code><span class="cmt"># schema.yml — intermediate layer tests</span>
+
+  - name: int_orders_enriched
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [order_id]   <span class="cmt"># one row per order</span>
+    columns:
+      - name: total_payment
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"total_payment >= 0"</span>
+      - name: item_count
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"item_count > 0"</span>
+      - name: delivery_delay_days
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"delivery_delay_days BETWEEN -365 AND 365 OR delivery_delay_days IS NULL"</span>
+              <span class="cmt"># flag extreme outliers (> 1 year delay = likely data error)</span>
+
+  - name: int_customer_metrics
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [customer_unique_id]
+    columns:
+      - name: total_spend
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"total_spend > 0"</span></code></pre>
+
+  <h3>7.4 Mart Layer — Completeness &amp; Anomaly Detection</h3>
+  <p>
+    At the mart layer, checks ensure the output is complete, non-empty, and within expected ranges.
+    These are the last line of defence before BI tools consume the data.
+  </p>
+
+  <pre><code><span class="cmt"># schema.yml — mart layer tests</span>
+
+  - name: mart_monthly_revenue
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: <span class="str">"COUNT(*) >= 12"</span>   <span class="cmt"># at least 12 months of data</span>
+    columns:
+      - name: month
+        tests:
+          - not_null
+          - unique
+      - name: total_revenue
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"total_revenue > 0"</span>
+      - name: mom_revenue_growth_pct
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: <span class="str">"mom_revenue_growth_pct BETWEEN -100 AND 2000 OR mom_revenue_growth_pct IS NULL"</span>
+              <span class="cmt"># growth outside this range is almost certainly a pipeline error</span>
+
+  - name: mart_customer_segments
+    columns:
+      - name: customer_segment
+        tests:
+          - not_null
+          - accepted_values:
+              values: [<span class="str">'new'</span>, <span class="str">'returning'</span>, <span class="str">'at_risk'</span>, <span class="str">'churned'</span>]</code></pre>
+
+  <h3>7.5 Source Freshness Check</h3>
+  <p>
+    In addition to row-level tests, dbt's source freshness checks verify that the source database
+    is being updated as expected — catching pipeline failures upstream of dbt.
+  </p>
+
+  <pre><code><span class="cmt"># sources.yml</span>
+sources:
+  - name: olist
+    database: postgres
+    schema: public
+    loaded_at_field: order_purchase_timestamp
+    freshness:
+      warn_after:  {count: 24,  period: hour}
+      error_after: {count: 48,  period: hour}
+    tables:
+      - name: orders
+      - name: order_payments
+      - name: order_reviews</code></pre>
+
+  <h3>7.6 Data Quality Summary Matrix</h3>
+
+  <table>
+    <tr>
+      <th>Check Type</th>
+      <th>Staging</th>
+      <th>Intermediate</th>
+      <th>Mart</th>
+    </tr>
+    <tr>
+      <td><span class="dq-badge dq-not-null">NOT NULL</span> Primary keys</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+    </tr>
+    <tr>
+      <td><span class="dq-badge dq-unique">UNIQUE</span> Grain enforcement</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+    </tr>
+    <tr>
+      <td><span class="dq-badge dq-ref">FK</span> Referential integrity</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center"><span class="badge-opt">Partial</span></td>
+      <td class="center">—</td>
+    </tr>
+    <tr>
+      <td><span class="dq-badge dq-accepted">VALUES</span> Enum validation</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center">—</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+    </tr>
+    <tr>
+      <td><span class="dq-badge dq-expr">EXPR</span> Range / business rules</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+    </tr>
+    <tr>
+      <td><span class="dq-badge dq-fresh">FRESH</span> Source freshness</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+      <td class="center">—</td>
+      <td class="center">—</td>
+    </tr>
+    <tr>
+      <td><span class="dq-badge dq-custom">ROW COUNT</span> Non-empty output</td>
+      <td class="center">—</td>
+      <td class="center">—</td>
+      <td class="center"><span class="badge-yes">✓</span></td>
+    </tr>
+  </table>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 8: SCHEMA CHANGE HANDLING                                 -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>8 &nbsp; Schema Change Handling</h2>
+    <p>How the pipeline adapts when the source database schema evolves</p>
+  </div>
+
+  <h3>8.1 Types of Schema Changes and Their Risk</h3>
+
+  <table>
+    <tr><th>Change Type</th><th>Example</th><th>Risk Level</th><th>Handling Strategy</th></tr>
+    <tr>
+      <td><strong>Add column</strong></td>
+      <td>New <code>is_gift</code> field added to orders</td>
+      <td class="center"><span class="badge-yes">Low</span></td>
+      <td>dbt <code>on_schema_change: sync_all_columns</code> auto-adds new columns to the incremental model target table</td>
+    </tr>
+    <tr>
+      <td><strong>Rename column</strong></td>
+      <td><code>order_status</code> → <code>status</code></td>
+      <td class="center"><span class="badge-no">High</span></td>
+      <td>Source freshness check + not_null test on renamed column will fail immediately, alerting the team. Fix in staging before re-running.</td>
+    </tr>
+    <tr>
+      <td><strong>Drop column</strong></td>
+      <td><code>payment_installments</code> removed</td>
+      <td class="center"><span class="badge-no">High</span></td>
+      <td>dbt will error on the first run that references the dropped column. CI/CD lint check (<code>dbt compile</code>) catches this before production.</td>
+    </tr>
+    <tr>
+      <td><strong>Type change</strong></td>
+      <td><code>payment_value</code>: float → text</td>
+      <td class="center"><span class="badge-no">High</span></td>
+      <td>Explicit <code>::numeric</code> casts in staging will raise a cast error, making the failure visible immediately rather than silently corrupting data.</td>
+    </tr>
+    <tr>
+      <td><strong>New status value</strong></td>
+      <td>New <code>order_status = 'returned'</code></td>
+      <td class="center"><span class="badge-opt">Medium</span></td>
+      <td><code>accepted_values</code> test on stg_orders will warn/fail. Team updates the test and any relevant CASE WHEN logic in staging/intermediate.</td>
+    </tr>
+  </table>
+
+  <h3>8.2 dbt Configuration for Schema Evolution</h3>
+
+  <pre><code><span class="cmt">-- In staging models: handle new columns gracefully</span>
+{{
+  config(
+    materialized      = 'incremental',
+    unique_key        = 'order_id',
+    on_schema_change  = 'sync_all_columns',  <span class="cmt">-- auto-add new source columns</span>
+    contract = {enforced: true}              <span class="cmt">-- fail if expected columns are missing</span>
+  )
+}}</code></pre>
+
+  <div class="callout callout-warning">
+    <strong>on_schema_change Options Trade-off</strong>
+    <code>sync_all_columns</code> automatically propagates new source columns downstream —
+    convenient but risks exposing unexpected fields in BI tools. A safer alternative is
+    <code>ignore</code> (default), which requires explicit model changes for each schema update.
+    For this Olist dataset (stable schema), <code>sync_all_columns</code> is appropriate.
+    For a rapidly-evolving production source, prefer <code>ignore</code> with a PR review process.
+  </div>
+
+  <h3>8.3 Contract Testing — Enforcing Expected Schema</h3>
+  <pre><code><span class="cmt"># schema.yml — model contracts (dbt 1.5+)</span>
+models:
+  - name: stg_orders
+    config:
+      contract:
+        enforced: true     <span class="cmt"># dbt will fail if column types don't match</span>
+    columns:
+      - name: order_id
+        data_type: text
+      - name: purchased_at
+        data_type: timestamp without time zone
+      - name: order_status
+        data_type: text</code></pre>
+
+  <p>
+    Model contracts act as a <strong>schema handshake</strong> between staging and intermediate layers.
+    If a staging model changes its output shape, any intermediate model that depends on it will fail
+    immediately at compile time — not silently at runtime.
+  </p>
+
+  <h3>8.4 Recommended CI/CD Integration</h3>
+
+  <div class="arch-diagram">
+    <div class="arch-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="arch-box arch-source" style="min-width:160px; text-align:left; padding:8px 12px;">
+          1. Developer opens PR<br><small>modifies stg_orders.sql</small>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box arch-bronze" style="min-width:200px; text-align:left; padding:8px 12px;">
+          2. CI: dbt compile<br><small>catch syntax + missing columns</small>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box arch-silver" style="min-width:200px; text-align:left; padding:8px 12px;">
+          3. CI: dbt build --select<br><small>changed model + descendants</small>
+        </div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-box arch-gold" style="min-width:160px; text-align:left; padding:8px 12px;">
+          4. Tests pass?<br><small>merge to main</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-success">
+    <strong>Summary — What Makes This Pipeline Production-Grade</strong>
+    <ul style="margin-top:8px;">
+      <li>Three-layer separation of concerns with explicit contracts between layers</li>
+      <li>Incremental loading with idempotency guarantees — safe to re-run at any time</li>
+      <li>Data quality tests at every layer — structural (staging), business (intermediate), completeness (mart)</li>
+      <li>Source freshness monitoring — detects upstream pipeline failures before they reach dashboards</li>
+      <li>Schema change handling — explicit casts and contracts surface breaks immediately</li>
+      <li>Reproducible segmentation — uses dataset max date, not NOW(), for consistent historical analysis</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering &nbsp;|&nbsp; End of Document</span>
+  </div>
+</div>
+
+</body>
+</html>

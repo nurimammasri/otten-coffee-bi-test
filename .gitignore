@@ -1,0 +1,28 @@
+# AI and Claude
+.claude/
+CLAUDE.md
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor Files
+.vscode/
+.idea/
+.cursorrules
+
+# DBeaver Metadata (optional, but usually ignored in shared repos unless intended)
+.dbeaver/
+.project
+
+# Python (just in case)
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+.env/
+
+# Other Temp Files
+*.log
+*.tmp

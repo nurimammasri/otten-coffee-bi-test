@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test 2 — BI Dashboard | Otten Coffee BI Engineer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    color: #2c2c2c;
+    background: #fff;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    page-break-after: always;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    text-align: center; padding: 60px 40px;
+  }
+  .cover-logo   { font-size: 28px; font-weight: 800; color: #e94560; letter-spacing: -1px; margin-bottom: 6px; }
+  .cover-sub    { font-size: 13px; color: #aaa; margin-bottom: 60px; }
+  .cover h1     { font-size: 36px; font-weight: 700; color: #fff; line-height: 1.25; margin-bottom: 12px; }
+  .cover h2     { font-size: 18px; font-weight: 400; color: #ccc; margin-bottom: 48px; }
+  .cover-meta   { font-size: 12px; color: #aaa; line-height: 2.2; }
+  .cover-tag    {
+    display: inline-block; background: #e94560; color: white;
+    font-size: 11px; font-weight: 600; padding: 4px 16px;
+    border-radius: 20px; margin-bottom: 32px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .cover-chips  { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+  .chip {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #ddd; font-size: 11px; padding: 4px 12px; border-radius: 20px;
+  }
+  .chip-gold { background: rgba(255,193,7,0.2); border-color: #ffc107; color: #ffc107; }
+
+  /* ── Page ── */
+  .page { padding: 48px 56px; max-width: 940px; margin: 0 auto; }
+  .page-break { page-break-before: always; }
+
+  /* ── Typography ── */
+  h1 { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+  h2 { font-size: 17px; font-weight: 700; color: #0f3460; margin: 28px 0 10px; border-bottom: 2px solid #dde8f5; padding-bottom: 6px; }
+  h3 { font-size: 14px; font-weight: 700; color: #1a1a1a; margin: 18px 0 8px; }
+  h4 { font-size: 13px; font-weight: 600; color: #0f3460; margin: 14px 0 6px; }
+  p  { margin-bottom: 10px; }
+  ul, ol { margin: 8px 0 12px 22px; }
+  li { margin-bottom: 5px; }
+
+  /* ── Section Header ── */
+  .section-header {
+    background: #f0f4fc; border-left: 5px solid #0f3460;
+    padding: 14px 20px; margin: 24px 0 16px;
+    border-radius: 0 6px 6px 0;
+  }
+  .section-header h2 { margin: 0; border: none; padding: 0; font-size: 16px; }
+  .section-header p  { margin: 4px 0 0; color: #666; font-size: 12px; }
+
+  /* ── Chart Card ── */
+  .chart-card {
+    border: 1px solid #d0ddf5;
+    border-radius: 12px;
+    margin: 20px 0 28px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(15,52,96,0.06);
+  }
+  .chart-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 20px;
+    background: #0f3460; color: white;
+  }
+  .chart-num {
+    background: rgba(255,255,255,0.15);
+    width: 32px; height: 32px; min-width: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+  }
+  .chart-title-area { flex: 1; }
+  .chart-title { font-size: 15px; font-weight: 700; }
+  .chart-subtitle { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+  .chart-type-badge {
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+    padding: 3px 10px; border-radius: 12px; font-size: 10.5px; white-space: nowrap;
+  }
+  .bonus-badge {
+    background: #ffc107; color: #1a1a1a;
+    padding: 3px 10px; border-radius: 12px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .chart-body { padding: 20px 24px; }
+
+  .chart-meta-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px; margin-bottom: 18px;
+  }
+  .meta-box {
+    background: #f0f4fc; border-radius: 8px; padding: 12px 14px;
+  }
+  .meta-label { font-size: 10.5px; color: #666; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+  .meta-value { font-size: 13px; font-weight: 600; color: #0f3460; }
+
+  /* ── SQL Block ── */
+  pre {
+    background: #1e1e2e; color: #cdd6f4;
+    padding: 16px 20px; border-radius: 8px;
+    font-family: 'Consolas', monospace; font-size: 11px;
+    line-height: 1.6; overflow-x: auto; margin: 10px 0 14px;
+  }
+  code {
+    background: #e8edf8; color: #2a46a0;
+    padding: 2px 6px; border-radius: 4px;
+    font-family: 'Consolas', monospace; font-size: 11.5px;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  .kw  { color: #89dceb; font-weight: 600; }
+  .fn  { color: #cba6f7; }
+  .str { color: #a6e3a1; }
+  .cmt { color: #6c7086; font-style: italic; }
+  .num { color: #fab387; }
+
+  /* ── Callouts ── */
+  .callout { border-radius: 8px; padding: 13px 17px; margin: 12px 0; font-size: 12.5px; }
+  .callout-insight { background: #eef2ff; border-left: 4px solid #0f3460; }
+  .callout-warning { background: #fff8e6; border-left: 4px solid #e6a817; }
+  .callout-bonus   { background: #fff9e6; border-left: 4px solid #ffc107; }
+  .callout-why     { background: #f0f9eb; border-left: 4px solid #4caf50; }
+  .callout strong  { display: block; margin-bottom: 4px; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; color: #555; }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 12px; }
+  th { background: #0f3460; color: white; padding: 9px 12px; text-align: left; font-weight: 600; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e0e8f5; vertical-align: top; }
+  tr:nth-child(even) td { background: #f5f8ff; }
+
+  /* ── Dashboard Layout Mockup ── */
+  .dashboard-mockup {
+    background: #f8f9fc;
+    border: 2px solid #c8d5f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 16px 0;
+    font-family: monospace;
+    font-size: 11px;
+  }
+  .mock-header {
+    background: #0f3460; color: white;
+    border-radius: 8px; padding: 10px 16px;
+    margin-bottom: 14px; font-size: 13px; font-weight: 700;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mock-filters {
+    display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+  }
+  .mock-filter {
+    background: white; border: 1px solid #c8d5f0;
+    border-radius: 6px; padding: 5px 12px; font-size: 11px; color: #555;
+  }
+  .mock-row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .mock-cell {
+    background: white; border: 1px solid #d8e4f5;
+    border-radius: 8px; padding: 12px 14px;
+    display: flex; flex-direction: column; justify-content: center;
+    font-size: 11px;
+  }
+  .mock-kpi { flex: 1; text-align: center; }
+  .mock-kpi-val { font-size: 20px; font-weight: 700; color: #0f3460; }
+  .mock-kpi-label { font-size: 10px; color: #888; margin-top: 3px; }
+  .mock-kpi-mom { font-size: 11px; color: #28a745; font-weight: 600; }
+  .mock-wide { flex: 2; min-height: 80px; align-items: flex-start; }
+  .mock-chart-placeholder {
+    font-size: 10px; color: #aaa; text-align: center;
+    width: 100%; margin-top: 6px;
+  }
+  .mock-title { font-size: 11px; font-weight: 700; color: #0f3460; margin-bottom: 6px; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 60px; padding-top: 14px;
+    border-top: 1px solid #dde8f5;
+    font-size: 11px; color: #999;
+    display: flex; justify-content: space-between;
+  }
+
+  /* ── Misc ── */
+  .divider { border: none; border-top: 1px solid #e0e8f5; margin: 24px 0; }
+  .tag { display: inline-block; background: #e8f0fe; color: #1a56db; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-right: 4px; }
+  .tag-green { background: #e8f8ee; color: #1a7a3c; }
+  .tag-orange { background: #fff3e0; color: #e65100; }
+
+  @media print {
+    body { font-size: 12px; }
+    .page { padding: 36px 44px; }
+    pre  { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- COVER                                                         -->
+<!-- ============================================================ -->
+<div class="cover">
+  <div class="cover-logo">Otten Coffee</div>
+  <div class="cover-sub">#MengopikanIndonesia</div>
+
+  <div class="cover-tag">Technical Test — Submission</div>
+  <h1>Test 2<br>Business Intelligence<br>Dashboard</h1>
+  <h2>"E-Commerce Business Overview"<br>Dashboard Design &amp; Chart Explanation</h2>
+
+  <div class="cover-meta">
+    <div><strong>Tool</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Apache Superset (Docker)</div>
+    <div><strong>Dataset</strong> &nbsp;&nbsp;&nbsp; Brazilian E-Commerce (Olist)</div>
+    <div><strong>Audience</strong> &nbsp; Senior Manager</div>
+    <div><strong>Charts</strong> &nbsp;&nbsp;&nbsp;&nbsp; 8 charts (minimum 6 required)</div>
+  </div>
+
+  <div class="cover-chips">
+    <span class="chip">8 Charts</span>
+    <span class="chip">Date Range Filter</span>
+    <span class="chip">Category Filter</span>
+    <span class="chip">Cross-Filtering</span>
+    <span class="chip chip-gold">★ MoM KPI Card</span>
+    <span class="chip chip-gold">★ 3-Table JOIN Dataset</span>
+    <span class="chip chip-gold">★ Cross-Filter Enabled</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- TABLE OF CONTENTS                                             -->
+<!-- ============================================================ -->
+<div class="page">
+  <h1>Contents</h1><br>
+  <table>
+    <tr><th>#</th><th>Section</th></tr>
+    <tr><td>1</td><td>Dashboard Overview — Design Philosophy &amp; Target Audience</td></tr>
+    <tr><td>2</td><td>Dashboard Layout &amp; Filters</td></tr>
+    <tr><td>3</td><td>Custom SQL Datasets (Bonus)</td></tr>
+    <tr><td>4</td><td>Chart 1 — KPI Scorecard Row (MoM Revenue, Orders, AOV)</td></tr>
+    <tr><td>5</td><td>Chart 2 — Monthly Revenue Trend</td></tr>
+    <tr><td>6</td><td>Chart 3 — Top 10 Product Categories by Revenue</td></tr>
+    <tr><td>7</td><td>Chart 4 — Order Status Distribution</td></tr>
+    <tr><td>8</td><td>Chart 5 — Revenue by Payment Method Over Time</td></tr>
+    <tr><td>9</td><td>Chart 6 — Late Delivery Rate by Product Category</td></tr>
+    <tr><td>10</td><td>Chart 7 — Customer Volume by State</td></tr>
+    <tr><td>11</td><td>Chart 8 — Customer Segment Distribution</td></tr>
+    <tr><td>12</td><td>Bonus Points Summary</td></tr>
+  </table>
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 1: DESIGN PHILOSOPHY                                  -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>1 &nbsp; Dashboard Overview — Design Philosophy &amp; Target Audience</h2>
+    <p>"E-Commerce Business Overview" — built for Senior Manager consumption</p>
+  </div>
+
+  <h3>1.1 Who Is This Dashboard For?</h3>
+  <p>
+    The primary user is a <strong>Senior Manager</strong> in the e-commerce industry. Based on this profile,
+    the dashboard is designed with the following assumptions about the user's needs:
+  </p>
+  <table>
+    <tr><th>User Need</th><th>Dashboard Response</th></tr>
+    <tr>
+      <td>Quick pulse check (< 30 seconds)</td>
+      <td>KPI scorecard row at the top — the most important numbers visible immediately without scrolling</td>
+    </tr>
+    <tr>
+      <td>Trend identification</td>
+      <td>Time-series line chart for revenue — shows trajectory, not just a snapshot</td>
+    </tr>
+    <tr>
+      <td>Portfolio prioritisation</td>
+      <td>Horizontal bar for categories — ranked comparison is faster to read than pie charts</td>
+    </tr>
+    <tr>
+      <td>Operational awareness</td>
+      <td>Late delivery rate by category — actionable signal for logistics discussions</td>
+    </tr>
+    <tr>
+      <td>Strategic customer view</td>
+      <td>Customer segment chart — informs retention investment decisions</td>
+    </tr>
+    <tr>
+      <td>Contextual filtering</td>
+      <td>Date range + category + status filters at dashboard level affect all charts simultaneously</td>
+    </tr>
+  </table>
+
+  <h3>1.2 Design Principles Applied</h3>
+  <ul>
+    <li><strong>Information hierarchy:</strong> Most important metrics (revenue, orders, AOV) at the top. Supporting context (delivery, geography) below.</li>
+    <li><strong>Minimal cognitive load:</strong> Each chart answers exactly one business question. No dual-axis charts or mixed chart types that require re-learning.</li>
+    <li><strong>Actionability over aesthetics:</strong> Every chart has a clear "so what?" — the Senior Manager should be able to take an action or ask a follow-up question based on each chart.</li>
+    <li><strong>Consistent colour language:</strong> Green = positive/good. Red/orange = negative/alert. Blue = neutral information.</li>
+    <li><strong>Labelled axes and clear titles:</strong> Every chart has a descriptive title, labelled axes with units, and a tooltip configuration showing exact values.</li>
+  </ul>
+
+  <div class="callout callout-why">
+    <strong>Why Apache Superset?</strong>
+    Superset is the tool specified in the test. It connects natively to PostgreSQL, supports custom SQL
+    datasets via SQL Lab, enables cross-filtering between charts on the same dashboard, and provides
+    a date picker filter natively. The Docker-based self-hosted setup keeps credentials local without
+    exposing the read-only database credentials to third-party SaaS services.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 2: DASHBOARD LAYOUT                                   -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>2 &nbsp; Dashboard Layout &amp; Filters</h2>
+    <p>Visual structure of the "E-Commerce Business Overview" dashboard</p>
+  </div>
+
+  <h3>2.1 Layout Overview</h3>
+
+  <div class="dashboard-mockup">
+    <div class="mock-header">
+      <span>📊 E-Commerce Business Overview</span>
+      <span style="font-size:11px; opacity:0.7;">Last updated: 2018-09-01</span>
+    </div>
+
+    <!-- Filters Row -->
+    <div class="mock-filters">
+      <span style="font-size:10px; color:#666; padding-top:6px;">Filters:</span>
+      <div class="mock-filter">📅 Date Range: [2016-09-01] → [2018-09-01]</div>
+      <div class="mock-filter">🏷 Category: (All)</div>
+      <div class="mock-filter">📦 Order Status: (All)</div>
+      <div class="mock-filter">🗺 State: (All)</div>
+    </div>
+
+    <!-- Row 1: KPI Cards -->
+    <div class="mock-row">
+      <div class="mock-cell mock-kpi">
+        <div class="mock-title">Total Revenue (MoM %)</div>
+        <div class="mock-kpi-val">R$ 15.4M</div>
+        <div class="mock-kpi-mom">↑ +2.6% vs prev month</div>
+        <div class="mock-kpi-label">Chart 1A · ★ BONUS</div>
+      </div>
+      <div class="mock-cell mock-kpi">
+        <div class="mock-title">Total Orders</div>
+        <div class="mock-kpi-val">99,441</div>
+        <div class="mock-kpi-mom">↑ +4.1% vs prev month</div>
+        <div class="mock-kpi-label">Chart 1B</div>
+      </div>
+      <div class="mock-cell mock-kpi">
+        <div class="mock-title">Avg Order Value</div>
+        <div class="mock-kpi-val">R$ 154.10</div>
+        <div class="mock-kpi-mom">↓ -1.4% vs prev month</div>
+        <div class="mock-kpi-label">Chart 1C</div>
+      </div>
+    </div>
+
+    <!-- Row 2: Line + Donut -->
+    <div class="mock-row">
+      <div class="mock-cell mock-wide" style="flex:3;">
+        <div class="mock-title">📈 Monthly Revenue Trend (Chart 2)</div>
+        <div class="mock-chart-placeholder">
+          ~~~~~~~~~ Line chart: revenue per month with MoM% annotation ~~~~~~~~~
+        </div>
+      </div>
+      <div class="mock-cell mock-wide" style="flex:1; min-height:100px;">
+        <div class="mock-title">🍩 Order Status (Chart 4)</div>
+        <div class="mock-chart-placeholder">Donut chart</div>
+      </div>
+    </div>
+
+    <!-- Row 3: Horizontal Bar + Stacked Bar -->
+    <div class="mock-row">
+      <div class="mock-cell mock-wide" style="flex:1;">
+        <div class="mock-title">📊 Top 10 Categories (Chart 3)</div>
+        <div class="mock-chart-placeholder">Horizontal bar · revenue ranked</div>
+      </div>
+      <div class="mock-cell mock-wide" style="flex:1;">
+        <div class="mock-title">💳 Payment Methods Over Time (Chart 5)</div>
+        <div class="mock-chart-placeholder">Stacked bar · credit_card / boleto / other</div>
+      </div>
+    </div>
+
+    <!-- Row 4: Late Delivery + State + Segments -->
+    <div class="mock-row">
+      <div class="mock-cell mock-wide" style="flex:1.2;">
+        <div class="mock-title">⏱ Late Delivery Rate by Category (Chart 6)</div>
+        <div class="mock-chart-placeholder">Bar chart · % late per category</div>
+      </div>
+      <div class="mock-cell mock-wide" style="flex:0.9;">
+        <div class="mock-title">🗺 Orders by State (Chart 7)</div>
+        <div class="mock-chart-placeholder">Bar chart · top 10 states</div>
+      </div>
+      <div class="mock-cell mock-wide" style="flex:0.9;">
+        <div class="mock-title">👥 Customer Segments (Chart 8)</div>
+        <div class="mock-chart-placeholder">Pie + table · new/returning/at_risk/churned</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>2.2 Dashboard-Level Filters</h3>
+  <table>
+    <tr><th>Filter</th><th>Type</th><th>Column</th><th>Affects Charts</th></tr>
+    <tr>
+      <td><strong>Date Range</strong></td>
+      <td>Date picker (range)</td>
+      <td><code>order_purchase_timestamp</code></td>
+      <td>All 8 charts</td>
+    </tr>
+    <tr>
+      <td><strong>Product Category</strong></td>
+      <td>Multi-select dropdown</td>
+      <td><code>product_category_name_english</code></td>
+      <td>Charts 3, 5, 6, 8</td>
+    </tr>
+    <tr>
+      <td><strong>Order Status</strong></td>
+      <td>Multi-select dropdown</td>
+      <td><code>order_status</code></td>
+      <td>Charts 1, 2, 3, 4, 5</td>
+    </tr>
+    <tr>
+      <td><strong>Customer State</strong></td>
+      <td>Multi-select dropdown</td>
+      <td><code>customer_state</code></td>
+      <td>Charts 1, 7, 8</td>
+    </tr>
+  </table>
+
+  <div class="callout callout-bonus">
+    <strong>★ Bonus: Cross-Filtering</strong>
+    Cross-filtering is enabled in Superset at the dashboard level (<em>Dashboard → Edit → Enable
+    cross-filtering</em>). When a Senior Manager clicks on a bar in Chart 3 (e.g., "health_beauty"),
+    all other charts automatically filter to show data for that category only — enabling drill-down
+    without navigating away from the dashboard. Charts 2, 5, 6 respond most meaningfully to
+    category cross-filtering.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- SECTION 3: CUSTOM SQL DATASETS                                -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>3 &nbsp; Custom SQL Datasets (Bonus)</h2>
+    <p>Derived datasets created in Superset SQL Lab to power complex charts</p>
+  </div>
+
+  <div class="callout callout-bonus">
+    <strong>★ Bonus Point 3: Custom SQL Dataset with JOIN Across 3+ Tables</strong>
+    Two custom SQL datasets are created in SQL Lab. Both join 5–7 tables and serve as reusable
+    virtual tables that multiple charts reference.
+  </div>
+
+  <h3>Dataset 1 — <code>ds_order_enriched</code> (Used by Charts 2, 5, 6, 7)</h3>
+  <p>
+    A central enriched order dataset. Joins 6 tables to produce one row per order with all
+    commercially and operationally relevant fields pre-computed.
+  </p>
+
+  <pre><code><span class="cmt">-- Dataset: ds_order_enriched
+-- Joins: orders + customers + order_items + products + translation + order_payments + order_reviews
+-- Used by: Chart 2 (revenue trend), Chart 5 (payment method), Chart 6 (late delivery), Chart 7 (state)</span>
+
+<span class="kw">SELECT</span>
+    o.order_id,
+    o.order_status,
+    <span class="fn">DATE_TRUNC</span>(<span class="str">'month'</span>, o.order_purchase_timestamp)  <span class="kw">AS</span> order_month,
+    o.order_purchase_timestamp                              <span class="kw">AS</span> ordered_at,
+    o.order_delivered_customer_date                         <span class="kw">AS</span> delivered_at,
+    o.order_estimated_delivery_date                         <span class="kw">AS</span> estimated_at,
+
+    <span class="cmt">-- Customer geography</span>
+    c.customer_unique_id,
+    c.customer_state,
+    c.customer_city,
+
+    <span class="cmt">-- Product category (English)</span>
+    <span class="fn">COALESCE</span>(t.product_category_name_english, <span class="str">'uncategorized'</span>) <span class="kw">AS</span> category,
+
+    <span class="cmt">-- Revenue metrics</span>
+    <span class="fn">SUM</span>(oi.price)                                           <span class="kw">AS</span> items_revenue,
+    <span class="fn">SUM</span>(oi.freight_value)                                    <span class="kw">AS</span> freight_revenue,
+    <span class="fn">SUM</span>(op.payment_value)                                    <span class="kw">AS</span> total_payment,
+    <span class="fn">SUM</span>(op.payment_value) <span class="kw">FILTER</span> (<span class="kw">WHERE</span> op.payment_type = <span class="str">'credit_card'</span>)
+                                                            <span class="kw">AS</span> credit_card_payment,
+    <span class="fn">SUM</span>(op.payment_value) <span class="kw">FILTER</span> (<span class="kw">WHERE</span> op.payment_type = <span class="str">'boleto'</span>)
+                                                            <span class="kw">AS</span> boleto_payment,
+    <span class="fn">SUM</span>(op.payment_value) <span class="kw">FILTER</span> (
+        <span class="kw">WHERE</span> op.payment_type <span class="kw">NOT IN</span> (<span class="str">'credit_card'</span>, <span class="str">'boleto'</span>))
+                                                            <span class="kw">AS</span> other_payment,
+
+    <span class="cmt">-- Delivery performance</span>
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> o.order_delivered_customer_date > o.order_estimated_delivery_date <span class="kw">THEN TRUE</span>
+        <span class="kw">ELSE FALSE</span>
+    <span class="kw">END</span>                                                      <span class="kw">AS</span> is_late,
+    <span class="fn">ROUND</span>((<span class="fn">EXTRACT</span>(<span class="kw">EPOCH FROM</span> (
+        o.order_delivered_customer_date - o.order_estimated_delivery_date
+    )) / <span class="num">86400.0</span>)::<span class="kw">numeric</span>, <span class="num">1</span>)                          <span class="kw">AS</span> delay_days,
+
+    <span class="cmt">-- Review score</span>
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(r.review_score)::<span class="kw">numeric</span>, <span class="num">1</span>)                  <span class="kw">AS</span> avg_review_score
+
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> customers c          <span class="kw">ON</span> c.customer_id    = o.customer_id
+<span class="kw">JOIN</span> order_items oi       <span class="kw">ON</span> oi.order_id      = o.order_id
+<span class="kw">JOIN</span> products p           <span class="kw">ON</span> p.product_id     = oi.product_id
+<span class="kw">LEFT JOIN</span> product_category_name_translation t
+                          <span class="kw">ON</span> t.product_category_name = p.product_category_name
+<span class="kw">LEFT JOIN</span> order_payments op <span class="kw">ON</span> op.order_id    = o.order_id
+<span class="kw">LEFT JOIN</span> order_reviews r   <span class="kw">ON</span> r.order_id     = o.order_id
+<span class="kw">WHERE</span> o.order_status != <span class="str">'canceled'</span>
+<span class="kw">GROUP BY</span> <span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>,<span class="num">7</span>,<span class="num">8</span>,<span class="num">9</span>,<span class="num">10</span>,<span class="num">17</span>,<span class="num">18</span></code></pre>
+
+  <h3>Dataset 2 — <code>ds_customer_segments</code> (Used by Chart 8)</h3>
+  <pre><code><span class="cmt">-- Dataset: ds_customer_segments
+-- Joins: orders + customers + order_payments
+-- Produces: one row per customer with segment classification</span>
+
+<span class="kw">WITH</span> customer_summary <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        c.customer_unique_id,
+        c.customer_state,
+        <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> o.order_id)                         <span class="kw">AS</span> total_orders,
+        <span class="fn">ROUND</span>(<span class="fn">SUM</span>(op.payment_value)::<span class="kw">numeric</span>, <span class="num">2</span>)           <span class="kw">AS</span> total_spend,
+        <span class="fn">MAX</span>(o.order_purchase_timestamp)                     <span class="kw">AS</span> last_order_at
+    <span class="kw">FROM</span> orders o
+    <span class="kw">JOIN</span> customers c     <span class="kw">ON</span> c.customer_id = o.customer_id
+    <span class="kw">JOIN</span> order_payments op <span class="kw">ON</span> op.order_id = o.order_id
+    <span class="kw">WHERE</span> o.order_status != <span class="str">'canceled'</span>
+    <span class="kw">GROUP BY</span> c.customer_unique_id, c.customer_state
+),
+ref_date <span class="kw">AS</span> (<span class="kw">SELECT MAX</span>(last_order_at) <span class="kw">AS</span> max_date <span class="kw">FROM</span> customer_summary)
+<span class="kw">SELECT</span>
+    cs.*,
+    <span class="fn">EXTRACT</span>(<span class="kw">DAY FROM</span> (r.max_date - cs.last_order_at)) <span class="kw">AS</span> days_since_last_order,
+    <span class="kw">CASE</span>
+        <span class="kw">WHEN</span> cs.total_orders = <span class="num">1</span>                                    <span class="kw">THEN</span> <span class="str">'new'</span>
+        <span class="kw">WHEN</span> cs.total_orders > <span class="num">1</span> <span class="kw">AND</span> <span class="fn">EXTRACT</span>(<span class="kw">DAY FROM</span> (r.max_date - cs.last_order_at)) &lt;= <span class="num">180</span> <span class="kw">THEN</span> <span class="str">'returning'</span>
+        <span class="kw">WHEN</span> cs.total_orders > <span class="num">1</span> <span class="kw">AND</span> <span class="fn">EXTRACT</span>(<span class="kw">DAY FROM</span> (r.max_date - cs.last_order_at)) &lt;= <span class="num">365</span> <span class="kw">THEN</span> <span class="str">'at_risk'</span>
+        <span class="kw">ELSE</span> <span class="str">'churned'</span>
+    <span class="kw">END</span>                                                       <span class="kw">AS</span> segment
+<span class="kw">FROM</span> customer_summary cs <span class="kw">CROSS JOIN</span> ref_date r</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- CHARTS 1–2                                                    -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <!-- CHART 1 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">1</div>
+      <div class="chart-title-area">
+        <div class="chart-title">KPI Scorecard — Total Revenue, Orders &amp; Average Order Value</div>
+        <div class="chart-subtitle">Three Big Number cards forming the top row of the dashboard</div>
+      </div>
+      <div class="chart-type-badge">Big Number w/ Trendline</div>
+      <div class="bonus-badge">★ BONUS: MoM %</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box">
+          <div class="meta-label">Chart Type</div>
+          <div class="meta-value">Big Number (×3 cards)</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">Dataset</div>
+          <div class="meta-value">order_payments + orders</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">Refresh</div>
+          <div class="meta-value">Dashboard filter-driven</div>
+        </div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        Three large-format KPI numbers displayed side by side at the top of the dashboard.
+        Each card shows the <strong>current period total</strong> alongside a
+        <strong>percentage change vs the previous equivalent period</strong>. An optional sparkline
+        shows the trend direction over the last 6 months. The three metrics are:
+        (A) Total Revenue (R$), (B) Total Orders (count), (C) Average Order Value (R$).
+      </p>
+
+      <h4>SQL — Card 1A: Total Revenue with MoM % Change (Bonus)</h4>
+      <pre><code><span class="kw">SELECT</span>
+    <span class="fn">DATE_TRUNC</span>(<span class="str">'month'</span>, o.order_purchase_timestamp) <span class="kw">AS</span> month,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(op.payment_value)::<span class="kw">numeric</span>, <span class="num">2</span>)       <span class="kw">AS</span> total_revenue
+<span class="kw">FROM</span> orders o
+<span class="kw">JOIN</span> order_payments op <span class="kw">ON</span> op.order_id = o.order_id
+<span class="kw">WHERE</span> o.order_status <span class="kw">NOT IN</span> (<span class="str">'canceled'</span>, <span class="str">'unavailable'</span>)
+<span class="kw">GROUP BY</span> <span class="num">1</span>
+<span class="kw">ORDER BY</span> <span class="num">1</span></code></pre>
+      <p style="font-size:12px; color:#555;">
+        In Superset, the Big Number chart type automatically computes the MoM delta when
+        <em>Time Comparison</em> is set to "1 month ago". The trendline is enabled via the
+        <em>Show Trendline</em> option. Cards 1B and 1C use analogous queries with
+        <code>COUNT(DISTINCT order_id)</code> and <code>AVG(op.payment_value)</code> respectively.
+      </p>
+
+      <h4>Why Big Number Chart Type?</h4>
+      <p>
+        A Senior Manager's first question when opening a dashboard is always:
+        <em>"Are we growing or declining?"</em> The Big Number card answers this in under 3 seconds —
+        a large number for the absolute value, a coloured arrow and percentage for the direction.
+        No interpretation effort required. Any more complex chart type for this top-line metric
+        would add cognitive load without adding information.
+      </p>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight</strong>
+        Total platform revenue across the full dataset period (Sep 2016 – Aug 2018) is approximately
+        <strong>R$ 15.4 million</strong>. The MoM card immediately surfaces whether the current month
+        is on an upward or downward trajectory. The peak single-month revenue was
+        <strong>R$ 1.187M in November 2017</strong> (Black Friday effect, +53.6% MoM).
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART 2 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">2</div>
+      <div class="chart-title-area">
+        <div class="chart-title">Monthly Revenue Trend</div>
+        <div class="chart-subtitle">Time-series view of revenue with MoM change annotation</div>
+      </div>
+      <div class="chart-type-badge">Line Chart</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box">
+          <div class="meta-label">Chart Type</div>
+          <div class="meta-value">Line Chart</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">Dataset</div>
+          <div class="meta-value">ds_order_enriched</div>
+        </div>
+        <div class="meta-box">
+          <div class="meta-label">X-axis</div>
+          <div class="meta-value">order_month (monthly)</div>
+        </div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        A time-series line chart showing total revenue per calendar month from September 2016
+        to August 2018. A secondary dashed line overlays the month-over-month growth percentage
+        on a right Y-axis, allowing the Senior Manager to simultaneously see both absolute revenue
+        level and its rate of change. Reference lines mark the dataset average and the Nov 2017 peak.
+      </p>
+
+      <h4>Why Line Chart?</h4>
+      <p>
+        Time-series data has a natural ordering — connecting the points with a line reinforces this
+        continuity and makes trends (upward slope, plateau, seasonal dip) immediately visible.
+        A bar chart of monthly revenue would require comparing bar heights mentally; a line chart
+        externalises that comparison. For a Senior Manager, the trend direction matters more than
+        the exact monthly figure (which is covered by the KPI cards).
+      </p>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight</strong>
+        The chart reveals three distinct business phases: (1) <strong>Rapid growth</strong>
+        Jan–Nov 2017 — from R$ 138K to R$ 1.187M, an 8.6× increase in 11 months.
+        (2) <strong>Normalisation</strong> Dec 2017 (-26% post-Black Friday dip) followed by recovery.
+        (3) <strong>Plateau</strong> Feb–Aug 2018 — revenue stabilises around R$ 1M/month with
+        MoM changes under ±5%, suggesting the marketplace reached a growth ceiling or that seasonal
+        patterns are evening out. This is a signal to investigate whether new customer acquisition
+        is slowing down.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- CHARTS 3–4                                                    -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <!-- CHART 3 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">3</div>
+      <div class="chart-title-area">
+        <div class="chart-title">Top 10 Product Categories by Revenue</div>
+        <div class="chart-subtitle">Ranked horizontal bar with order count and AOV overlay</div>
+      </div>
+      <div class="chart-type-badge">Horizontal Bar Chart</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box"><div class="meta-label">Chart Type</div><div class="meta-value">Horizontal Bar</div></div>
+        <div class="meta-box"><div class="meta-label">Dataset</div><div class="meta-value">ds_order_enriched</div></div>
+        <div class="meta-box"><div class="meta-label">Sort</div><div class="meta-value">Total Revenue DESC</div></div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        A horizontal bar chart ranking the top 10 product categories by total revenue. Each bar is
+        labelled with the revenue value (R$). A colour gradient distinguishes the top 3 from the rest.
+        Tooltip shows: category name, total revenue, distinct order count, average order value.
+      </p>
+
+      <h4>Why Horizontal Bar (not Vertical or Pie)?</h4>
+      <p>
+        <strong>vs Vertical bar:</strong> Category names are long (e.g., "computers_accessories") —
+        a horizontal layout renders full names without rotation or truncation.<br>
+        <strong>vs Pie chart:</strong> Ranked comparison of many items (10+) is almost impossible
+        to read in a pie. Studies consistently show ranked bar charts are faster and more accurately
+        interpreted for this type of comparison. A pie chart cannot show relative differences between
+        similar-sized slices (e.g., categories 4–7 in this dataset are within 3% of each other).
+      </p>
+
+      <h4>Query (simplified for Superset Virtual Dataset)</h4>
+      <pre><code><span class="kw">SELECT</span>
+    category,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> order_id)                         <span class="kw">AS</span> total_orders,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(total_payment)::<span class="kw">numeric</span>, <span class="num">2</span>)            <span class="kw">AS</span> total_revenue,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(total_payment)::<span class="kw">numeric</span>, <span class="num">2</span>)            <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> ds_order_enriched
+<span class="kw">GROUP BY</span> category
+<span class="kw">ORDER BY</span> total_revenue <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">10</span></code></pre>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight</strong>
+        <code>bed_bath_table</code> and <code>health_beauty</code> dominate with ~R$ 1.65–1.71M each.
+        However, <code>watches_gifts</code> (rank 5) has the <strong>highest average order value
+        (R$ 253.70)</strong> — a smaller volume, premium segment. A Senior Manager can use this to
+        identify whether the business should invest in growing the high-AOV categories
+        (watches, computers) vs deepening penetration in the high-volume, lower-AOV categories
+        (bed_bath_table, sports_leisure).
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART 4 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">4</div>
+      <div class="chart-title-area">
+        <div class="chart-title">Order Status Distribution</div>
+        <div class="chart-subtitle">What proportion of orders are successfully delivered vs other statuses?</div>
+      </div>
+      <div class="chart-type-badge">Donut Chart</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box"><div class="meta-label">Chart Type</div><div class="meta-value">Donut / Pie Chart</div></div>
+        <div class="meta-box"><div class="meta-label">Dataset</div><div class="meta-value">orders (direct)</div></div>
+        <div class="meta-box"><div class="meta-label">Dimension</div><div class="meta-value">order_status</div></div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        A donut chart showing the percentage breakdown of all orders by status:
+        <code>delivered</code>, <code>shipped</code>, <code>canceled</code>, <code>processing</code>,
+        <code>invoiced</code>, <code>approved</code>, <code>unavailable</code>, <code>created</code>.
+        The centre of the donut shows the total order count. Slices are colour-coded: green for
+        delivered, orange for shipped/processing, red for canceled/unavailable.
+      </p>
+
+      <h4>Why Donut Chart for This Data?</h4>
+      <p>
+        Order status is a <strong>part-to-whole</strong> relationship — a donut chart is the
+        appropriate choice for showing how a total breaks into categories when there are fewer than
+        8 slices. The donut (vs full pie) provides a centre space for displaying the total count,
+        which adds context without requiring a legend lookup. For a Senior Manager, the primary
+        question is: "What % of orders reach the customer?" — a single prominent slice answers this.
+      </p>
+
+      <pre><code><span class="kw">SELECT</span>
+    order_status,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> order_count,
+    <span class="fn">ROUND</span>(<span class="fn">COUNT</span>(*) * <span class="num">100.0</span> / <span class="fn">SUM</span>(<span class="fn">COUNT</span>(*)) <span class="kw">OVER</span> (), <span class="num">1</span>) <span class="kw">AS</span> pct
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> order_status
+<span class="kw">ORDER BY</span> order_count <span class="kw">DESC</span></code></pre>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight</strong>
+        Approximately <strong>96.5% of orders are delivered</strong>, with under 1% cancelled —
+        indicating a healthy fulfilment pipeline. However, the remaining ~3% (shipped + processing +
+        other) represents orders "in flight" at the time of the data snapshot. If the Senior Manager
+        filters to a specific time window and sees an elevated "shipped" percentage, it may indicate
+        a logistics bottleneck worth investigating.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- CHARTS 5–6                                                    -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <!-- CHART 5 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">5</div>
+      <div class="chart-title-area">
+        <div class="chart-title">Revenue by Payment Method Over Time</div>
+        <div class="chart-subtitle">Monthly stacked bars showing credit card vs boleto vs other payment split</div>
+      </div>
+      <div class="chart-type-badge">Stacked Bar Chart</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box"><div class="meta-label">Chart Type</div><div class="meta-value">Stacked Bar (Time)</div></div>
+        <div class="meta-box"><div class="meta-label">Dataset</div><div class="meta-value">ds_order_enriched</div></div>
+        <div class="meta-box"><div class="meta-label">X-axis</div><div class="meta-value">order_month</div></div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        Monthly bars stacked by payment method — <code>credit_card</code> (blue),
+        <code>boleto</code> (orange), <code>other</code> (grey: voucher + debit_card + not_defined).
+        Each bar's total height represents total monthly revenue. The stacking reveals how the
+        payment mix evolves month over month.
+      </p>
+
+      <h4>Why Stacked Bar (not 100% Stacked or Line)?</h4>
+      <p>
+        <strong>vs 100% stacked bar:</strong> A 100% stacked chart would hide the absolute revenue
+        growth — a Senior Manager would see the proportion shifting but not whether it's growing.
+        The absolute-value stacked bar shows both dimensions simultaneously.<br>
+        <strong>vs multi-line chart:</strong> Three separate lines for each payment type would make
+        the total revenue harder to grasp. The stacked bar naturally shows total = sum of parts.
+      </p>
+
+      <pre><code><span class="kw">SELECT</span>
+    order_month,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(credit_card_payment)::<span class="kw">numeric</span>, <span class="num">2</span>)  <span class="kw">AS</span> credit_card,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(boleto_payment)::<span class="kw">numeric</span>, <span class="num">2</span>)       <span class="kw">AS</span> boleto,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(other_payment)::<span class="kw">numeric</span>, <span class="num">2</span>)        <span class="kw">AS</span> other
+<span class="kw">FROM</span> ds_order_enriched
+<span class="kw">GROUP BY</span> order_month
+<span class="kw">ORDER BY</span> order_month</code></pre>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight</strong>
+        Credit card consistently dominates at approximately <strong>75–80% of revenue</strong> across
+        all months. Boleto (a Brazilian cash payment slip) maintains a stable ~15–20% share —
+        reflecting a large underbanked customer segment that cannot use credit cards. For a Senior
+        Manager, the near-constant credit card dominance suggests that any payment experience
+        investment should prioritise credit card checkout optimisation. The stable boleto share also
+        implies these customers represent a loyal, recurring segment worth protecting.
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART 6 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">6</div>
+      <div class="chart-title-area">
+        <div class="chart-title">Late Delivery Rate by Product Category</div>
+        <div class="chart-subtitle">% of orders delivered after the promised date, ranked by category</div>
+      </div>
+      <div class="chart-type-badge">Vertical Bar Chart</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box"><div class="meta-label">Chart Type</div><div class="meta-value">Bar Chart (sorted)</div></div>
+        <div class="meta-box"><div class="meta-label">Dataset</div><div class="meta-value">ds_order_enriched</div></div>
+        <div class="meta-box"><div class="meta-label">Metric</div><div class="meta-value">Late delivery rate %</div></div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        A vertical bar chart showing the late delivery rate (% of orders where actual delivery date
+        exceeded the estimated delivery date) per product category, sorted descending. Categories
+        with a late rate above the platform average are highlighted in red; those below average in
+        green. A horizontal reference line marks the platform-wide average late rate.
+      </p>
+
+      <h4>Why This Chart for a Senior Manager?</h4>
+      <p>
+        Late delivery directly impacts customer review scores and retention. A Senior Manager overseeing
+        category management or logistics can use this chart to prioritise conversations with sellers or
+        logistics partners. It is explicitly <strong>operational and actionable</strong> — not just
+        descriptive. The colour-coded threshold (above/below average) removes the need to calculate
+        relative performance mentally.
+      </p>
+
+      <pre><code><span class="kw">SELECT</span>
+    category,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> order_id)                          <span class="kw">AS</span> total_orders,
+    <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> is_late <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>)           <span class="kw">AS</span> late_count,
+    <span class="fn">ROUND</span>(
+        <span class="fn">SUM</span>(<span class="kw">CASE WHEN</span> is_late <span class="kw">THEN</span> <span class="num">1</span> <span class="kw">ELSE</span> <span class="num">0</span> <span class="kw">END</span>) * <span class="num">100.0</span>
+        / <span class="fn">NULLIF</span>(<span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> order_id), <span class="num">0</span>)
+    , <span class="num">1</span>)                                                 <span class="kw">AS</span> late_rate_pct
+<span class="kw">FROM</span> ds_order_enriched
+<span class="kw">WHERE</span> delivered_at <span class="kw">IS NOT NULL</span>
+<span class="kw">GROUP BY</span> category
+<span class="kw">ORDER BY</span> late_rate_pct <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">15</span></code></pre>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight</strong>
+        The platform-wide late delivery rate is approximately <strong>8–9%</strong> across delivered
+        orders. Categories with heavy or fragile products (e.g., <code>furniture_decor</code>,
+        <code>office_furniture</code>) tend to have higher late rates — likely due to dimensional
+        weight surcharges causing carrier delays. Categories with standardised, lightweight products
+        (e.g., <code>books_general</code>, <code>cds_dvds_musicals</code>) show the lowest late rates.
+        This signals that logistics strategy should be differentiated by product category, not uniform.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- CHARTS 7–8                                                    -->
+<!-- ============================================================ -->
+<div class="page page-break">
+
+  <!-- CHART 7 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">7</div>
+      <div class="chart-title-area">
+        <div class="chart-title">Customer Volume by Brazilian State</div>
+        <div class="chart-subtitle">Where are our customers? Top 10 states by order count</div>
+      </div>
+      <div class="chart-type-badge">Bar Chart / Choropleth Map</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box"><div class="meta-label">Chart Type</div><div class="meta-value">Bar Chart (primary)<br>Map (optional)</div></div>
+        <div class="meta-box"><div class="meta-label">Dataset</div><div class="meta-value">ds_order_enriched</div></div>
+        <div class="meta-box"><div class="meta-label">Dimension</div><div class="meta-value">customer_state</div></div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        A horizontal bar chart ranking Brazilian states by total order count, with a secondary
+        metric showing average order value per state. Superset's Deck.gl Map chart type (or the
+        Country Map chart) can render a Brazil choropleth if geographic context is preferred —
+        the bar chart is used as primary because it is faster to read exact rankings and values
+        than interpreting colour gradients on a map.
+      </p>
+
+      <h4>Why Include Geographic Distribution?</h4>
+      <p>
+        For a Senior Manager in the e-commerce industry, geographic concentration indicates both
+        market saturation risk and expansion opportunity. If 60%+ of revenue comes from 2 states,
+        the business is vulnerable to regional economic shocks. It also helps prioritise logistics
+        investment (warehouse placement, last-mile carrier selection by region).
+      </p>
+
+      <pre><code><span class="kw">SELECT</span>
+    customer_state                              <span class="kw">AS</span> state,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> order_id)                  <span class="kw">AS</span> total_orders,
+    <span class="fn">COUNT</span>(<span class="kw">DISTINCT</span> customer_unique_id)         <span class="kw">AS</span> unique_customers,
+    <span class="fn">ROUND</span>(<span class="fn">SUM</span>(total_payment)::<span class="kw">numeric</span>, <span class="num">2</span>)    <span class="kw">AS</span> total_revenue,
+    <span class="fn">ROUND</span>(<span class="fn">AVG</span>(total_payment)::<span class="kw">numeric</span>, <span class="num">2</span>)    <span class="kw">AS</span> avg_order_value
+<span class="kw">FROM</span> ds_order_enriched
+<span class="kw">GROUP BY</span> customer_state
+<span class="kw">ORDER BY</span> total_orders <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="num">10</span></code></pre>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight</strong>
+        <strong>São Paulo (SP)</strong> dominates with approximately 41% of all orders, followed by
+        Rio de Janeiro (RJ) at ~13% and Minas Gerais (MG) at ~11%. The top 3 states account for
+        ~65% of total orders — a significant geographic concentration.
+        States in the Northeast (BA, PE, CE) show lower order volumes but comparable average order
+        values to the Southeast — suggesting untapped demand that could be unlocked with targeted
+        logistics improvements or regional marketing campaigns.
+      </div>
+    </div>
+  </div>
+
+  <!-- CHART 8 -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-num">8</div>
+      <div class="chart-title-area">
+        <div class="chart-title">Customer Segment Distribution</div>
+        <div class="chart-subtitle">new · returning · at_risk · churned — with average spend per segment</div>
+      </div>
+      <div class="chart-type-badge">Pie Chart + Table</div>
+    </div>
+
+    <div class="chart-body">
+      <div class="chart-meta-grid">
+        <div class="meta-box"><div class="meta-label">Chart Type</div><div class="meta-value">Pie + Pivot Table</div></div>
+        <div class="meta-box"><div class="meta-label">Dataset</div><div class="meta-value">ds_customer_segments</div></div>
+        <div class="meta-box"><div class="meta-label">Dimension</div><div class="meta-value">segment</div></div>
+      </div>
+
+      <h4>What It Shows</h4>
+      <p>
+        A dual-component chart: a pie chart showing the count distribution across the four customer
+        segments (new, returning, at_risk, churned), paired with a summary table below showing
+        segment count, average spend, and average days since last order per segment.
+        The pie and table are placed together in one chart row for at-a-glance comparison.
+      </p>
+
+      <h4>Why This Combination?</h4>
+      <p>
+        The pie chart is appropriate here — there are only 4 segments (not 10+), each segment is
+        mutually exclusive and collectively exhaustive, and part-to-whole is the primary question.
+        The companion table is essential because the pie alone hides the spend differential —
+        a Senior Manager needs both the size and the value of each segment to make decisions.
+      </p>
+
+      <h4>Segment Summary Data</h4>
+      <table>
+        <tr>
+          <th>Segment</th><th>Count</th><th>% of Total</th>
+          <th>Avg Spend (R$)</th><th>Avg Days Since Last Order</th>
+        </tr>
+        <tr><td><strong>new</strong></td><td>92,635</td><td>96.8%</td><td>161.56</td><td>N/A (1 order)</td></tr>
+        <tr><td><strong>returning</strong></td><td>1,239</td><td>1.3%</td><td>321.31</td><td>≤ 180 days</td></tr>
+        <tr><td><strong>at_risk</strong></td><td>1,136</td><td>1.2%</td><td>303.39</td><td>181–365 days</td></tr>
+        <tr><td><strong>churned</strong></td><td>549</td><td>0.6%</td><td>285.31</td><td>&gt; 365 days</td></tr>
+      </table>
+
+      <div class="callout callout-insight">
+        <strong>Key Business Insight — The Most Strategic Chart on the Dashboard</strong>
+        <strong>96.8% of customers have only purchased once.</strong> This single finding should
+        dominate the Senior Manager's agenda. Returning customers spend <strong>2× more</strong>
+        (R$ 321 vs R$ 162) than new customers — yet they represent only 1.3% of the base.
+        The combined at_risk + churned segment (1,685 customers) represents buyers who <em>did</em>
+        return at least once but are now lapsing. A targeted win-back campaign for the at_risk
+        segment (last purchase 181–365 days ago) is the highest-priority retention action,
+        as they are still within the window of reactivation.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard</span>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- BONUS SUMMARY                                                 -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>12 &nbsp; Bonus Points Summary</h2>
+    <p>Three bonus implementations added to the dashboard beyond the minimum requirements</p>
+  </div>
+
+  <table>
+    <tr>
+      <th>Bonus Requirement</th><th>Implementation</th><th>Location in Dashboard</th>
+    </tr>
+    <tr>
+      <td>
+        <strong>★ 1. MoM Revenue KPI Card</strong><br>
+        <small>A Big Number showing % change vs previous month</small>
+      </td>
+      <td>
+        Chart 1A — Big Number chart with Superset's native <em>Time Comparison</em> feature
+        set to "1 month ago". Displays current month revenue + coloured arrow + percentage delta.
+        A green arrow and positive % indicates growth; red arrow and negative % indicates decline.
+      </td>
+      <td>Top-left of dashboard (first card in KPI row)</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>★ 2. Cross-Filtering</strong><br>
+        <small>Clicking one chart filters all others</small>
+      </td>
+      <td>
+        Enabled in Superset via <em>Dashboard → Edit → Enable Cross-Filtering toggle</em>.
+        When a user clicks on a category bar in Chart 3, all other charts (revenue trend, payment
+        methods, late delivery, customer segments) automatically filter to show data for that
+        category only. Cross-filter scope is configurable per chart.
+      </td>
+      <td>Dashboard-level setting — affects all charts simultaneously</td>
+    </tr>
+    <tr>
+      <td>
+        <strong>★ 3. Custom SQL Dataset with 3+ Table JOIN</strong><br>
+        <small>At least one custom SQL dataset joining 3 or more tables</small>
+      </td>
+      <td>
+        Two custom SQL datasets created in SQL Lab:<br>
+        <code>ds_order_enriched</code> — joins <strong>7 tables</strong>:
+        orders + customers + order_items + products + translation + order_payments + order_reviews.<br>
+        <code>ds_customer_segments</code> — joins <strong>3 tables</strong>:
+        orders + customers + order_payments. Powers the customer segment chart.
+      </td>
+      <td>SQL Lab → Saved queries → Promoted to virtual datasets</td>
+    </tr>
+  </table>
+
+  <h2>Dashboard Chart Summary</h2>
+  <table>
+    <tr>
+      <th>#</th><th>Chart Title</th><th>Type</th><th>Primary Insight</th><th>Bonus</th>
+    </tr>
+    <tr>
+      <td>1</td><td>KPI Scorecard (Revenue, Orders, AOV)</td><td>Big Number ×3</td>
+      <td>At-a-glance health check with growth direction</td>
+      <td style="text-align:center;">★ MoM %</td>
+    </tr>
+    <tr>
+      <td>2</td><td>Monthly Revenue Trend</td><td>Line Chart</td>
+      <td>8.6× growth in 2017; plateau in 2018</td><td></td>
+    </tr>
+    <tr>
+      <td>3</td><td>Top 10 Categories by Revenue</td><td>Horizontal Bar</td>
+      <td>Bed/bath leads volume; watches leads AOV</td><td></td>
+    </tr>
+    <tr>
+      <td>4</td><td>Order Status Distribution</td><td>Donut Chart</td>
+      <td>96.5% delivered; &lt;1% cancelled</td><td></td>
+    </tr>
+    <tr>
+      <td>5</td><td>Revenue by Payment Method Over Time</td><td>Stacked Bar</td>
+      <td>Credit card ~78% stable; boleto ~17%</td><td></td>
+    </tr>
+    <tr>
+      <td>6</td><td>Late Delivery Rate by Category</td><td>Bar Chart</td>
+      <td>Platform avg ~8.5%; bulky categories worse</td><td></td>
+    </tr>
+    <tr>
+      <td>7</td><td>Customer Volume by State</td><td>Bar Chart</td>
+      <td>SP = 41% of orders; top 3 states = 65%</td><td></td>
+    </tr>
+    <tr>
+      <td>8</td><td>Customer Segment Distribution</td><td>Pie + Table</td>
+      <td>96.8% one-time buyers; returning spend 2×</td><td></td>
+    </tr>
+    <tr>
+      <td colspan="3" style="text-align:right; color:#666;"><em>Cross-filtering enabled on all charts</em></td>
+      <td></td><td style="text-align:center;">★ Cross-filter</td>
+    </tr>
+    <tr>
+      <td colspan="3" style="text-align:right; color:#666;"><em>2 custom SQL datasets (7-table JOIN, 3-table JOIN)</em></td>
+      <td></td><td style="text-align:center;">★ 3+ table JOIN</td>
+    </tr>
+  </table>
+
+  <div class="callout callout-bonus" style="margin-top:20px;">
+    <strong>★ All Three Bonus Points Implemented</strong>
+    The dashboard implements all three bonus requirements: (1) a Big Number chart with native
+    MoM percentage comparison, (2) cross-filtering enabled at dashboard level for interactive
+    drill-down without page navigation, and (3) two custom SQL datasets each joining 3+ tables
+    via SQL Lab, promoted to virtual datasets reused across multiple charts.
+  </div>
+
+  <div class="callout callout-insight" style="margin-top:16px;">
+    <strong>Presenting This Dashboard to the Senior Manager</strong>
+    The recommended walkthrough order during the interview:
+    <ol style="margin-top:8px;">
+      <li>Start with KPI cards (Chart 1) — set the context: where is the business today?</li>
+      <li>Revenue trend (Chart 2) — tell the growth story: rapid expansion then plateau</li>
+      <li>Categories (Chart 3) — demonstrate cross-filtering by clicking a category</li>
+      <li>Late delivery (Chart 6) — pivot to operational risk: 8.5% late rate by category</li>
+      <li>Customer segments (Chart 8) — land the strategic insight: 96.8% one-time buyers</li>
+      <li>Close with geography (Chart 7) — expansion opportunity in underserved states</li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 2: BI Dashboard &nbsp;|&nbsp; End of Document</span>
+  </div>
+</div>
+
+</body>
+</html>
