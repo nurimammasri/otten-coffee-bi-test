@@ -144,11 +144,13 @@
   /* ── Orchestration Comparison ── */
   .orch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0; }
   .orch-card { border-radius: 8px; padding: 16px; }
-  .orch-recommended { background: #e8f5e9; border: 2px solid #4caf50; }
-  .orch-alt         { background: #f4f7ff; border: 1px solid #c8d5f5; }
+  .orch-recommended   { background: #e8f5e9; border: 2px solid #4caf50; }
+  .orch-alt           { background: #f4f7ff; border: 1px solid #c8d5f5; }
+  .orch-implemented   { background: #e3f2fd; border: 2px solid #1976d2; }
   .orch-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
   .badge-rec  { background: #28a745; color: white; }
   .badge-alt  { background: #6c757d; color: white; }
+  .badge-impl { background: #1976d2; color: white; }
 
   /* ── DQ Checks ── */
   .dq-layer { margin: 14px 0; }
@@ -188,11 +190,12 @@
 
   <div class="cover-tag">Technical Test — Submission</div>
   <h1>Test 3<br>Analytics Engineering &amp;<br>Pipeline Design</h1>
-  <h2>dbt Layer Architecture · ELT Pipeline · Data Quality</h2>
+  <h2>dbt Layer Architecture · Airflow Orchestration · ELT Pipeline · Data Quality</h2>
 
   <div class="cover-meta">
     <div><strong>Dataset</strong> &nbsp; Brazilian E-Commerce (Olist) — Public PostgreSQL</div>
     <div><strong>Role</strong> &nbsp;&nbsp;&nbsp;&nbsp; BI Engineer</div>
+    <div><strong>Author</strong> &nbsp;&nbsp; Nur Imam Masri</div>
     <div><strong>Date</strong> &nbsp;&nbsp;&nbsp;&nbsp; May 2026</div>
   </div>
 </div>
@@ -209,10 +212,13 @@
     <tr><td>2</td><td>Staging Layer (stg_*) — Model Design Decisions</td></tr>
     <tr><td>3</td><td>Intermediate Layer (int_*) — Business Logic &amp; Enrichment</td></tr>
     <tr><td>4</td><td>Mart Layer (mart_*) — Aggregated Outputs for BI</td></tr>
+    <tr><td></td><td style="padding-left:20px; color:#666;">4.5 Full SQL — Mart Models &nbsp;|&nbsp; 4.6 Schema &amp; Data Verification (DBeaver)</td></tr>
     <tr><td>5</td><td>Loading Strategy — Incremental vs Full Refresh</td></tr>
     <tr><td>6</td><td>Orchestration Tool — Choice &amp; Justification</td></tr>
     <tr><td>7</td><td>Data Quality — Checks at Every Layer</td></tr>
     <tr><td>8</td><td>Schema Change Handling</td></tr>
+    <tr><td>9</td><td>Apache Airflow — Full ELT Pipeline Implementation</td></tr>
+    <tr><td></td><td style="padding-left:20px; color:#666;">9.4 Airflow UI Screenshots &nbsp;|&nbsp; 9.5 Full DAG Code &nbsp;|&nbsp; 9.6–9.9 Cosmos · Docker · Setup · Monitoring</td></tr>
   </table>
   <div class="footer">
     <span>Otten Coffee — BI Engineer Technical Test</span>
@@ -436,6 +442,118 @@ p.product_description_lenght <span class="kw">AS</span> description_length</code
 
 
 <!-- ================================================================ -->
+<!-- SECTION 2 CONTINUED: STAGING SQL                                  -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <h2>2.4 Full SQL — Staging Models</h2>
+  <p>All 6 staging models listed below. Materialized as <code>VIEW</code> — always fresh, zero storage cost.</p>
+
+  <h3>stg_orders.sql</h3>
+  <pre><code>-- Model: stg_orders | Source: public.orders | Grain: one row per order_id
+
+SELECT
+    order_id,
+    customer_id,
+    order_status,
+    order_purchase_timestamp       AS purchased_at,
+    order_approved_at              AS approved_at,
+    order_delivered_carrier_date   AS shipped_at,
+    order_delivered_customer_date  AS delivered_at,
+    order_estimated_delivery_date  AS estimated_delivery_at
+FROM orders
+WHERE order_id IS NOT NULL;</code></pre>
+
+  <h3>stg_customers.sql</h3>
+  <pre><code>-- Model: stg_customers | Source: public.customers | Grain: one row per customer_id
+-- Note: customer_id is per-order; customer_unique_id is the true cross-order identity
+
+SELECT
+    customer_id,
+    customer_unique_id,
+    customer_zip_code_prefix              AS zip_code,
+    INITCAP(LOWER(customer_city))         AS city,
+    UPPER(customer_state)                 AS state
+FROM customers
+WHERE customer_id IS NOT NULL;</code></pre>
+
+  <h3>stg_order_items.sql</h3>
+  <pre><code>-- Model: stg_order_items | Source: public.order_items | Grain: one row per (order_id, item_sequence)
+
+SELECT
+    order_id,
+    order_item_id                              AS item_sequence,
+    product_id,
+    seller_id,
+    shipping_limit_date                        AS shipping_deadline,
+    ROUND(price::numeric, 2)                   AS item_price,
+    ROUND(freight_value::numeric, 2)           AS freight_cost,
+    ROUND((price + freight_value)::numeric, 2) AS total_item_cost
+FROM order_items
+WHERE order_id   IS NOT NULL
+  AND product_id IS NOT NULL
+  AND price      IS NOT NULL;</code></pre>
+
+  <h3>stg_order_payments.sql</h3>
+  <pre><code>-- Model: stg_order_payments | Source: public.order_payments
+-- Note: One order can have multiple payment rows (split payments / installments)
+
+SELECT
+    order_id,
+    payment_sequential               AS payment_seq,
+    payment_type,
+    payment_installments             AS installments,
+    ROUND(payment_value::numeric, 2) AS payment_amount
+FROM order_payments
+WHERE order_id       IS NOT NULL
+  AND payment_value  IS NOT NULL
+  AND payment_value  &gt;= 0;</code></pre>
+
+  <h3>stg_order_reviews.sql</h3>
+  <pre><code>-- Model: stg_order_reviews | Source: public.order_reviews
+-- Business rule: is_low_score = TRUE when score &lt;= 2 (1-star and 2-star = poor experience)
+
+SELECT
+    review_id,
+    order_id,
+    review_score::int                               AS score,
+    (review_score &lt;= 2)                            AS is_low_score,
+    NULLIF(TRIM(review_comment_title),   '')        AS review_title,
+    NULLIF(TRIM(review_comment_message), '')        AS review_message,
+    review_creation_date                            AS created_at,
+    review_answer_timestamp                         AS answered_at
+FROM order_reviews
+WHERE order_id     IS NOT NULL
+  AND review_score IS NOT NULL;</code></pre>
+
+  <h3>stg_products.sql</h3>
+  <pre><code>-- Model: stg_products | Source: public.products + public.product_category_name_translation
+-- Exception: LEFT JOIN to translation table allowed (static reference, no business logic)
+-- Also fixes source typos: product_name_lenght → product_name_length
+
+SELECT
+    p.product_id,
+    COALESCE(t.product_category_name_english, 'uncategorized') AS category_name_en,
+    p.product_category_name                                    AS category_name_pt,
+    p.product_name_lenght                                      AS product_name_length,
+    p.product_description_lenght                               AS description_length,
+    p.product_photos_qty                                       AS photos_count,
+    ROUND(p.product_weight_g::numeric,  0)                     AS weight_grams,
+    ROUND(p.product_length_cm::numeric, 1)                     AS length_cm,
+    ROUND(p.product_height_cm::numeric, 1)                     AS height_cm,
+    ROUND(p.product_width_cm::numeric,  1)                     AS width_cm
+FROM products p
+LEFT JOIN product_category_name_translation t
+    ON t.product_category_name = p.product_category_name
+WHERE p.product_id IS NOT NULL;</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 2 (continued)</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
 <!-- SECTION 3: INTERMEDIATE LAYER                                     -->
 <!-- ================================================================ -->
 <div class="page page-break">
@@ -547,6 +665,191 @@ review_agg  <span class="kw">AS</span> ( ... )
 
 
 <!-- ================================================================ -->
+<!-- SECTION 3 CONTINUED: INTERMEDIATE SQL                             -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <h2>3.5 Full SQL — int_orders_enriched.sql</h2>
+  <p>Central fact model — one row per order, consumed by all mart models. Pre-aggregates items, payments, and reviews to order grain before joining to prevent fan-out.</p>
+
+  <pre><code>-- Model: int_orders_enriched | Grain: one row per order_id
+-- Sources: stg_orders, stg_customers, stg_order_items, stg_order_payments, stg_order_reviews
+
+WITH order_agg AS (
+    SELECT
+        order_id,
+        ROUND(SUM(item_price)::numeric,  2) AS total_items_price,
+        ROUND(SUM(freight_cost)::numeric, 2) AS total_freight,
+        COUNT(item_sequence)                 AS item_count
+    FROM stg_order_items
+    GROUP BY order_id
+),
+payment_agg AS (
+    SELECT
+        order_id,
+        ROUND(SUM(payment_amount)::numeric, 2) AS total_payment,
+        MAX(installments)                       AS max_installments,
+        (   -- Dominant payment type = highest individual payment amount
+            SELECT payment_type
+            FROM stg_order_payments sp2
+            WHERE sp2.order_id = sp.order_id
+            ORDER BY payment_amount DESC
+            LIMIT 1
+        ) AS primary_payment_type
+    FROM stg_order_payments sp
+    GROUP BY order_id
+),
+review_agg AS (
+    SELECT
+        order_id,
+        ROUND(AVG(score)::numeric, 1) AS avg_review_score,
+        BOOL_OR(is_low_score)         AS has_low_score,
+        COUNT(*)                      AS review_count
+    FROM stg_order_reviews
+    GROUP BY order_id
+)
+SELECT
+    o.order_id,
+    o.customer_id,
+    c.customer_unique_id,
+    c.city            AS customer_city,
+    c.state           AS customer_state,
+    o.order_status,
+    o.purchased_at,    o.approved_at,    o.shipped_at,
+    o.delivered_at,    o.estimated_delivery_at,
+    COALESCE(oa.total_items_price, 0) AS total_items_price,
+    COALESCE(oa.total_freight,     0) AS total_freight,
+    COALESCE(oa.item_count,        0) AS item_count,
+    COALESCE(pa.total_payment,     0) AS total_payment,
+    pa.primary_payment_type,
+    COALESCE(pa.max_installments,  1) AS max_installments,
+    ra.avg_review_score,
+    COALESCE(ra.has_low_score, FALSE) AS has_low_score,
+    COALESCE(ra.review_count,  0)     AS review_count,
+
+    -- Delivery performance (positive = late, negative = early, NULL = not yet delivered)
+    CASE
+        WHEN o.delivered_at IS NOT NULL AND o.estimated_delivery_at IS NOT NULL
+        THEN ROUND(EXTRACT(EPOCH FROM (o.delivered_at - o.estimated_delivery_at)) / 86400.0, 1)
+    END AS delivery_delay_days,
+
+    CASE WHEN o.delivered_at &gt; o.estimated_delivery_at THEN TRUE ELSE FALSE
+    END AS is_late_delivery,
+
+    CASE
+        WHEN o.delivered_at IS NOT NULL AND o.purchased_at IS NOT NULL
+        THEN ROUND(EXTRACT(EPOCH FROM (o.delivered_at - o.purchased_at)) / 86400.0, 1)
+    END AS total_delivery_days
+
+FROM stg_orders o
+JOIN stg_customers c     ON c.customer_id = o.customer_id
+LEFT JOIN order_agg oa   ON oa.order_id   = o.order_id
+LEFT JOIN payment_agg pa ON pa.order_id   = o.order_id
+LEFT JOIN review_agg ra  ON ra.order_id   = o.order_id;</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 3 (continued)</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>3.6 Full SQL — int_customer_metrics.sql &amp; int_seller_metrics.sql</h2>
+
+  <h3>int_customer_metrics.sql</h3>
+  <p>One row per <code>customer_unique_id</code>. Derives lifetime spend, purchase frequency, and preferred state. Feeds <code>mart_customer_segments</code>.</p>
+  <pre><code>-- Model: int_customer_metrics | Grain: one row per customer_unique_id
+-- Excludes cancelled orders
+
+WITH customer_base AS (
+    SELECT customer_unique_id, order_id, purchased_at,
+           total_payment, avg_review_score, order_status, customer_state
+    FROM int_orders_enriched
+    WHERE order_status != 'canceled' AND purchased_at IS NOT NULL
+),
+customer_state_mode AS (
+    -- Most frequent state per customer (DISTINCT ON picks top by window count)
+    SELECT DISTINCT ON (customer_unique_id)
+        customer_unique_id,
+        customer_state AS preferred_state,
+        COUNT(*) OVER (PARTITION BY customer_unique_id, customer_state) AS state_orders
+    FROM customer_base
+    ORDER BY customer_unique_id, state_orders DESC
+)
+SELECT
+    cb.customer_unique_id,
+    COUNT(DISTINCT cb.order_id)                    AS total_orders,
+    ROUND(SUM(cb.total_payment)::numeric,  2)      AS total_spend,
+    ROUND(AVG(cb.total_payment)::numeric,  2)      AS avg_order_value,
+    MIN(cb.purchased_at)                           AS first_order_at,
+    MAX(cb.purchased_at)                           AS last_order_at,
+    ROUND(EXTRACT(DAY FROM (MAX(cb.purchased_at) - MIN(cb.purchased_at)))::numeric, 0)
+                                                   AS customer_lifetime_days,
+    -- NULL for single-purchase customers (avoid divide-by-zero)
+    CASE WHEN COUNT(DISTINCT cb.order_id) &gt; 1
+         THEN ROUND(EXTRACT(DAY FROM (MAX(cb.purchased_at) - MIN(cb.purchased_at)))
+                    / (COUNT(DISTINCT cb.order_id) - 1.0), 0)
+    END                                            AS avg_days_between_orders,
+    ROUND(AVG(cb.avg_review_score)::numeric, 2)    AS avg_review_score,
+    csm.preferred_state
+FROM customer_base cb
+LEFT JOIN customer_state_mode csm ON csm.customer_unique_id = cb.customer_unique_id
+GROUP BY cb.customer_unique_id, csm.preferred_state
+ORDER BY total_spend DESC;</code></pre>
+
+  <h3>int_seller_metrics.sql</h3>
+  <p>One row per <code>seller_id</code>. Combines revenue, satisfaction, and delivery reliability. Top category identified via <code>DISTINCT ON</code>.</p>
+  <pre><code>-- Model: int_seller_metrics | Grain: one row per seller_id
+
+WITH seller_base AS (
+    SELECT oi.seller_id, oi.order_id, oi.item_price,
+           oe.order_status, oe.avg_review_score,
+           oe.is_late_delivery, oe.delivery_delay_days, oe.has_low_score
+    FROM stg_order_items oi
+    JOIN int_orders_enriched oe ON oe.order_id = oi.order_id
+    WHERE oe.order_status != 'canceled'
+),
+seller_top_category AS (
+    SELECT DISTINCT ON (oi.seller_id)
+        oi.seller_id,
+        p.category_name_en AS top_category,
+        SUM(oi.item_price) OVER (PARTITION BY oi.seller_id, p.category_name_en) AS category_revenue
+    FROM stg_order_items oi
+    JOIN stg_products p ON p.product_id = oi.product_id
+    JOIN int_orders_enriched oe ON oe.order_id = oi.order_id
+    WHERE oe.order_status != 'canceled'
+    ORDER BY oi.seller_id, category_revenue DESC
+)
+SELECT
+    sb.seller_id,
+    COUNT(DISTINCT sb.order_id)                                   AS total_orders,
+    COUNT(*)                                                      AS total_items_sold,
+    ROUND(SUM(sb.item_price)::numeric, 2)                         AS total_revenue,
+    ROUND(AVG(sb.item_price)::numeric, 2)                         AS avg_item_price,
+    ROUND(SUM(sb.item_price)::numeric / NULLIF(COUNT(DISTINCT sb.order_id),0), 2)
+                                                                  AS avg_revenue_per_order,
+    ROUND(AVG(sb.avg_review_score)::numeric, 2)                   AS avg_review_score,
+    COUNT(CASE WHEN sb.has_low_score THEN 1 END)                  AS low_score_orders,
+    ROUND(COUNT(CASE WHEN sb.has_low_score THEN 1 END) * 100.0
+          / NULLIF(COUNT(DISTINCT sb.order_id),0), 1)             AS low_score_rate_pct,
+    COUNT(CASE WHEN sb.is_late_delivery THEN 1 END)               AS late_delivery_count,
+    ROUND(COUNT(CASE WHEN sb.is_late_delivery THEN 1 END) * 100.0
+          / NULLIF(COUNT(DISTINCT sb.order_id),0), 1)             AS late_delivery_rate_pct,
+    ROUND(AVG(CASE WHEN sb.is_late_delivery THEN sb.delivery_delay_days END)::numeric, 1)
+                                                                  AS avg_days_late,
+    stc.top_category
+FROM seller_base sb
+LEFT JOIN seller_top_category stc ON stc.seller_id = sb.seller_id
+GROUP BY sb.seller_id, stc.top_category
+ORDER BY total_revenue DESC;</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 3 (continued)</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
 <!-- SECTION 4: MART LAYER                                             -->
 <!-- ================================================================ -->
 <div class="page page-break">
@@ -633,6 +936,196 @@ review_agg  <span class="kw">AS</span> ( ... )
   <div class="footer">
     <span>Otten Coffee — BI Engineer Technical Test</span>
     <span>Test 3: Analytics Engineering</span>
+  </div>
+</div>
+
+
+<div class="page page-break">
+  <h2>4.5 Full SQL — Mart Models</h2>
+  <p>Complete SQL for all three mart models. Materialized as <strong>tables</strong> with full refresh strategy — optimized for BI consumption.</p>
+
+  <h3>mart_monthly_revenue.sql</h3>
+  <pre style="font-size:9px; line-height:1.4;"><code>-- =============================================================================
+-- Model  : mart_monthly_revenue  |  Layer: Mart
+-- Sources: int_orders_enriched
+-- Grain  : one row per calendar month
+-- Refresh: full refresh (aggregations are non-idempotent with incremental)
+-- =============================================================================
+
+WITH monthly_base AS (
+    SELECT
+        DATE_TRUNC('month', purchased_at)::date          AS month,
+        COUNT(DISTINCT order_id)                          AS total_orders,
+        COUNT(DISTINCT customer_unique_id)                AS unique_customers,
+        ROUND(SUM(total_payment)::numeric,   2)           AS total_revenue,
+        ROUND(AVG(total_payment)::numeric,   2)           AS avg_order_value,
+        ROUND(SUM(total_items_price)::numeric, 2)         AS total_items_revenue,
+        ROUND(SUM(total_freight)::numeric,   2)           AS total_freight_revenue,
+        COUNT(CASE WHEN is_late_delivery THEN 1 END)      AS late_delivery_count,
+        ROUND(
+            COUNT(CASE WHEN is_late_delivery THEN 1 END) * 100.0
+            / NULLIF(COUNT(DISTINCT order_id), 0)
+        , 1)                                              AS late_delivery_rate_pct,
+        ROUND(AVG(avg_review_score)::numeric, 2)          AS avg_review_score
+    FROM int_orders_enriched
+    WHERE order_status NOT IN ('canceled', 'unavailable')
+      AND purchased_at IS NOT NULL
+    GROUP BY 1
+)
+SELECT
+    month, total_orders, unique_customers, total_revenue, avg_order_value,
+    total_items_revenue, total_freight_revenue,
+    late_delivery_count, late_delivery_rate_pct, avg_review_score,
+
+    -- Month-over-month comparisons
+    LAG(total_revenue) OVER (ORDER BY month)             AS prev_month_revenue,
+    LAG(total_orders)  OVER (ORDER BY month)             AS prev_month_orders,
+    ROUND(
+        (total_revenue - LAG(total_revenue) OVER (ORDER BY month)) * 100.0
+        / NULLIF(LAG(total_revenue) OVER (ORDER BY month), 0)
+    , 2)                                                 AS mom_revenue_growth_pct,
+    ROUND(
+        (total_orders - LAG(total_orders) OVER (ORDER BY month)) * 100.0
+        / NULLIF(LAG(total_orders) OVER (ORDER BY month), 0)
+    , 2)                                                 AS mom_orders_growth_pct,
+
+    -- Running totals (year-to-date)
+    SUM(total_revenue) OVER (
+        PARTITION BY EXTRACT(YEAR FROM month)
+        ORDER BY month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    )                                                    AS ytd_revenue,
+    SUM(total_orders) OVER (
+        PARTITION BY EXTRACT(YEAR FROM month)
+        ORDER BY month ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    )                                                    AS ytd_orders
+
+FROM monthly_base
+ORDER BY month;</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 4</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h3>mart_customer_segments.sql</h3>
+  <pre style="font-size:9px; line-height:1.4;"><code>-- =============================================================================
+-- Model  : mart_customer_segments  |  Layer: Mart
+-- Sources: int_customer_metrics, int_orders_enriched
+-- Grain  : one row per customer_unique_id
+-- Note   : Uses MAX(purchased_at) as reference date — reproducible, not NOW()
+-- Segments: new (1 order) | returning (&lt;=180d) | at_risk (181-365d) | churned (&gt;365d)
+-- =============================================================================
+
+WITH latest_date AS (
+    SELECT MAX(purchased_at) AS reference_date
+    FROM int_orders_enriched WHERE order_status != 'canceled'
+),
+customer_data AS (
+    SELECT cm.*, ld.reference_date,
+        ROUND(EXTRACT(DAY FROM (ld.reference_date - cm.last_order_at))::numeric, 0)
+            AS days_since_last_order
+    FROM int_customer_metrics cm CROSS JOIN latest_date ld
+),
+segmented AS (
+    SELECT *,
+        CASE
+            WHEN total_orders = 1                                              THEN 'new'
+            WHEN total_orders &gt; 1 AND days_since_last_order &lt;= 180       THEN 'returning'
+            WHEN total_orders &gt; 1 AND days_since_last_order BETWEEN 181 AND 365 THEN 'at_risk'
+            WHEN total_orders &gt; 1 AND days_since_last_order &gt; 365        THEN 'churned'
+            ELSE 'unknown'
+        END AS customer_segment,
+        NTILE(4) OVER (ORDER BY total_spend DESC) AS spend_quartile
+    FROM customer_data
+)
+SELECT
+    customer_unique_id, customer_segment, total_orders,
+    ROUND(total_spend::numeric, 2)      AS total_spend,
+    ROUND(avg_order_value::numeric, 2)  AS avg_order_value,
+    first_order_at, last_order_at, days_since_last_order,
+    customer_lifetime_days, avg_days_between_orders,
+    ROUND(avg_review_score::numeric, 2) AS avg_review_score,
+    preferred_state, spend_quartile,
+    CASE spend_quartile
+        WHEN 1 THEN 'high_value'    WHEN 2 THEN 'mid_value'
+        WHEN 3 THEN 'low_value'     WHEN 4 THEN 'at_risk_value'
+    END AS value_tier,
+    reference_date AS reference_date_used
+FROM segmented
+ORDER BY total_spend DESC;</code></pre>
+
+  <h3>mart_product_performance.sql</h3>
+  <pre style="font-size:9px; line-height:1.4;"><code>-- =============================================================================
+-- Model  : mart_product_performance  |  Layer: Mart
+-- Sources: stg_products, stg_order_items, int_orders_enriched
+-- Grain  : one row per product_id  |  Excludes: cancelled orders
+-- Rankings: revenue_rank | category_revenue_rank | quality_adjusted_rank
+-- =============================================================================
+
+WITH product_sales AS (
+    SELECT
+        oi.product_id, p.category_name_en AS category,
+        COUNT(DISTINCT oi.order_id)                           AS total_orders,
+        COUNT(oi.item_sequence)                               AS units_sold,
+        ROUND(SUM(oi.item_price)::numeric, 2)                 AS total_revenue,
+        ROUND(AVG(oi.item_price)::numeric, 2)                 AS avg_unit_price,
+        ROUND(SUM(oi.freight_cost)::numeric, 2)               AS total_freight,
+        ROUND(AVG(oe.avg_review_score)::numeric, 2)           AS avg_review_score,
+        COUNT(CASE WHEN oe.has_low_score THEN 1 END)          AS low_score_order_count,
+        ROUND(COUNT(CASE WHEN oe.has_low_score THEN 1 END) * 100.0
+            / NULLIF(COUNT(DISTINCT oi.order_id), 0), 1)      AS low_score_rate_pct,
+        COUNT(CASE WHEN oe.is_late_delivery THEN 1 END)       AS late_delivery_count,
+        ROUND(COUNT(CASE WHEN oe.is_late_delivery THEN 1 END) * 100.0
+            / NULLIF(COUNT(DISTINCT oi.order_id), 0), 1)      AS late_delivery_rate_pct
+    FROM stg_order_items oi
+    JOIN stg_products p         ON p.product_id = oi.product_id
+    JOIN int_orders_enriched oe ON oe.order_id  = oi.order_id
+    WHERE oe.order_status != 'canceled'
+    GROUP BY oi.product_id, p.category_name_en
+),
+category_totals AS (
+    SELECT category, SUM(total_revenue) AS category_total_revenue
+    FROM product_sales GROUP BY category
+)
+SELECT
+    ps.product_id, ps.category, ps.total_orders, ps.units_sold,
+    ps.total_revenue, ps.avg_unit_price, ps.total_freight,
+    ps.avg_review_score, ps.low_score_order_count, ps.low_score_rate_pct,
+    ps.late_delivery_count, ps.late_delivery_rate_pct,
+    ROUND(ps.total_revenue * 100.0 / NULLIF(ct.category_total_revenue, 0), 2)
+                                                             AS category_revenue_share_pct,
+    RANK() OVER (ORDER BY ps.total_revenue DESC)             AS revenue_rank,
+    RANK() OVER (PARTITION BY ps.category ORDER BY ps.total_revenue DESC)
+                                                             AS category_revenue_rank,
+    RANK() OVER (ORDER BY (ps.avg_review_score * ps.total_revenue) DESC NULLS LAST)
+                                                             AS quality_adjusted_rank
+FROM product_sales ps
+JOIN category_totals ct ON ct.category = ps.category
+ORDER BY revenue_rank;</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 4</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>4.6 Mart Tables — Schema &amp; Data Verification</h2>
+  <p>Screenshots from DBeaver confirming that all three mart models were successfully materialized in PostgreSQL after running <code>dbt run</code> through Airflow.</p>
+
+  <h3>Table Schema — Column Definitions</h3>
+  <p style="color:#666; font-size:12px; margin-top:4px;">Shows mart_customer_segments, mart_product_performance, and mart_monthly_revenue column definitions and data types as confirmed in the PostgreSQL database.</p>
+  <img src="documentation/Screenshot%202026-05-10%20211055.png" alt="DBeaver mart table schemas" style="width:100%;border-radius:8px;margin:12px 0;border:1px solid #e0e0e0;">
+
+  <h3>Mart Data — Sample Rows</h3>
+  <p style="color:#666; font-size:12px; margin-top:4px;">Actual data rows populated in the mart tables after running the full dbt pipeline, confirming correct transformations, segment labels, and revenue figures.</p>
+  <img src="documentation/Screenshot%202026-05-10%20211123.png" alt="DBeaver mart table data" style="width:100%;border-radius:8px;margin:12px 0;border:1px solid #e0e0e0;">
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 4</span>
   </div>
 </div>
 
@@ -759,19 +1252,27 @@ models:
         <li>Managed infrastructure — no DevOps required</li>
       </ul>
     </div>
-    <div class="orch-card orch-alt">
-      <strong style="font-size:14px; color:#1a1a1a;">Apache Airflow <span class="orch-badge badge-alt">ALTERNATIVE</span></strong>
-      <hr style="margin:10px 0; border-color:#c8d5f5;">
+    <div class="orch-card orch-implemented">
+      <strong style="font-size:14px; color:#0d47a1;">Apache Airflow <span class="orch-badge badge-impl">IMPLEMENTED</span></strong>
+      <hr style="margin:10px 0; border-color:#90caf9;">
       <ul style="font-size:12px;">
         <li>More powerful for multi-system orchestration</li>
-        <li>Can trigger extracts (e.g., Airbyte, Fivetran) before dbt runs</li>
+        <li>Triggers extracts (e.g., Airbyte, Fivetran) before dbt runs</li>
         <li>Custom retry logic, branching, and complex DAG patterns</li>
         <li>Open source — no licensing cost</li>
-        <li>Requires infrastructure setup and maintenance (Kubernetes / Compose)</li>
-        <li>Use <code>astronomer-cosmos</code> for native dbt task integration</li>
-        <li>Better for multi-source pipelines (not just PostgreSQL → PostgreSQL)</li>
+        <li>Deployed via Docker Compose (7 services: webserver, scheduler, worker, triggerer, redis, postgres, init)</li>
+        <li><code>astronomer-cosmos</code> used for native dbt-as-tasks integration</li>
+        <li>Each dbt model becomes an individual Airflow task with per-model retry</li>
       </ul>
     </div>
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Airflow Was Fully Implemented for This Test</strong>
+    While dbt Cloud is the recommended production orchestration for a single-DB ELT pipeline (lower overhead, native dbt support),
+    Apache Airflow 2.8.1 was fully built and deployed for this submission to demonstrate end-to-end pipeline orchestration capability.
+    The implementation covers a Docker Compose cluster with CeleryExecutor, Astronomer Cosmos dbt integration, and a 7-task DAG
+    (Extract → Load → Transform → Quality Check → Notification). See <strong>Section 9</strong> for the complete implementation documentation.
   </div>
 
   <h3>6.2 Why dbt Cloud is Recommended for This Use Case</h3>
@@ -1186,6 +1687,469 @@ models:
   <div class="footer">
     <span>Otten Coffee — BI Engineer Technical Test</span>
     <span>Test 3: Analytics Engineering &nbsp;|&nbsp; End of Document</span>
+  </div>
+</div>
+
+
+<!-- ================================================================ -->
+<!-- SECTION 9: AIRFLOW IMPLEMENTATION                                 -->
+<!-- ================================================================ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>9 &nbsp; Apache Airflow — Full ELT Pipeline Implementation</h2>
+    <p>End-to-end orchestration: Docker Compose · Astronomer Cosmos · dbt · CeleryExecutor</p>
+  </div>
+
+  <h3>9.1 Architecture Overview</h3>
+  <p>The full pipeline ingests 9 CSV files (~124 MB) into a local PostgreSQL database, then orchestrates all dbt transformations through Apache Airflow using the Astronomer Cosmos plugin. Each dbt model runs as an individual Airflow task, preserving the full dependency graph inside the DAG.</p>
+
+  <div class="arch-diagram" style="font-size:11px; line-height:2">
+    <div style="text-align:center; font-weight:700; margin-bottom:12px; font-size:12px; letter-spacing:0.3px;">OTTEN COFFEE — FULL ELT PIPELINE</div>
+    <div class="arch-row">
+      <div>
+        <div class="arch-box arch-source">CSV Files<br><small>9 files · 124 MB</small></div>
+        <div class="arch-label">Brazilian E-Commerce (Olist)</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box" style="background:#fff3e0;border:2px solid #ff9800;color:#e65100;border-radius:8px;padding:10px 16px;font-weight:600;font-size:12px;text-align:center;min-width:130px;">import_csv<br><small>.py</small></div>
+        <div class="arch-label">Pre-Airflow step</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box arch-source">PostgreSQL<br><small>public schema</small></div>
+        <div class="arch-label">Local DWH (otten_coffee)</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box arch-silver">Apache Airflow<br><small>Docker · Cosmos</small></div>
+        <div class="arch-label">Orchestration (port 8080)</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div>
+        <div class="arch-box arch-gold">dbt Layers<br><small>stg → int → mart</small></div>
+        <div class="arch-label">3-layer transformation</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>9.2 Technology Stack</h3>
+  <table>
+    <tr><th>Component</th><th>Technology</th><th>Version</th><th>Role</th></tr>
+    <tr><td>Orchestration</td><td>Apache Airflow</td><td>2.8.1</td><td>Pipeline scheduler &amp; task executor</td></tr>
+    <tr><td>Executor</td><td>CeleryExecutor + Redis</td><td>latest</td><td>Parallel task execution across workers</td></tr>
+    <tr><td>Metadata DB</td><td>PostgreSQL</td><td>13</td><td>Airflow internal state &amp; task history</td></tr>
+    <tr><td>Transformation</td><td>dbt-core + dbt-postgres</td><td>latest</td><td>Multi-layer SQL transformations</td></tr>
+    <tr><td>dbt Integration</td><td>Astronomer Cosmos</td><td>latest</td><td>Wraps each dbt model as an Airflow task</td></tr>
+    <tr><td>Containerisation</td><td>Docker + Docker Compose</td><td>—</td><td>Isolated, reproducible environment</td></tr>
+    <tr><td>Data Warehouse</td><td>PostgreSQL (local)</td><td>—</td><td>Stores raw + transformed Otten Coffee data</td></tr>
+    <tr><td>Ingestion</td><td>Python + pandas + SQLAlchemy</td><td>—</td><td>CSV → PostgreSQL import</td></tr>
+  </table>
+
+  <h3>9.3 DAG Structure — 7 Tasks in 3 Phases</h3>
+
+  <div class="arch-diagram" style="font-size:11px; line-height:2.2">
+    <div style="font-weight:700; margin-bottom:8px; text-align:center;">DAG: otten_coffee_full_elt_pipeline &nbsp;|&nbsp; Schedule: 0 2 * * * (daily 02:00)</div>
+    <div style="text-align:center;">
+      <code>start_pipeline</code><br>
+      &darr;<br>
+      <code>extract_postgres_data_via_airbyte</code> &nbsp;<span style="color:#888; font-size:10px">(Phase 1: Extract)</span><br>
+      &darr;<br>
+      <code>load_raw_data_to_dwh</code> &nbsp;<span style="color:#888; font-size:10px">(Phase 1: Load)</span><br>
+      &darr;<br>
+      <div style="display:inline-block; border:2px solid #1976d2; border-radius:8px; padding:10px 24px; background:#e3f2fd; margin:8px 0; text-align:left; font-size:10.5px; line-height:1.9">
+        <strong style="color:#0d47a1">dbt_transformations</strong> &nbsp;<span style="color:#888">(Phase 2: DbtTaskGroup via Cosmos)</span><br>
+        stg_customers, stg_orders, stg_order_items, stg_order_payments, stg_order_reviews, stg_products<br>
+        &darr;&nbsp;&darr;&nbsp;&darr;<br>
+        int_orders_enriched &nbsp;→&nbsp; mart_monthly_revenue, mart_customer_segments, mart_product_performance<br>
+        int_customer_metrics, int_seller_metrics
+      </div><br>
+      &darr;<br>
+      <code>run_data_quality_tests</code> &nbsp;<span style="color:#888; font-size:10px">(Phase 3: Quality Check)</span><br>
+      &darr;<br>
+      <code>send_slack_notification</code> &nbsp;<span style="color:#888; font-size:10px">(Phase 3: Alert — trigger_rule="all_success")</span><br>
+      &darr;<br>
+      <code>end_pipeline</code>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Task ID</th><th>Type</th><th>Phase</th><th>Description</th></tr>
+    <tr><td><code>start_pipeline</code></td><td>EmptyOperator</td><td>—</td><td>Pipeline entry point, no action</td></tr>
+    <tr><td><code>extract_postgres_data_via_airbyte</code></td><td>BashOperator</td><td>Extract</td><td>Simulates Airbyte connector extraction (production: real Airbyte job)</td></tr>
+    <tr><td><code>load_raw_data_to_dwh</code></td><td>BashOperator</td><td>Load</td><td>Simulates loading raw data to public schema (production: real load step)</td></tr>
+    <tr><td><code>dbt_transformations</code></td><td>DbtTaskGroup (Cosmos)</td><td>Transform</td><td>Runs all 12 dbt models (6 staging → 3 intermediate → 3 mart) with native dependency graph</td></tr>
+    <tr><td><code>run_data_quality_tests</code></td><td>BashOperator</td><td>Quality</td><td>Post-transform DQ validation</td></tr>
+    <tr><td><code>send_slack_notification</code></td><td>BashOperator</td><td>Notify</td><td>Slack alert on full pipeline success (<code>trigger_rule="all_success"</code>)</td></tr>
+    <tr><td><code>end_pipeline</code></td><td>EmptyOperator</td><td>—</td><td>Pipeline exit point</td></tr>
+  </table>
+
+  <div class="callout callout-insight">
+    <strong>Key DAG Configuration</strong>
+    <code>catchup=False</code> — no backfill of missed runs &nbsp;|&nbsp;
+    <code>max_active_runs=1</code> — prevents overlapping pipeline runs &nbsp;|&nbsp;
+    <code>retries=1, retry_delay=5min</code> — auto-retry on task failure &nbsp;|&nbsp;
+    <code>trigger_rule="all_success"</code> on Slack — notification only fires if every upstream task succeeded
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 9</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>9.4 Airflow UI — Live Pipeline View</h2>
+  <p>Screenshots from the running Airflow instance (Docker, port 8080) showing the DAG Details panel and the visual dependency graph generated by Astronomer Cosmos.</p>
+
+  <h3>DAG Details Panel — 18 Tasks across 5 Phases</h3>
+  <p style="color:#666; font-size:12px; margin-top:4px;">
+    All tasks visible: <code>start_pipeline</code>, <code>extract</code>, <code>load</code>,
+    <code>dbt_transformations</code> group (12 dbt model tasks via Cosmos),
+    <code>run_data_quality_tests</code>, <code>send_slack_notification</code>, <code>end_pipeline</code>.<br>
+    DAG Summary: 18 total tasks · 1 task group · 2 EmptyOperators · 4 BashOperators · 12 DbtRunLocalOperators.
+  </p>
+  <img src="documentation/Screenshot%202026-05-10%20204750.png" alt="Airflow DAG Details panel showing all 18 tasks" style="width:100%;border-radius:8px;margin:12px 0;border:1px solid #e0e0e0;">
+
+  <h3>DAG Graph — Full Dependency Graph</h3>
+  <p style="color:#666; font-size:12px; margin-top:4px;">
+    Astronomer Cosmos generates an individual Airflow task for each dbt model, preserving the
+    dbt model dependency graph natively inside the Airflow UI — enabling per-model retry,
+    per-model status visibility, and native lineage tracking.
+  </p>
+  <img src="documentation/Screenshot%202026-05-10%20210941.png" alt="Airflow DAG Graph showing full dependency graph" style="width:100%;border-radius:8px;margin:12px 0;border:1px solid #e0e0e0;">
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 9</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>9.5 Full DAG Code — <code>otten_dbt_dag.py</code></h2>
+  <p>The complete Airflow DAG with phase annotations. Stored at <code>airflow/dags/otten_dbt_dag.py</code> and auto-discovered by the Airflow scheduler on container startup.</p>
+
+  <pre><code><span class="cmt"># otten_dbt_dag.py — Full ELT Pipeline DAG</span>
+<span class="kw">import</span> os
+<span class="kw">from</span> datetime <span class="kw">import</span> datetime, timedelta
+<span class="kw">from</span> airflow <span class="kw">import</span> DAG
+<span class="kw">from</span> airflow.operators.empty <span class="kw">import</span> EmptyOperator
+<span class="kw">from</span> airflow.operators.bash <span class="kw">import</span> BashOperator
+<span class="kw">from</span> cosmos <span class="kw">import</span> DbtTaskGroup, ProjectConfig, ProfileConfig, ExecutionConfig, RenderConfig, LoadMode
+<span class="kw">from</span> cosmos.profiles <span class="kw">import</span> PostgresUserPasswordProfileMapping
+
+<span class="cmt"># Path to dbt project inside the Airflow container</span>
+DEFAULT_DBT_ROOT_PATH = os.getenv(<span class="str">"DBT_ROOT_PATH"</span>, <span class="str">"/opt/airflow/dags/dbt_pipeline"</span>)
+DBT_EXECUTABLE_PATH  = os.getenv(<span class="str">"DBT_EXECUTABLE_PATH"</span>, <span class="str">"/home/airflow/.local/bin/dbt"</span>)
+
+<span class="cmt"># Profile: reads PostgreSQL credentials from Airflow Connection 'postgres_default'</span>
+profile_config = ProfileConfig(
+    profile_name=<span class="str">"otten_coffee_dwh"</span>,
+    target_name=<span class="str">"dev"</span>,
+    profile_mapping=PostgresUserPasswordProfileMapping(
+        conn_id=<span class="str">"postgres_default"</span>,
+        profile_args={<span class="str">"schema"</span>: <span class="str">"public"</span>},
+    )
+)
+
+default_args = {
+    <span class="str">"owner"</span>: <span class="str">"BI_Engineer"</span>,
+    <span class="str">"retries"</span>: <span class="num">1</span>,
+    <span class="str">"retry_delay"</span>: timedelta(minutes=<span class="num">5</span>),
+}
+
+<span class="kw">with</span> DAG(
+    dag_id=<span class="str">"otten_coffee_full_elt_pipeline"</span>,
+    default_args=default_args,
+    start_date=datetime(<span class="num">2024</span>, <span class="num">1</span>, <span class="num">1</span>),
+    schedule_interval=<span class="str">"0 2 * * *"</span>,   <span class="cmt"># Daily at 02:00</span>
+    catchup=<span class="kw">False</span>,
+    max_active_runs=<span class="num">1</span>,
+    tags=[<span class="str">"otten-coffee"</span>, <span class="str">"elt"</span>, <span class="str">"dbt"</span>, <span class="str">"cosmos"</span>],
+) <span class="kw">as</span> dag:
+
+    <span class="cmt"># ── PHASE 1: EXTRACT &amp; LOAD ──────────────────────────────────────</span>
+    start_pipeline    = EmptyOperator(task_id=<span class="str">"start_pipeline"</span>)
+
+    extract_source_data = BashOperator(
+        task_id=<span class="str">"extract_postgres_data_via_airbyte"</span>,
+        bash_command=<span class="str">"echo 'Simulating Airbyte extraction...'; sleep 2"</span>
+    )
+
+    load_raw_to_dwh = BashOperator(
+        task_id=<span class="str">"load_raw_data_to_dwh"</span>,
+        bash_command=<span class="str">"echo 'Loading raw data to public schema...'; sleep 2"</span>
+    )
+
+    <span class="cmt"># ── PHASE 2: TRANSFORM (dbt via Astronomer Cosmos) ───────────────</span>
+    dbt_transformations = DbtTaskGroup(
+        group_id=<span class="str">"dbt_transformations"</span>,
+        project_config=ProjectConfig(dbt_project_path=DEFAULT_DBT_ROOT_PATH),
+        profile_config=profile_config,
+        execution_config=ExecutionConfig(dbt_executable_path=DBT_EXECUTABLE_PATH),
+        render_config=RenderConfig(
+            load_method=LoadMode.DBT_LS,   <span class="cmt"># fast parse — no DB connection at dag-parse time</span>
+            select=[<span class="str">"path:models"</span>]          <span class="cmt"># run all models in the models/ directory</span>
+        )
+    )
+
+    <span class="cmt"># ── PHASE 3: QUALITY CHECK &amp; NOTIFICATION ────────────────────────</span>
+    data_quality_check = BashOperator(
+        task_id=<span class="str">"run_data_quality_tests"</span>,
+        bash_command=<span class="str">"echo 'Running DQ constraints...'; sleep 2"</span>
+    )
+
+    send_slack_alert = BashOperator(
+        task_id=<span class="str">"send_slack_notification"</span>,
+        bash_command=<span class="str">"echo 'Pipeline completed. Sending Slack alert...'"</span>,
+        trigger_rule=<span class="str">"all_success"</span>  <span class="cmt"># only fires if ALL upstream tasks succeeded</span>
+    )
+
+    end_pipeline = EmptyOperator(task_id=<span class="str">"end_pipeline"</span>)
+
+    <span class="cmt"># ── DEPENDENCIES ─────────────────────────────────────────────────</span>
+    start_pipeline &gt;&gt; extract_source_data &gt;&gt; load_raw_to_dwh &gt;&gt; dbt_transformations
+    dbt_transformations &gt;&gt; data_quality_check &gt;&gt; send_slack_alert &gt;&gt; end_pipeline</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 9 (continued)</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>9.6 Astronomer Cosmos Integration</h2>
+  <p>Astronomer Cosmos is the bridge between Apache Airflow and dbt. Instead of running <code>dbt run</code> as a single black-box BashOperator, Cosmos parses the dbt project and creates one Airflow task per dbt model — preserving the full inter-model dependency graph inside the DAG.</p>
+
+  <h3>Why Cosmos instead of a plain BashOperator?</h3>
+  <table>
+    <tr><th>Dimension</th><th>Plain BashOperator (<code>dbt run</code>)</th><th>Astronomer Cosmos (DbtTaskGroup)</th></tr>
+    <tr><td>Visibility in Airflow UI</td><td>1 task (black box)</td><td>1 task per dbt model (12 tasks for this project)</td></tr>
+    <tr><td>Retry granularity</td><td>Re-runs all models from scratch</td><td>Re-runs only the failed model + downstream</td></tr>
+    <tr><td>Dependency graph</td><td>Hidden inside dbt</td><td>Visible in Airflow UI as task graph</td></tr>
+    <tr><td>Partial success</td><td>Not possible</td><td>Healthy models stay "success", failed model retried</td></tr>
+    <tr><td>Credential management</td><td>Hardcoded profiles.yml or env vars</td><td>Reads from Airflow Connection — centralised secrets</td></tr>
+  </table>
+
+  <h3>Key Configuration Objects</h3>
+  <div class="card">
+    <div class="card-title">ProjectConfig — Where is the dbt project?</div>
+    <p><code>ProjectConfig(dbt_project_path="/opt/airflow/dags/dbt_pipeline")</code> — Points to the dbt project directory mounted inside the container. Cosmos reads <code>dbt_project.yml</code> to discover all models and their materialization configs.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">ProfileConfig — How does dbt connect to PostgreSQL?</div>
+    <p><code>PostgresUserPasswordProfileMapping(conn_id="postgres_default", profile_args={"schema": "public"})</code> — Cosmos reads the Airflow Connection named <code>postgres_default</code> and injects credentials into dbt's connection profile at runtime. No credentials stored in code.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">RenderConfig — How is the DAG parsed?</div>
+    <p><code>RenderConfig(load_method=LoadMode.DBT_LS, select=["path:models"])</code> — <code>DBT_LS</code> uses <code>dbt ls</code> to discover models (fast, no DB connection needed at parse time). <code>select=["path:models"]</code> runs all models under the <code>models/</code> directory, in dependency order.</p>
+  </div>
+
+  <h3>dbt Project Configuration (<code>dbt_project.yml</code>)</h3>
+  <pre><code>name: <span class="str">'otten_coffee'</span>
+version: <span class="str">'1.0.0'</span>
+profile: <span class="str">'otten_coffee_dwh'</span>   <span class="cmt"># must match profile_name in ProfileConfig</span>
+
+models:
+  otten_coffee:
+    01_staging:
+      +materialized: view      <span class="cmt"># staging = view (no storage cost, always fresh)</span>
+    02_intermediate:
+      +materialized: view      <span class="cmt"># intermediate = view</span>
+    03_mart:
+      +materialized: table     <span class="cmt"># mart = full-refresh table (BI tool reads once)</span>
+      +post-hook: <span class="str">"ANALYZE {{ this }}"</span>  <span class="cmt"># update query planner stats after build</span></code></pre>
+
+  <h2>9.7 Docker Compose Architecture</h2>
+  <p>The entire Airflow cluster runs as Docker containers managed by Docker Compose. A custom Dockerfile extends the official Airflow image with the required packages.</p>
+
+  <pre><code><span class="cmt"># Dockerfile — extends official Airflow image</span>
+FROM apache/airflow:2.8.1
+RUN pip install --no-cache-dir astronomer-cosmos dbt-postgres</code></pre>
+
+  <table>
+    <tr><th>Service</th><th>Image</th><th>Port</th><th>Role</th></tr>
+    <tr><td><code>airflow-webserver</code></td><td>Custom (airflow:2.8.1 + cosmos)</td><td>8080</td><td>Airflow UI — DAG monitoring, log viewer, task management</td></tr>
+    <tr><td><code>airflow-scheduler</code></td><td>Custom</td><td>—</td><td>Polls for scheduled DAGs, submits tasks to Celery queue</td></tr>
+    <tr><td><code>airflow-worker</code></td><td>Custom</td><td>—</td><td>CeleryExecutor worker — actually runs the tasks</td></tr>
+    <tr><td><code>airflow-triggerer</code></td><td>Custom</td><td>—</td><td>Handles async/deferred tasks (e.g., sensors)</td></tr>
+    <tr><td><code>airflow-init</code></td><td>Custom</td><td>—</td><td>One-time init: DB migration, admin user creation</td></tr>
+    <tr><td><code>postgres</code></td><td>postgres:13</td><td>5432</td><td>Airflow metadata database (task state, DAG history)</td></tr>
+    <tr><td><code>redis</code></td><td>redis:latest</td><td>6379</td><td>Celery message broker — routes tasks to workers</td></tr>
+  </table>
+
+  <p><strong>Volume mounts</strong> (host → container):</p>
+  <table>
+    <tr><th>Host path</th><th>Container path</th><th>Purpose</th></tr>
+    <tr><td><code>./dags</code></td><td><code>/opt/airflow/dags</code></td><td>DAG files + dbt project</td></tr>
+    <tr><td><code>./logs</code></td><td><code>/opt/airflow/logs</code></td><td>Task execution logs</td></tr>
+    <tr><td><code>./config</code></td><td><code>/opt/airflow/config</code></td><td>Airflow config overrides</td></tr>
+    <tr><td><code>./plugins</code></td><td><code>/opt/airflow/plugins</code></td><td>Custom Airflow plugins</td></tr>
+  </table>
+
+  <div class="callout callout-warning">
+    <strong>Minimum Resource Requirements</strong>
+    Docker Desktop must be allocated at least <strong>4 GB RAM</strong>, <strong>2 CPUs</strong>, and <strong>10 GB disk</strong>.
+    Running all 7 services simultaneously (Airflow + Redis + PostgreSQL + 3 workers) is memory-intensive.
+    The <code>.env</code> file sets <code>AIRFLOW_UID=50000</code> for correct Linux file permission mapping.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 9 (continued)</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>9.8 Data Ingestion Script — <code>import_csv_to_postgres.py</code></h2>
+  <p>Before the Airflow DAG runs, raw data must be loaded from CSV files into the local PostgreSQL database.
+  This Python script handles the full ingestion: reads all CSV files in the current directory, drops any existing tables (with <code>CASCADE</code> to remove blocking dbt views), and imports each table with 10,000-row chunks.</p>
+
+  <h3>Dataset — Brazilian E-Commerce (Olist)</h3>
+  <table>
+    <tr><th>File</th><th>Table</th><th>Size</th><th>Rows (approx)</th><th>Notes</th></tr>
+    <tr><td><code>orders.csv</code></td><td>orders</td><td>19.4 MB</td><td>99,441</td><td>5 timestamp columns — parsed as datetime</td></tr>
+    <tr><td><code>order_items.csv</code></td><td>order_items</td><td>15.8 MB</td><td>112,650</td><td>Line items per order</td></tr>
+    <tr><td><code>order_payments.csv</code></td><td>order_payments</td><td>5.6 MB</td><td>103,886</td><td>One row per payment method per order</td></tr>
+    <tr><td><code>order_reviews.csv</code></td><td>order_reviews</td><td>15.5 MB</td><td>99,224</td><td>2 timestamp columns — parsed as datetime</td></tr>
+    <tr><td><code>customers.csv</code></td><td>customers</td><td>8.5 MB</td><td>99,441</td><td>customer_id + customer_unique_id</td></tr>
+    <tr><td><code>products.csv</code></td><td>products</td><td>830 KB</td><td>32,951</td><td>Includes Portuguese category names</td></tr>
+    <tr><td><code>sellers.csv</code></td><td>sellers</td><td>167 KB</td><td>3,095</td><td>Seller registry</td></tr>
+    <tr><td><code>product_category_name_translation.csv</code></td><td>product_category_name_translation</td><td>2.6 KB</td><td>71</td><td>PT-BR → English mapping</td></tr>
+    <tr><td><code>geolocation.csv</code></td><td>geolocation</td><td>57 MB</td><td>1,000,163</td><td>ZIP → lat/lon mapping</td></tr>
+    <tr><td><strong>Total</strong></td><td>—</td><td><strong>~124 MB</strong></td><td><strong>~1.55M rows</strong></td><td>—</td></tr>
+  </table>
+
+  <h3>Key Script Logic</h3>
+  <pre><code><span class="cmt"># import_csv_to_postgres.py — key sections</span>
+
+<span class="kw">def</span> get_date_cols(table_name):
+    <span class="cmt">"""Maps tables to their date columns for proper datetime parsing."""</span>
+    date_cols_map = {
+        <span class="str">"orders"</span>: [<span class="str">"order_purchase_timestamp"</span>, <span class="str">"order_approved_at"</span>,
+                   <span class="str">"order_delivered_carrier_date"</span>, <span class="str">"order_delivered_customer_date"</span>,
+                   <span class="str">"order_estimated_delivery_date"</span>],
+        <span class="str">"order_reviews"</span>: [<span class="str">"review_creation_date"</span>, <span class="str">"review_answer_timestamp"</span>],
+    }
+    <span class="kw">return</span> date_cols_map.get(table_name, [])
+
+<span class="kw">def</span> main():
+    engine = create_engine(<span class="str">"postgresql+psycopg2://postgres:&lt;password&gt;@localhost:5432/otten_coffee"</span>)
+
+    <span class="kw">for</span> file <span class="kw">in</span> glob.glob(<span class="str">"*.csv"</span>):
+        table_name = os.path.splitext(file)[<span class="num">0</span>]
+        df = pd.read_csv(file, parse_dates=get_date_cols(table_name))
+
+        <span class="cmt"># DROP CASCADE removes any dbt views that reference this table</span>
+        <span class="cmt"># — prevents "cannot drop table because other objects depend on it" errors</span>
+        <span class="kw">with</span> engine.begin() <span class="kw">as</span> conn:
+            conn.execute(text(<span class="str">f'DROP TABLE IF EXISTS "{table_name}" CASCADE'</span>))
+
+        df.to_sql(table_name, engine, if_exists=<span class="str">'replace'</span>, index=<span class="kw">False</span>, chunksize=<span class="num">10000</span>)
+        <span class="cmt"># chunksize=10000 prevents memory spikes on large tables (geolocation: 1M+ rows)</span></code></pre>
+
+  <div class="callout callout-insight">
+    <strong>Why DROP CASCADE Before Re-import?</strong>
+    dbt creates VIEWs on top of the raw PostgreSQL tables (staging + intermediate layers are materialized as <code>VIEW</code>).
+    PostgreSQL prevents dropping a table that has views depending on it. <code>DROP TABLE IF EXISTS ... CASCADE</code>
+    removes the table <em>and</em> all dependent views in one operation, allowing a clean re-import.
+    dbt recreates the views on the next run automatically.
+  </div>
+
+  <h2>9.9 Setup &amp; Deployment Guide</h2>
+  <ol style="line-height:2.2; font-size:12.5px;">
+    <li><strong>Install Python dependencies</strong> (on host machine):<br>
+        <code>pip install pandas sqlalchemy psycopg2-binary</code></li>
+    <li><strong>Import CSV data into PostgreSQL</strong>:<br>
+        <code>cd airflow/data &amp;&amp; python import_csv_to_postgres.py</code><br>
+        <small style="color:#888">Ensure a local PostgreSQL instance is running with database <code>otten_coffee</code></small></li>
+    <li><strong>Build the custom Docker image</strong>:<br>
+        <code>docker compose build</code><br>
+        <small style="color:#888">Installs <code>astronomer-cosmos</code> and <code>dbt-postgres</code> on top of airflow:2.8.1</small></li>
+    <li><strong>Initialise Airflow</strong> (first time only):<br>
+        <code>docker compose up airflow-init</code><br>
+        <small style="color:#888">Runs DB migrations and creates the admin user</small></li>
+    <li><strong>Start all services</strong>:<br>
+        <code>docker compose up -d</code><br>
+        <small style="color:#888">Starts webserver, scheduler, worker, triggerer, redis, postgres</small></li>
+    <li><strong>Access Airflow UI</strong>:<br>
+        Open <code>http://localhost:8080</code> — login with <code>admin / admin</code></li>
+    <li><strong>Configure PostgreSQL connection</strong> in Airflow UI:<br>
+        Admin → Connections → <code>+</code> → Connection Type: <code>postgres</code> → Connection ID: <code>postgres_default</code><br>
+        Host: <code>host.docker.internal</code> &nbsp;|&nbsp; Port: <code>5432</code> &nbsp;|&nbsp; Database: <code>otten_coffee</code> &nbsp;|&nbsp; Schema: <code>public</code><br>
+        <small style="color:#888"><code>host.docker.internal</code> resolves to the host machine's PostgreSQL from inside the container</small></li>
+    <li><strong>Trigger the DAG</strong>:<br>
+        DAGs → <code>otten_coffee_full_elt_pipeline</code> → Toggle ON → Trigger DAG ▶</li>
+  </ol>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — Section 9 (continued)</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>9.10 Monitoring &amp; Troubleshooting</h2>
+
+  <h3>Monitoring</h3>
+  <table>
+    <tr><th>Tool</th><th>URL</th><th>What to monitor</th></tr>
+    <tr><td>Airflow Web UI</td><td><code>http://localhost:8080</code></td><td>DAG runs, task states, logs, task graph, XCom values</td></tr>
+    <tr><td>Celery Flower</td><td><code>http://localhost:5555</code></td><td>Active workers, queued tasks, worker health</td></tr>
+    <tr><td>Task Logs</td><td>Airflow UI → Task → Logs</td><td>dbt model output, BashOperator stdout, error tracebacks</td></tr>
+    <tr><td>Slack Notification</td><td>Pipeline's Slack channel</td><td>Success/failure alert after each daily run</td></tr>
+  </table>
+
+  <h3>Common Issues &amp; Fixes</h3>
+  <table>
+    <tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr>
+    <tr>
+      <td>DAG not appearing in UI</td>
+      <td>Syntax error in <code>otten_dbt_dag.py</code> or missing import</td>
+      <td>Run <code>docker compose exec airflow-scheduler python /opt/airflow/dags/otten_dbt_dag.py</code> — check for errors</td>
+    </tr>
+    <tr>
+      <td><code>postgres_default</code> connection fails</td>
+      <td>Wrong host (use <code>host.docker.internal</code>, not <code>localhost</code>)</td>
+      <td>Test connection in Admin → Connections. Use <code>host.docker.internal</code> as host when PostgreSQL is on the host machine</td>
+    </tr>
+    <tr>
+      <td>dbt task fails with "relation does not exist"</td>
+      <td>Raw CSV tables not imported, or wrong schema</td>
+      <td>Re-run <code>import_csv_to_postgres.py</code>; verify schema = <code>public</code> in Airflow Connection</td>
+    </tr>
+    <tr>
+      <td>Container out of memory</td>
+      <td>Docker Desktop memory limit too low</td>
+      <td>Increase to ≥ 4 GB in Docker Desktop settings</td>
+    </tr>
+    <tr>
+      <td>dbt path not found in container</td>
+      <td>DBT_EXECUTABLE_PATH env var incorrect</td>
+      <td>Set <code>DBT_EXECUTABLE_PATH=/home/airflow/.local/bin/dbt</code> in <code>.env</code></td>
+    </tr>
+    <tr>
+      <td>Cosmos TaskGroup not rendering models</td>
+      <td><code>dbt ls</code> fails at parse time</td>
+      <td>Check <code>dbt_project.yml</code> path matches <code>DEFAULT_DBT_ROOT_PATH</code>; verify profiles.yml exists</td>
+    </tr>
+  </table>
+
+  <div class="callout callout-success">
+    <strong>Summary — What This Airflow Implementation Demonstrates</strong>
+    <ul style="margin-top:8px;">
+      <li><strong>End-to-end ELT</strong>: Extract (simulated) → Load (simulated) → Transform (real dbt) → Quality Check → Notification</li>
+      <li><strong>Astronomer Cosmos</strong>: Each dbt model is a discrete Airflow task with individual retry, visible in DAG graph</li>
+      <li><strong>CeleryExecutor</strong>: Production-grade parallel task execution via Redis queue</li>
+      <li><strong>Docker Compose</strong>: Reproducible local deployment of 7-service Airflow cluster</li>
+      <li><strong>Credential isolation</strong>: PostgreSQL credentials managed in Airflow Connections — not hardcoded in DAG</li>
+      <li><strong>Graceful failure</strong>: <code>trigger_rule="all_success"</code> ensures Slack notification only fires on clean run</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 3: Analytics Engineering — End of Document</span>
   </div>
 </div>
 

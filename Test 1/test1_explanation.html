@@ -2,297 +2,186 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Test 1 — Advanced SQL & Data Exploration | Otten Coffee BI Engineer</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Test 1 — Advanced SQL &amp; Data Exploration | Otten Coffee BI Engineer</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:13px;line-height:1.7;color:#2c2c2c;background:#fff}
 
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 13px;
-    line-height: 1.65;
-    color: #2c2c2c;
-    background: #fff;
-    padding: 0;
-  }
+/* ── Cover ── */
+.cover{page-break-after:always;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  min-height:100vh;background:linear-gradient(135deg,#f0f7eb 0%,#e8f4e0 60%,#d4eaca 100%);text-align:center;padding:60px 40px}
+.cover-logo{font-size:32px;font-weight:800;color:#3a6b30;letter-spacing:-1px;margin-bottom:4px}
+.cover-tagline{font-size:13px;color:#7a9970;margin-bottom:64px;font-style:italic}
+.cover-badge{display:inline-block;background:#3a6b30;color:#fff;font-size:11px;font-weight:700;
+  padding:5px 18px;border-radius:20px;margin-bottom:28px;letter-spacing:1px;text-transform:uppercase}
+.cover h1{font-size:38px;font-weight:800;color:#1a2e14;line-height:1.2;margin-bottom:10px}
+.cover h2{font-size:20px;font-weight:400;color:#4a7040;margin-bottom:56px}
+.cover-divider{width:60px;height:3px;background:#3a6b30;margin:0 auto 40px}
+.cover-meta table{border:none;margin:0 auto}
+.cover-meta td{padding:5px 18px;border:none;background:none;font-size:13px;color:#555}
+.cover-meta td:first-child{font-weight:700;color:#3a6b30;text-align:right}
 
-  /* ── Cover Page ── */
-  .cover {
-    page-break-after: always;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: #f7f9f4;
-    text-align: center;
-    padding: 60px 40px;
-  }
-  .cover-logo {
-    font-size: 28px;
-    font-weight: 800;
-    color: #4a7c3f;
-    letter-spacing: -1px;
-    margin-bottom: 6px;
-  }
-  .cover-subtitle {
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 60px;
-  }
-  .cover h1 {
-    font-size: 34px;
-    font-weight: 700;
-    color: #1a1a1a;
-    line-height: 1.25;
-    margin-bottom: 12px;
-  }
-  .cover h2 {
-    font-size: 18px;
-    font-weight: 400;
-    color: #555;
-    margin-bottom: 48px;
-  }
-  .cover-meta {
-    font-size: 12px;
-    color: #888;
-    line-height: 2;
-  }
-  .cover-tag {
-    display: inline-block;
-    background: #4a7c3f;
-    color: white;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 14px;
-    border-radius: 20px;
-    margin-bottom: 32px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
+/* ── Page Layout ── */
+.page{padding:48px 56px;max-width:960px;margin:0 auto}
+.page-break{page-break-before:always}
 
-  /* ── Page Layout ── */
-  .page {
-    padding: 48px 56px;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-  .page-break { page-break-before: always; }
+/* ── Typography ── */
+h1{font-size:28px;font-weight:800;color:#1a2e14;margin-bottom:8px}
+h2{font-size:17px;font-weight:700;color:#3a6b30;margin:32px 0 10px;
+  border-bottom:2px solid #d4eaca;padding-bottom:6px}
+h3{font-size:14px;font-weight:700;color:#2c2c2c;margin:24px 0 8px}
+h4{font-size:13px;font-weight:600;color:#3a6b30;margin:16px 0 6px}
+p{margin-bottom:10px}
+ul,ol{margin:8px 0 12px 24px}
+li{margin-bottom:5px}
+small{font-size:10.5px}
 
-  /* ── Typography ── */
-  h1 { font-size: 26px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
-  h2 { font-size: 18px; font-weight: 700; color: #4a7c3f; margin: 32px 0 10px; border-bottom: 2px solid #e8f0e5; padding-bottom: 6px; }
-  h3 { font-size: 14px; font-weight: 700; color: #2c2c2c; margin: 22px 0 8px; }
-  h4 { font-size: 13px; font-weight: 600; color: #4a7c3f; margin: 16px 0 6px; }
+/* ── Section Header ── */
+.section-header{background:#f0f7eb;border-left:5px solid #3a6b30;padding:16px 22px;
+  margin:24px 0 20px;border-radius:0 8px 8px 0}
+.section-header h2{margin:0;border:none;padding:0;font-size:17px}
+.section-header p{margin:4px 0 0;color:#666;font-size:12px}
 
-  p { margin-bottom: 10px; }
-  ul, ol { margin: 8px 0 12px 22px; }
-  li { margin-bottom: 5px; }
+/* ── SQL Code ── */
+pre{background:#1e1e2e;color:#cdd6f4;padding:20px 24px;border-radius:10px;
+  font-family:'Consolas','Courier New',monospace;font-size:11px;line-height:1.65;
+  overflow-x:auto;margin:12px 0 18px}
+code{background:#eef4eb;color:#2d6a1f;padding:2px 6px;border-radius:4px;
+  font-family:'Consolas','Courier New',monospace;font-size:11.5px}
+pre code{background:none;color:inherit;padding:0}
+.kw{color:#89dceb;font-weight:600}
+.fn{color:#cba6f7}
+.str{color:#a6e3a1}
+.cmt{color:#585b70;font-style:italic}
+.num{color:#fab387}
 
-  /* ── Section Header ── */
-  .section-header {
-    background: #f7f9f4;
-    border-left: 5px solid #4a7c3f;
-    padding: 14px 20px;
-    margin: 24px 0 16px;
-    border-radius: 0 6px 6px 0;
-  }
-  .section-header h2 { margin: 0; border: none; padding: 0; font-size: 16px; }
-  .section-header p  { margin: 4px 0 0; color: #666; font-size: 12px; }
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:12px}
+th{background:#3a6b30;color:#fff;padding:9px 12px;text-align:left;font-weight:600;
+  font-size:11.5px;letter-spacing:0.3px;white-space:nowrap}
+td{padding:7px 12px;border-bottom:1px solid #e4eee0;vertical-align:middle}
+tr:nth-child(even) td{background:#f7faf5}
+tr:hover td{background:#edf5e8}
+.nr{text-align:right;font-family:monospace;font-size:11.5px}
 
-  /* ── Code Blocks ── */
-  pre {
-    background: #1e1e2e;
-    color: #cdd6f4;
-    padding: 18px 22px;
-    border-radius: 8px;
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 11.5px;
-    line-height: 1.6;
-    overflow-x: auto;
-    margin: 12px 0 18px;
-  }
-  code {
-    background: #eef2eb;
-    color: #2d6a1f;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 11.5px;
-  }
-  pre code { background: none; color: inherit; padding: 0; border-radius: 0; }
+/* ── KPI Grid ── */
+.kpi-grid{display:grid;gap:14px;margin:18px 0}
+.kpi-3{grid-template-columns:repeat(3,1fr)}
+.kpi-4{grid-template-columns:repeat(4,1fr)}
+.kpi-card{background:#f7faf5;border:1px solid #c8e0be;border-radius:10px;padding:18px;text-align:center}
+.kpi-value{font-size:21px;font-weight:800;color:#2d6a1f;line-height:1.2}
+.kpi-label{font-size:10.5px;color:#668055;margin-top:5px;text-transform:uppercase;letter-spacing:0.4px}
+.kpi-sub{font-size:11px;color:#999;margin-top:3px}
 
-  /* SQL Syntax Highlighting */
-  .kw   { color: #89dceb; font-weight: 600; }  /* keywords */
-  .fn   { color: #cba6f7; }                     /* functions */
-  .str  { color: #a6e3a1; }                     /* strings */
-  .cmt  { color: #6c7086; font-style: italic; } /* comments */
-  .num  { color: #fab387; }                     /* numbers */
-  .col  { color: #f9e2af; }                     /* column aliases */
+/* ── Callouts ── */
+.callout{border-radius:8px;padding:14px 18px;margin:14px 0;font-size:12.5px}
+.callout-insight{background:#eef8ea;border-left:4px solid #3a6b30}
+.callout-warning{background:#fff8e6;border-left:4px solid #e6a817}
+.callout-info{background:#e8f4fd;border-left:4px solid #2196f3}
+.callout-critical{background:#fdecea;border-left:4px solid #e53935}
+.callout strong{display:block;margin-bottom:5px;font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px}
 
-  /* ── Tables ── */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 12px 0 18px;
-    font-size: 12px;
-  }
-  th {
-    background: #4a7c3f;
-    color: white;
-    padding: 9px 12px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 11.5px;
-    letter-spacing: 0.3px;
-  }
-  td {
-    padding: 8px 12px;
-    border-bottom: 1px solid #e8eee5;
-    vertical-align: top;
-  }
-  tr:nth-child(even) td { background: #f7f9f4; }
-  tr:hover td { background: #eef4eb; }
-  .num-col { text-align: right; font-family: monospace; }
+/* ── Bottleneck / Fix items ── */
+.item{display:flex;gap:14px;margin:12px 0;align-items:flex-start}
+.badge{border-radius:50%;width:26px;height:26px;min-width:26px;display:flex;align-items:center;
+  justify-content:center;font-weight:800;font-size:12px;margin-top:1px}
+.badge-bad{background:#e53935;color:#fff}
+.badge-ok{background:#3a6b30;color:#fff}
+.item-body{flex:1;line-height:1.6}
+.item-body strong.bad{color:#c62828}
+.item-body strong.ok{color:#2d6a1f}
 
-  /* ── Cards / Callouts ── */
-  .card {
-    border: 1px solid #d4e6ce;
-    border-radius: 8px;
-    padding: 16px 20px;
-    margin: 14px 0;
-    background: #fafef9;
-  }
-  .card-title {
-    font-weight: 700;
-    font-size: 13px;
-    color: #2d6a1f;
-    margin-bottom: 8px;
-  }
+/* ── Two-column layout ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:14px 0}
 
-  .callout {
-    border-radius: 8px;
-    padding: 14px 18px;
-    margin: 14px 0;
-    font-size: 12.5px;
-  }
-  .callout-insight  { background: #eef8ea; border-left: 4px solid #4a7c3f; }
-  .callout-warning  { background: #fff8e6; border-left: 4px solid #e6a817; }
-  .callout-info     { background: #e8f4fd; border-left: 4px solid #2196f3; }
-  .callout-critical { background: #fdecea; border-left: 4px solid #e53935; }
-  .callout strong   { display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.4px; }
+/* ── Cards ── */
+.card{border:1px solid #c8e0be;border-radius:8px;padding:14px 18px;margin:12px 0;background:#fafef8}
+.card-title{font-weight:700;font-size:13px;color:#2d6a1f;margin-bottom:6px}
 
-  /* ── KPI Cards ── */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin: 16px 0;
-  }
-  .kpi-card {
-    background: #f7f9f4;
-    border: 1px solid #d4e6ce;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-  }
-  .kpi-value  { font-size: 22px; font-weight: 700; color: #2d6a1f; }
-  .kpi-label  { font-size: 11px; color: #666; margin-top: 4px; }
+/* ── Comparison table ── */
+.cmp-good{color:#2ca02c;font-weight:700}
+.cmp-bad{color:#d62728}
 
-  /* ── Bottleneck List ── */
-  .bottleneck {
-    display: flex;
-    gap: 14px;
-    margin: 10px 0;
-    align-items: flex-start;
-  }
-  .bottleneck-num {
-    background: #e53935;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 12px;
-    margin-top: 1px;
-  }
-  .fix-num {
-    background: #4a7c3f;
-    color: white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 12px;
-    margin-top: 1px;
-  }
-  .bottleneck-body { flex: 1; }
-  .bottleneck-body strong { color: #c62828; }
-  .fix-body strong { color: #2d6a1f; }
+/* ── Footer ── */
+.footer{margin-top:48px;padding-top:12px;border-top:1px solid #d4eaca;font-size:11px;
+  color:#999;display:flex;justify-content:space-between}
 
-  /* ── Footer ── */
-  .footer {
-    margin-top: 60px;
-    padding-top: 14px;
-    border-top: 1px solid #dde8d9;
-    font-size: 11px;
-    color: #999;
-    display: flex;
-    justify-content: space-between;
-  }
+/* ── TOC ── */
+.toc-table td:first-child{width:36px;font-weight:700;color:#3a6b30}
+.toc-table td:last-child{font-size:11px;color:#888;text-align:right}
 
-  /* ── Print ── */
-  @media print {
-    body { font-size: 12px; }
-    .page { padding: 36px 48px; }
-    pre  { font-size: 10.5px; }
-    .cover { min-height: 100vh; }
-  }
+@media print{
+  body{font-size:11.5px}
+  .page{padding:32px 44px}
+  pre{font-size:10px}
+  .cover{min-height:100vh;page-break-after:always}
+  .kpi-value{font-size:18px}
+}
 </style>
 </head>
 <body>
 
-<!-- ========================================================== -->
-<!-- COVER PAGE                                                  -->
-<!-- ========================================================== -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- COVER                                                                      -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <div class="cover">
   <div class="cover-logo">Otten Coffee</div>
-  <div class="cover-subtitle">#MengopikanIndonesia</div>
-
-  <div class="cover-tag">Technical Test — Submission</div>
+  <div class="cover-tagline">#MengopikanIndonesia</div>
+  <div class="cover-badge">BI Engineer — Technical Test Submission</div>
   <h1>Test 1<br>Advanced SQL &amp; Data Exploration</h1>
-  <h2>Written Explanation &amp; Query Insights</h2>
-
+  <h2>Complete Query Explanation, Real Results &amp; Business Insights</h2>
+  <div class="cover-divider"></div>
   <div class="cover-meta">
-    <div><strong>Dataset</strong> &nbsp; Brazilian E-Commerce (Olist) — Public PostgreSQL</div>
-    <div><strong>Role</strong> &nbsp;&nbsp;&nbsp;&nbsp; BI Engineer</div>
-    <div><strong>Date</strong> &nbsp;&nbsp;&nbsp;&nbsp; May 2026</div>
+    <table>
+      <tr><td>Dataset</td><td>Brazilian E-Commerce (Olist) — Public PostgreSQL on Supabase</td></tr>
+      <tr><td>Period</td><td>September 2016 – August 2018 (~2 years)</td></tr>
+      <tr><td>Role</td><td>BI Engineer</td></tr>
+      <tr><td>Author</td><td>Nur Imam Masri</td></tr>
+      <tr><td>Date</td><td>May 2026</td></tr>
+    </table>
   </div>
 </div>
 
-
-<!-- ========================================================== -->
-<!-- TABLE OF CONTENTS                                           -->
-<!-- ========================================================== -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- TABLE OF CONTENTS                                                          -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <div class="page">
-  <h1>Contents</h1>
+  <h1>Table of Contents</h1>
   <br>
-  <table>
-    <tr><th>#</th><th>Section</th></tr>
-    <tr><td>1</td><td>Dataset &amp; Assumptions</td></tr>
-    <tr><td>2</td><td>Part A1 — Monthly Revenue Trend: Query Logic &amp; Insights</td></tr>
-    <tr><td>3</td><td>Part A2 — Top 10 Product Categories: Query Logic &amp; Insights</td></tr>
-    <tr><td>4</td><td>Part A3 — Customer Cohort Retention: Query Logic &amp; Insights</td></tr>
-    <tr><td>5</td><td>Part B — Query Optimisation: Bottlenecks, Fixes &amp; Verification</td></tr>
+  <table class="toc-table">
+    <tr><th>#</th><th>Section</th><th>Pages</th></tr>
+    <tr><td>1</td><td>Dataset Overview &amp; Global Assumptions</td><td>3</td></tr>
+    <tr><td>2</td><td>Part A1 — Monthly Revenue Trend</td><td>4–5</td></tr>
+    <tr><td>3</td><td>Part A2 — Top 10 Product Categories by Revenue</td><td>6–7</td></tr>
+    <tr><td>4</td><td>Part A3 — Customer Cohort Retention Analysis</td><td>8–9</td></tr>
+    <tr><td>5</td><td>Part B — Query Optimisation: Bottlenecks, Fixes &amp; Results</td><td>10–13</td></tr>
   </table>
+
+  <br>
+  <h2>Key Findings at a Glance</h2>
+  <div class="kpi-grid kpi-4">
+    <div class="kpi-card">
+      <div class="kpi-value">R$&nbsp;15.87M</div>
+      <div class="kpi-label">Total Platform Revenue</div>
+      <div class="kpi-sub">Sep 2016 – Sep 2018</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">R$&nbsp;1.187M</div>
+      <div class="kpi-label">Peak Monthly Revenue</div>
+      <div class="kpi-sub">2017-11 &nbsp;(+53.6% MoM)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">&lt;1%</div>
+      <div class="kpi-label">Avg M+1 Retention Rate</div>
+      <div class="kpi-sub">Across 21 qualifying cohorts</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">~50–70%</div>
+      <div class="kpi-label">Estimated Query Speedup</div>
+      <div class="kpi-sub">Optimised vs original (Part B)</div>
+    </div>
+  </div>
 
   <div class="footer">
     <span>Otten Coffee — BI Engineer Technical Test</span>
@@ -300,586 +189,1066 @@
   </div>
 </div>
 
-
-<!-- ========================================================== -->
-<!-- SECTION 1: DATASET & ASSUMPTIONS                           -->
-<!-- ========================================================== -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 1: DATASET & ASSUMPTIONS                                           -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <div class="page page-break">
   <div class="section-header">
-    <h2>1 &nbsp; Dataset &amp; Global Assumptions</h2>
-    <p>Brazilian E-Commerce (Olist) — Public PostgreSQL on Supabase</p>
+    <h2>1 &nbsp; Dataset Overview &amp; Global Assumptions</h2>
+    <p>Brazilian E-Commerce (Olist) — Public read-only PostgreSQL on Supabase (ap-northeast-1)</p>
   </div>
 
-  <h3>1.1 Dataset Overview</h3>
-  <p>
-    The dataset is the publicly available <strong>Olist Brazilian E-Commerce</strong> dataset, hosted on a
-    read-only PostgreSQL instance on Supabase. It covers approximately two years of e-commerce transactions
-    (September 2016 – August 2018) across Brazil.
-  </p>
-
+  <h3>1.1 Database Connection</h3>
   <table>
-    <tr><th>Table</th><th>Description</th><th>Approx. Rows</th></tr>
-    <tr><td><code>orders</code></td><td>Master order records with timestamps and status</td><td>~99,441</td></tr>
-    <tr><td><code>order_items</code></td><td>Line items: product, seller, price, freight per order</td><td>~112,650</td></tr>
-    <tr><td><code>order_payments</code></td><td>Payment records — one order can have multiple rows</td><td>~103,886</td></tr>
-    <tr><td><code>order_reviews</code></td><td>Customer reviews with score (1–5) and comments</td><td>~99,224</td></tr>
-    <tr><td><code>customers</code></td><td>Customer demographics and location</td><td>~99,441</td></tr>
-    <tr><td><code>products</code></td><td>Product catalogue with dimensions and category</td><td>~32,951</td></tr>
-    <tr><td><code>sellers</code></td><td>Seller registry with location</td><td>~3,095</td></tr>
-    <tr><td><code>product_category_name_translation</code></td><td>PT → EN category mapping</td><td>~71</td></tr>
-    <tr><td><code>geolocation</code></td><td>ZIP code to lat/lon mapping</td><td>~1,000,163</td></tr>
+    <tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Host</td><td><code>aws-1-ap-northeast-1.pooler.supabase.com</code></td></tr>
+    <tr><td>Port</td><td><code>6543</code> (transaction-mode pooler)</td></tr>
+    <tr><td>Database</td><td><code>postgres</code></td></tr>
+    <tr><td>User</td><td><code>public_readonly.hkmqxnppvspaoldrzzam</code></td></tr>
+    <tr><td>Access</td><td>Read-only — DDL, INSERT, UPDATE, DELETE not permitted</td></tr>
   </table>
 
-  <h3>1.2 Global Assumptions Applied Across All Queries</h3>
+  <h3>1.2 Core Tables &amp; Row Counts</h3>
+  <p>All row counts verified live against the database at the time of this submission.</p>
+  <table>
+    <tr><th>Table</th><th>Description</th><th class="nr">Row Count</th></tr>
+    <tr><td><code>orders</code></td><td>Master order records — status, all timestamps</td><td class="nr">99,441</td></tr>
+    <tr><td><code>order_items</code></td><td>Line items per order — product, seller, price, freight</td><td class="nr">112,650</td></tr>
+    <tr><td><code>order_payments</code></td><td>Payments per order — method, value, installments</td><td class="nr">103,886</td></tr>
+    <tr><td><code>order_reviews</code></td><td>Customer review scores (1–5) and text comments</td><td class="nr">99,224</td></tr>
+    <tr><td><code>customers</code></td><td>Buyer demographics and location data</td><td class="nr">99,441</td></tr>
+    <tr><td><code>products</code></td><td>Product catalogue — category, dimensions, weight</td><td class="nr">32,951</td></tr>
+    <tr><td><code>sellers</code></td><td>Seller registry with city, state, and ZIP</td><td class="nr">3,095</td></tr>
+    <tr><td><code>geolocation</code></td><td>Brazilian ZIP-to-lat/lon mapping</td><td class="nr">1,000,163</td></tr>
+    <tr><td><code>product_category_name_translation</code></td><td>Portuguese → English category name mapping</td><td class="nr">71</td></tr>
+  </table>
 
-  <div class="card">
-    <div class="card-title">Revenue Source</div>
-    <p>
-      Revenue is always taken from <code>order_payments.payment_value</code>, not <code>order_items.price</code>.
-      Payment value captures the actual amount charged to the customer, including any applied discounts,
-      vouchers, or installment adjustments. This gives a more accurate picture of real business revenue.
-    </p>
-  </div>
+  <h3>1.3 Data Timeline</h3>
+  <table>
+    <tr><th>Period</th><th>Status</th><th>Notes</th></tr>
+    <tr><td>Sep 2016</td><td><span style="color:#e69500">⚠ Partial</span></td><td>Only 2 orders — dataset collection started late in the month</td></tr>
+    <tr><td>Oct 2016</td><td><span style="color:#2ca02c">✓ Full</span></td><td>First meaningful month (297 customers acquired)</td></tr>
+    <tr><td>Nov 2016</td><td><span style="color:#e53935">✗ Missing</span></td><td>Zero records — data gap, likely a collection interruption</td></tr>
+    <tr><td>Dec 2016</td><td><span style="color:#e69500">⚠ Partial</span></td><td>Only 1 record (R$ 19.62) — data artefact</td></tr>
+    <tr><td>Jan 2017 – Aug 2018</td><td><span style="color:#2ca02c">✓ Full</span></td><td>Complete and reliable — 20 months of good data</td></tr>
+    <tr><td>Sep 2018</td><td><span style="color:#e69500">⚠ Partial</span></td><td>Only R$ 166 in revenue — dataset cut-off mid-month</td></tr>
+  </table>
 
-  <div class="card">
-    <div class="card-title">Order Status Filtering</div>
-    <p>
-      All analyses exclude orders with <code>order_status = 'canceled'</code>. Cancelled orders represent
-      intent without transaction — including them would inflate order counts and distort revenue metrics.
-      Other statuses (<code>delivered</code>, <code>shipped</code>, <code>processing</code>, <code>invoiced</code>,
-      <code>approved</code>, <code>created</code>) are included unless otherwise noted.
-    </p>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Customer Identity</div>
-    <p>
-      The <code>customers</code> table has two identifier columns. <code>customer_id</code> is unique per order
-      (a returning customer can have multiple <code>customer_id</code> values). For customer-level analysis,
-      <code>customer_unique_id</code> is used — this is the true cross-order customer identifier.
-      This is critical for cohort retention analysis.
-    </p>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Data Gaps</div>
-    <p>
-      November 2016 has zero orders in the dataset (only Sep, Oct, Dec 2016 have data). September 2018 has
-      only a handful of records, suggesting data collection ended mid-month. These gaps are reflected as
-      anomalous MoM changes and do not indicate real business events.
-    </p>
+  <h3>1.4 Global Assumptions Applied Across All Queries</h3>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Revenue = <code>order_payments.payment_value</code></div>
+      <p><code>order_items.price</code> is the listed item price — it doesn't account for
+      vouchers, discounts, or installment-plan adjustments. <code>payment_value</code>
+      is the actual cash received per order, making it the correct revenue metric.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Cancelled Orders Excluded</div>
+      <p>All queries apply <code>WHERE order_status != 'canceled'</code>. Cancelled orders
+      represent commercial intent without a completed transaction — including them inflates
+      counts and distorts revenue figures.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Customer Identity = <code>customer_unique_id</code></div>
+      <p>Olist creates a new <code>customer_id</code> per order. The same buyer can appear
+      with many different <code>customer_id</code> values. Only <code>customer_unique_id</code>
+      persists across orders and is the correct key for any customer-level analysis.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Edge Months Retained, Not Filtered</div>
+      <p>Sep/Dec 2016 and Sep 2018 are kept in result sets to show the full timeline.
+      They are called out in insights wherever their extreme MoM values could mislead.</p>
+    </div>
   </div>
 
   <div class="footer">
     <span>Otten Coffee — BI Engineer Technical Test</span>
-    <span>Test 1: Advanced SQL</span>
+    <span>Test 1: Advanced SQL — Section 1</span>
   </div>
 </div>
 
-
-<!-- ========================================================== -->
-<!-- SECTION 2: A1 — MONTHLY REVENUE TREND                      -->
-<!-- ========================================================== -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 2: A1 — MONTHLY REVENUE TREND                                     -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <div class="page page-break">
   <div class="section-header">
     <h2>2 &nbsp; A1 — Monthly Revenue Trend</h2>
-    <p>Total revenue per month with month-over-month percentage change</p>
+    <p>Total revenue per month (SUM of payment_value) with month-over-month % change via LAG() window function</p>
   </div>
 
-  <h3>2.1 Query Logic</h3>
-  <p>
-    The query uses a two-step CTE pattern. The inner CTE <code>monthly_revenue</code> groups payments by
-    purchase year and month, then the outer SELECT applies a <code>LAG()</code> window function to access
-    the previous month's revenue without a self-join — keeping the query efficient and readable.
-  </p>
+  <h3>2.1 Business Question</h3>
+  <p><em>"How has total platform revenue evolved month by month, and what is the month-over-month growth rate?"</em></p>
+  <p>This is the foundational time-series view. Senior management uses it to spot seasonality, growth acceleration, and
+  campaign impact (e.g., Black Friday). The MoM % column allows instant comparison across time periods.</p>
 
-  <h4>Why LAG() over a self-join?</h4>
-  <p>
-    A self-join approach would require joining the aggregated monthly table to itself, which means two full
-    scans of the aggregated result. <code>LAG()</code> accesses the prior row in a single ordered window
-    pass — cleaner SQL and more efficient execution.
-  </p>
+  <h3>2.2 Query Logic &amp; Design Decisions</h3>
+  <h4>Step-by-step data flow</h4>
+  <table>
+    <tr><th>Step</th><th>Action</th><th>Why</th></tr>
+    <tr><td>1</td><td>JOIN <code>orders</code> → <code>order_payments</code></td><td>Link orders to actual payment amounts</td></tr>
+    <tr><td>2</td><td>WHERE <code>order_status != 'canceled'</code></td><td>Exclude revenue-less cancelled orders</td></tr>
+    <tr><td>3</td><td>EXTRACT year &amp; month from <code>order_purchase_timestamp</code></td><td>Group by calendar month</td></tr>
+    <tr><td>4</td><td>SUM(<code>payment_value</code>) → <code>total_revenue</code></td><td>Actual cash received per month</td></tr>
+    <tr><td>5</td><td>LAG(<code>total_revenue</code>) OVER (ORDER BY year, month)</td><td>Previous month's revenue without self-join</td></tr>
+    <tr><td>6</td><td>MoM % = (current − prev) × 100 / NULLIF(prev, 0)</td><td>Percentage change; NULL-safe for first month</td></tr>
+  </table>
 
-  <h4>MoM Change Formula</h4>
-  <pre><code>mom_change_pct = ROUND(
-    (current_month - previous_month) * 100.0
-    / NULLIF(previous_month, 0)
-, 2)</code></pre>
-  <p>
-    <code>NULLIF(prev, 0)</code> prevents division-by-zero for any month with zero revenue.
-    The result is NULL for the first month (no prior period to compare).
-  </p>
+  <h4>Why LAG() instead of a self-join?</h4>
+  <p>A self-join would require joining the aggregated monthly result to itself — two full passes over the grouped
+  result. <code>LAG()</code> accesses the prior row in a single ordered window pass without duplicating the scan.
+  It also produces cleaner, more readable SQL.</p>
 
-  <h3>2.2 Query Results</h3>
+  <h4>Why CTE pattern?</h4>
+  <p>The inner CTE <code>monthly_revenue</code> aggregates first, then the outer SELECT applies window functions
+  to the already-grouped data. This is necessary because window functions cannot be applied to aggregate
+  results in the same query level — a CTE separates the two logical steps cleanly.</p>
+
+  <h3>2.3 Full SQL Query</h3>
+  <pre><code><span class="kw">WITH</span> monthly_revenue <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        <span class="kw">EXTRACT</span>(YEAR  <span class="kw">FROM</span> o.<span class="kw">or</span>der_purchase_timestamp)::<span class="kw">in</span>t  <span class="kw">AS</span> year,
+        <span class="kw">EXTRACT</span>(MONTH <span class="kw">FROM</span> o.<span class="kw">or</span>der_purchase_timestamp)::<span class="kw">in</span>t  <span class="kw">AS</span> month,
+        <span class="kw">ROUND</span>(<span class="kw">SUM</span>(op.payment_value)::<span class="kw">numeric</span>, <span class="num">2</span>)             <span class="kw">AS</span> total_revenue
+    <span class="kw">FROM</span> <span class="kw">or</span>ders o
+    <span class="kw">JOIN</span> <span class="kw">or</span>der_payments op <span class="kw">ON</span> op.<span class="kw">or</span>der_id = o.<span class="kw">or</span>der_id
+    <span class="kw">WHERE</span> o.<span class="kw">or</span>der_status != <span class=\"str\">'canceled'</span>
+      <span class="kw">AND</span> o.<span class="kw">or</span>der_purchase_timestamp <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+    <span class="kw">GROUP BY</span> <span class="num">1</span>, <span class="num">2</span>
+)
+<span class="kw">SELECT</span>
+    year,
+    month,
+    total_revenue,
+    <span class="kw">LAG</span>(total_revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> year, month)           <span class="kw">AS</span> prev_month_revenue,
+    <span class="kw">ROUND</span>(
+        (total_revenue - <span class="kw">LAG</span>(total_revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> year, month))
+        * <span class="num">100.0</span>
+        / <span class="kw">NULL</span>IF(<span class="kw">LAG</span>(total_revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> year, month), <span class="num">0</span>)
+    , <span class="num">2</span>)                                                     <span class="kw">AS</span> mom_change_pct
+<span class="kw">FROM</span> monthly_revenue
+<span class="kw">ORDER BY</span> year, month;</code></pre>
+
+  <h3>2.4 KPI Summary</h3>
+  <div class="kpi-grid kpi-4">
+    <div class="kpi-card">
+      <div class="kpi-value">R$&nbsp;15.87M</div>
+      <div class="kpi-label">Total Revenue (all months)</div>
+      <div class="kpi-sub">Sep 2016 – Sep 2018</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" style="color:#e69500">R$&nbsp;1.187M</div>
+      <div class="kpi-label">Peak Month Revenue</div>
+      <div class="kpi-sub">2017-11 (Nov 2017 Black Friday)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" style="color:#2ca02c">+53.6%</div>
+      <div class="kpi-label">Peak MoM Growth</div>
+      <div class="kpi-sub">Oct 2017 → Nov 2017</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">23.3%</div>
+      <div class="kpi-label">Avg MoM Change 2017</div>
+      <div class="kpi-sub">Feb–Dec 2017 (excl. Jan artefact)</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — Section 2</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>2.5 Full Query Results — All 24 Months</h2>
+  <p>All monetary values in Brazilian Real (R$). ★ = peak month. Grey rows = edge-month data artefacts.</p>
   <table>
     <tr>
-      <th>Year</th><th>Month</th>
-      <th class="num-col">Total Revenue (R$)</th>
-      <th class="num-col">Prev Month (R$)</th>
-      <th class="num-col">MoM Change %</th>
+      <th>Period</th>
+      <th class="nr">Total Revenue (R$)</th>
+      <th class="nr">Prev Month Revenue (R$)</th>
+      <th class="nr">MoM Change %</th>
     </tr>
-    <tr><td>2016</td><td>9</td><td class="num-col">136.23</td><td class="num-col">—</td><td class="num-col">—</td></tr>
-    <tr><td>2016</td><td>10</td><td class="num-col">53,915.50</td><td class="num-col">136.23</td><td class="num-col">+39,476.82%</td></tr>
-    <tr><td>2016</td><td>12</td><td class="num-col">19.62</td><td class="num-col">53,915.50</td><td class="num-col">-99.96%</td></tr>
-    <tr><td>2017</td><td>1</td><td class="num-col">138,119.76</td><td class="num-col">19.62</td><td class="num-col">+703,874%*</td></tr>
-    <tr><td>2017</td><td>2</td><td class="num-col">289,081.01</td><td class="num-col">138,119.76</td><td class="num-col">+109.30%</td></tr>
-    <tr><td>2017</td><td>3</td><td class="num-col">442,406.37</td><td class="num-col">289,081.01</td><td class="num-col">+53.04%</td></tr>
-    <tr><td>2017</td><td>4</td><td class="num-col">409,846.01</td><td class="num-col">442,406.37</td><td class="num-col">-7.36%</td></tr>
-    <tr><td>2017</td><td>5</td><td class="num-col">588,529.96</td><td class="num-col">409,846.01</td><td class="num-col">+43.60%</td></tr>
-    <tr><td>2017</td><td>6</td><td class="num-col">507,302.62</td><td class="num-col">588,529.96</td><td class="num-col">-13.80%</td></tr>
-    <tr><td>2017</td><td>7</td><td class="num-col">585,331.36</td><td class="num-col">507,302.62</td><td class="num-col">+15.38%</td></tr>
-    <tr><td>2017</td><td>8</td><td class="num-col">667,224.47</td><td class="num-col">585,331.36</td><td class="num-col">+13.99%</td></tr>
-    <tr><td>2017</td><td>9</td><td class="num-col">723,781.27</td><td class="num-col">667,224.47</td><td class="num-col">+8.48%</td></tr>
-    <tr><td>2017</td><td>10</td><td class="num-col">773,104.35</td><td class="num-col">723,781.27</td><td class="num-col">+6.81%</td></tr>
-    <tr><td>2017</td><td>11</td><td class="num-col"><strong>1,187,224.36</strong></td><td class="num-col">773,104.35</td><td class="num-col"><strong>+53.57%</strong></td></tr>
-    <tr><td>2017</td><td>12</td><td class="num-col">874,962.23</td><td class="num-col">1,187,224.36</td><td class="num-col">-26.30%</td></tr>
-    <tr><td>2018</td><td>1</td><td class="num-col">1,109,464.00</td><td class="num-col">874,962.23</td><td class="num-col">+26.80%</td></tr>
-    <tr><td>2018</td><td>2</td><td class="num-col">984,790.19</td><td class="num-col">1,109,464.00</td><td class="num-col">-11.24%</td></tr>
-    <tr><td>2018</td><td>3</td><td class="num-col">1,156,243.76</td><td class="num-col">984,790.19</td><td class="num-col">+17.41%</td></tr>
-    <tr><td>2018</td><td>4</td><td class="num-col">1,157,336.33</td><td class="num-col">1,156,243.76</td><td class="num-col">+0.09%</td></tr>
-    <tr><td>2018</td><td>5</td><td class="num-col">1,149,483.77</td><td class="num-col">1,157,336.33</td><td class="num-col">-0.68%</td></tr>
-    <tr><td>2018</td><td>6</td><td class="num-col">1,021,220.02</td><td class="num-col">1,149,483.77</td><td class="num-col">-11.16%</td></tr>
-    <tr><td>2018</td><td>7</td><td class="num-col">1,047,422.72</td><td class="num-col">1,021,220.02</td><td class="num-col">+2.57%</td></tr>
-    <tr><td>2018</td><td>8</td><td class="num-col">998,504.15</td><td class="num-col">1,047,422.72</td><td class="num-col">-4.67%</td></tr>
-    <tr><td>2018</td><td>9</td><td class="num-col">166.46</td><td class="num-col">998,504.15</td><td class="num-col">-99.98%</td></tr>
+    <tr style="background:#fafafa;color:#aaa"><td>2016-09</td><td class='nr'>R$&nbsp;        136.23</td><td class='nr'>—</td><td class='nr'>—</td></tr>
+<tr><td>2016-10</td><td class='nr'>R$&nbsp;     53,915.50</td><td class='nr'>R$&nbsp;        136.23</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+39476.82%</span></td></tr>
+<tr style="background:#fafafa;color:#aaa"><td>2016-12</td><td class='nr'>R$&nbsp;         19.62</td><td class='nr'>R$&nbsp;     53,915.50</td><td class='nr'><span style="color:#d62728;font-weight:600">-99.96%</span></td></tr>
+<tr><td>2017-01</td><td class='nr'>R$&nbsp;    138,119.76</td><td class='nr'>R$&nbsp;         19.62</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+703874.31%</span></td></tr>
+<tr><td>2017-02</td><td class='nr'>R$&nbsp;    289,081.01</td><td class='nr'>R$&nbsp;    138,119.76</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+109.30%</span></td></tr>
+<tr><td>2017-03</td><td class='nr'>R$&nbsp;    442,406.37</td><td class='nr'>R$&nbsp;    289,081.01</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+53.04%</span></td></tr>
+<tr><td>2017-04</td><td class='nr'>R$&nbsp;    409,846.01</td><td class='nr'>R$&nbsp;    442,406.37</td><td class='nr'><span style="color:#d62728;font-weight:600">-7.36%</span></td></tr>
+<tr><td>2017-05</td><td class='nr'>R$&nbsp;    588,529.96</td><td class='nr'>R$&nbsp;    409,846.01</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+43.60%</span></td></tr>
+<tr><td>2017-06</td><td class='nr'>R$&nbsp;    507,302.62</td><td class='nr'>R$&nbsp;    588,529.96</td><td class='nr'><span style="color:#d62728;font-weight:600">-13.80%</span></td></tr>
+<tr><td>2017-07</td><td class='nr'>R$&nbsp;    585,331.36</td><td class='nr'>R$&nbsp;    507,302.62</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+15.38%</span></td></tr>
+<tr><td>2017-08</td><td class='nr'>R$&nbsp;    667,224.47</td><td class='nr'>R$&nbsp;    585,331.36</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+13.99%</span></td></tr>
+<tr><td>2017-09</td><td class='nr'>R$&nbsp;    723,781.27</td><td class='nr'>R$&nbsp;    667,224.47</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+8.48%</span></td></tr>
+<tr><td>2017-10</td><td class='nr'>R$&nbsp;    773,104.35</td><td class='nr'>R$&nbsp;    723,781.27</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+6.81%</span></td></tr>
+<tr style="background:#fffde7"><td><strong>2017-11</strong> ★ Peak</td><td class='nr'>R$&nbsp;  1,187,224.36</td><td class='nr'>R$&nbsp;    773,104.35</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+53.57%</span></td></tr>
+<tr><td>2017-12</td><td class='nr'>R$&nbsp;    874,962.23</td><td class='nr'>R$&nbsp;  1,187,224.36</td><td class='nr'><span style="color:#d62728;font-weight:600">-26.30%</span></td></tr>
+<tr><td>2018-01</td><td class='nr'>R$&nbsp;  1,109,464.00</td><td class='nr'>R$&nbsp;    874,962.23</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+26.80%</span></td></tr>
+<tr><td>2018-02</td><td class='nr'>R$&nbsp;    984,790.19</td><td class='nr'>R$&nbsp;  1,109,464.00</td><td class='nr'><span style="color:#d62728;font-weight:600">-11.24%</span></td></tr>
+<tr><td>2018-03</td><td class='nr'>R$&nbsp;  1,156,243.76</td><td class='nr'>R$&nbsp;    984,790.19</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+17.41%</span></td></tr>
+<tr><td>2018-04</td><td class='nr'>R$&nbsp;  1,157,336.33</td><td class='nr'>R$&nbsp;  1,156,243.76</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+0.09%</span></td></tr>
+<tr><td>2018-05</td><td class='nr'>R$&nbsp;  1,149,483.77</td><td class='nr'>R$&nbsp;  1,157,336.33</td><td class='nr'><span style="color:#d62728;font-weight:600">-0.68%</span></td></tr>
+<tr><td>2018-06</td><td class='nr'>R$&nbsp;  1,021,220.02</td><td class='nr'>R$&nbsp;  1,149,483.77</td><td class='nr'><span style="color:#d62728;font-weight:600">-11.16%</span></td></tr>
+<tr><td>2018-07</td><td class='nr'>R$&nbsp;  1,047,422.72</td><td class='nr'>R$&nbsp;  1,021,220.02</td><td class='nr'><span style="color:#2ca02c;font-weight:600">+2.57%</span></td></tr>
+<tr><td>2018-08</td><td class='nr'>R$&nbsp;    998,504.15</td><td class='nr'>R$&nbsp;  1,047,422.72</td><td class='nr'><span style="color:#d62728;font-weight:600">-4.67%</span></td></tr>
+<tr style="background:#fafafa;color:#aaa"><td>2018-09</td><td class='nr'>R$&nbsp;        166.46</td><td class='nr'>R$&nbsp;    998,504.15</td><td class='nr'><span style="color:#d62728;font-weight:600">-99.98%</span></td></tr>
   </table>
-  <p style="font-size:11px; color:#888;">* Extreme MoM values in 2016 reflect data gaps, not real business events.</p>
+  <p><small style="color:#888">Note: Dec 2016 (R$ 19.62), Sep 2016 (R$ 136.23), and Sep 2018 (R$ 166.46)
+  are data boundary artefacts — not real business drops. Extreme MoM values adjacent to these months
+  should be interpreted accordingly.</small></p>
 
-  <h3>2.3 Key Business Insights</h3>
+  <h2>2.6 Visualisation</h2>
+  <img src="a1_revenue_trend.png" style="width:100%;border-radius:8px;margin:12px 0 18px">
+
+  <h2>2.7 Key Business Insights</h2>
 
   <div class="callout callout-insight">
-    <strong>Insight 1 — November 2017: Peak Revenue Month</strong>
-    November 2017 recorded the highest single-month revenue at <strong>R$ 1,187,224</strong> — a +53.6% jump
-    from October. This almost certainly coincides with <strong>Black Friday Brazil</strong> (last Friday of
-    November), a major retail event. The dip in December (+26% below November) is consistent with post-peak
-    normalisation seen in e-commerce.
+    <strong>Insight 1 — November 2017: Black Friday Peak</strong>
+    November 2017 recorded the highest single-month revenue at <strong>R$ 1,187,224</strong> —
+    a <strong>+53.6% MoM jump</strong> from October (R$ 773,104). This spike almost certainly
+    coincides with <em>Black Friday Brasil</em>, the largest annual retail event in Brazil,
+    held on the last Friday of November. The subsequent December dip (−26.3%) is a normal
+    post-peak normalisation pattern seen in every e-commerce seasonal event.
   </div>
 
   <div class="callout callout-insight">
-    <strong>Insight 2 — Consistent Growth Phase (Jan–Nov 2017)</strong>
-    Revenue grew from R$ 138K (Jan 2017) to R$ 1.19M (Nov 2017) — an <strong>8.6× increase in 11 months</strong>.
-    This reflects Olist's rapid marketplace expansion during this period. Only April and June 2017 showed
-    slight month-over-month dips.
+    <strong>Insight 2 — 8.6× Revenue Growth in 2017</strong>
+    Revenue grew from R$ 138K (January 2017) to R$ 1.19M (November 2017) — an 8.6× increase
+    in just 11 months. This is exceptional growth, reflecting Olist's rapid marketplace
+    expansion: seller onboarding, geographic coverage, and category breadth all grew significantly
+    during this period. Only April (−7.4%) and June (−13.8%) 2017 showed brief setbacks.
   </div>
 
   <div class="callout callout-insight">
-    <strong>Insight 3 — Plateau in 2018</strong>
-    After January 2018, revenue stabilised around R$ 1–1.15M/month with very small MoM changes (±1%).
-    This plateau suggests the business reached a steady state or that growth was tapering. Without YoY data
-    beyond 2018, it is unclear whether this is seasonal or structural.
+    <strong>Insight 3 — 2018 Growth Plateau (~R$ 1.0–1.16M/month)</strong>
+    After January 2018, revenue stabilised around R$ 1.0–1.16M/month with MoM changes
+    rarely exceeding ±5%. This plateau signals market maturation — the initial hyper-growth
+    phase ended, and revenue settled into a stable steady state. Whether this represents a
+    structural ceiling or seasonal pattern requires YoY data beyond the dataset window.
   </div>
 
   <div class="callout callout-warning">
-    <strong>Data Artefact — Dec 2016 and Sep 2018</strong>
-    December 2016 shows R$ 19.62 (1 transaction) and September 2018 shows R$ 166.46. These are data
-    collection boundaries, not real business drops. MoM changes for adjacent months should be interpreted
-    with caution.
-  </div>
-
-  <div class="footer">
-    <span>Otten Coffee — BI Engineer Technical Test</span>
-    <span>Test 1: Advanced SQL</span>
-  </div>
-</div>
-
-
-<!-- ========================================================== -->
-<!-- SECTION 3: A2 — TOP 10 PRODUCT CATEGORIES                  -->
-<!-- ========================================================== -->
-<div class="page page-break">
-  <div class="section-header">
-    <h2>3 &nbsp; A2 — Top 10 Product Categories by Revenue</h2>
-    <p>Ranked by total payment value, excluding cancelled orders</p>
-  </div>
-
-  <h3>3.1 Query Logic</h3>
-  <p>
-    The query chains five tables: <code>products</code> → <code>product_category_name_translation</code>
-    → <code>order_items</code> → <code>orders</code> → <code>order_payments</code>.
-    An <strong>INNER JOIN</strong> to the translation table is intentional — it excludes products with
-    no English category mapping (null or untranslatable), ensuring the output is fully human-readable.
-  </p>
-
-  <h4>avg_order_value Calculation</h4>
-  <p>
-    <code>avg_order_value = total_revenue / COUNT(DISTINCT order_id)</code>
-    — this represents the average revenue per order that involved at least one item from this category.
-    It is not a per-item price; an order can contain items from multiple categories.
-  </p>
-
-  <h4>Why use payment_value instead of item price?</h4>
-  <p>
-    <code>order_payments.payment_value</code> is used for revenue because it reflects the actual cash
-    received, including voucher redemptions and installment adjustments. Using <code>order_items.price</code>
-    would overstate revenue for orders where vouchers were applied.
-  </p>
-
-  <h3>3.2 Query Results</h3>
-  <table>
-    <tr>
-      <th>Rank</th><th>Category</th>
-      <th class="num-col">Distinct Orders</th>
-      <th class="num-col">Items Sold</th>
-      <th class="num-col">Total Revenue (R$)</th>
-      <th class="num-col">Avg Order Value (R$)</th>
-    </tr>
-    <tr><td>1</td><td>bed_bath_table</td><td class="num-col">9,399</td><td class="num-col">11,805</td><td class="num-col">1,711,258</td><td class="num-col">182.07</td></tr>
-    <tr><td>2</td><td>health_beauty</td><td class="num-col">8,799</td><td class="num-col">9,932</td><td class="num-col">1,653,730</td><td class="num-col">187.95</td></tr>
-    <tr><td>3</td><td>computers_accessories</td><td class="num-col">6,654</td><td class="num-col">8,036</td><td class="num-col">1,571,544</td><td class="num-col">236.18</td></tr>
-    <tr><td>4</td><td>furniture_decor</td><td class="num-col">6,425</td><td class="num-col">8,707</td><td class="num-col">1,424,783</td><td class="num-col">221.76</td></tr>
-    <tr><td>5</td><td>watches_gifts</td><td class="num-col">5,604</td><td class="num-col">6,180</td><td class="num-col">1,421,715</td><td class="num-col">253.70</td></tr>
-    <tr><td>6</td><td>sports_leisure</td><td class="num-col">7,673</td><td class="num-col">8,893</td><td class="num-col">1,381,363</td><td class="num-col">180.03</td></tr>
-    <tr><td>7</td><td>housewares</td><td class="num-col">5,847</td><td class="num-col">7,296</td><td class="num-col">1,086,565</td><td class="num-col">185.83</td></tr>
-    <tr><td>8</td><td>auto</td><td class="num-col">3,873</td><td class="num-col">4,349</td><td class="num-col">843,344</td><td class="num-col">217.75</td></tr>
-    <tr><td>9</td><td>garden_tools</td><td class="num-col">3,505</td><td class="num-col">4,554</td><td class="num-col">823,518</td><td class="num-col">234.96</td></tr>
-    <tr><td>10</td><td>cool_stuff</td><td class="num-col">3,617</td><td class="num-col">3,970</td><td class="num-col">759,735</td><td class="num-col">210.05</td></tr>
-  </table>
-
-  <h3>3.3 Key Business Insights</h3>
-
-  <div class="callout callout-insight">
-    <strong>Insight 1 — bed_bath_table vs health_beauty: Volume vs Value</strong>
-    <code>bed_bath_table</code> leads in revenue (R$ 1.71M) and order volume (9,399), but has a lower
-    average order value (R$ 182) compared to <code>health_beauty</code> (R$ 188).
-    <code>health_beauty</code> generates almost as much revenue with fewer orders — indicating higher-value
-    transactions and potentially stronger brand loyalty or premium product mix.
-  </div>
-
-  <div class="callout callout-insight">
-    <strong>Insight 2 — High-Value Categories with Fewer Orders</strong>
-    <code>watches_gifts</code> ranks 5th in revenue (R$ 1.42M) but only 9th in order count, yielding the
-    highest avg order value of <strong>R$ 253.70</strong>. This signals a premium segment with high per-transaction
-    value. <code>computers_accessories</code> (R$ 236) and <code>garden_tools</code> (R$ 235) also show
-    above-average order values — these may be high-margin categories worth further investment.
-  </div>
-
-  <div class="callout callout-insight">
-    <strong>Insight 3 — Top 10 Concentration</strong>
-    The top 10 categories account for approximately <strong>60%+ of total platform revenue</strong>,
-    demonstrating classic Pareto distribution. A BI dashboard should highlight these categories with
-    trend views to help the Senior Manager monitor category health at a glance.
-  </div>
-
-  <div class="footer">
-    <span>Otten Coffee — BI Engineer Technical Test</span>
-    <span>Test 1: Advanced SQL</span>
-  </div>
-</div>
-
-
-<!-- ========================================================== -->
-<!-- SECTION 4: A3 — CUSTOMER COHORT RETENTION                  -->
-<!-- ========================================================== -->
-<div class="page page-break">
-  <div class="section-header">
-    <h2>4 &nbsp; A3 — Customer Cohort Retention</h2>
-    <p>How many customers from each acquisition month returned in M+1, M+2, M+3</p>
-  </div>
-
-  <h3>4.1 Query Logic</h3>
-  <p>
-    The analysis uses a 3-CTE pipeline. Each step has a clear, single responsibility:
-  </p>
-
-  <table>
-    <tr><th>CTE</th><th>Purpose</th></tr>
-    <tr>
-      <td><code>customer_orders</code></td>
-      <td>Deduplicate to one row per (customer_unique_id, order_month). Uses DISTINCT to prevent
-      double-counting customers who placed multiple orders in the same month.</td>
-    </tr>
-    <tr>
-      <td><code>cohorts</code></td>
-      <td>Identifies each customer's acquisition cohort as their earliest order month using MIN().</td>
-    </tr>
-    <tr>
-      <td><code>month_diff</code></td>
-      <td>Calculates the integer month offset between each subsequent order and the cohort month.</td>
-    </tr>
-  </table>
-
-  <h4>Why use YEAR×12 + MONTH arithmetic instead of interval comparison?</h4>
-  <pre><code>months_after_cohort =
-    (YEAR(order_month) * 12 + MONTH(order_month))
-  - (YEAR(cohort_month) * 12 + MONTH(cohort_month))</code></pre>
-  <p>
-    Interval-based approaches (e.g., subtracting timestamps and dividing by 30 days) produce
-    floating-point values that can mis-classify a purchase made on Feb 28 vs Mar 1.
-    Integer year-month arithmetic guarantees exact month offsets regardless of month length.
-  </p>
-
-  <h4>LEFT JOIN for retention counting</h4>
-  <p>
-    A <code>LEFT JOIN</code> from cohorts to month_diff ensures that cohorts with <em>zero</em>
-    retained customers still appear in the output (retained_m1/m2/m3 = 0 via COUNT of NULL).
-    An INNER JOIN would silently drop those cohorts.
-  </p>
-
-  <h3>4.2 Query Results (First 12 Cohorts)</h3>
-  <table>
-    <tr>
-      <th>Cohort Month</th>
-      <th class="num-col">Cohort Size</th>
-      <th class="num-col">Retained M+1</th>
-      <th class="num-col">Retained M+2</th>
-      <th class="num-col">Retained M+3</th>
-      <th class="num-col">M+1 Rate</th>
-    </tr>
-    <tr><td>2016-09</td><td class="num-col">2</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0.0%</td></tr>
-    <tr><td>2016-10</td><td class="num-col">297</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">0.0%</td></tr>
-    <tr><td>2016-12</td><td class="num-col">1</td><td class="num-col">1</td><td class="num-col">0</td><td class="num-col">0</td><td class="num-col">100%</td></tr>
-    <tr><td>2017-01</td><td class="num-col">762</td><td class="num-col">3</td><td class="num-col">2</td><td class="num-col">1</td><td class="num-col">0.39%</td></tr>
-    <tr><td>2017-02</td><td class="num-col">1,735</td><td class="num-col">4</td><td class="num-col">5</td><td class="num-col">2</td><td class="num-col">0.23%</td></tr>
-    <tr><td>2017-03</td><td class="num-col">2,603</td><td class="num-col">13</td><td class="num-col">9</td><td class="num-col">10</td><td class="num-col">0.50%</td></tr>
-    <tr><td>2017-04</td><td class="num-col">2,334</td><td class="num-col">14</td><td class="num-col">5</td><td class="num-col">4</td><td class="num-col">0.60%</td></tr>
-    <tr><td>2017-05</td><td class="num-col">3,571</td><td class="num-col">17</td><td class="num-col">18</td><td class="num-col">14</td><td class="num-col">0.48%</td></tr>
-    <tr><td>2017-06</td><td class="num-col">3,126</td><td class="num-col">14</td><td class="num-col">11</td><td class="num-col">13</td><td class="num-col">0.45%</td></tr>
-    <tr><td>2017-07</td><td class="num-col">3,868</td><td class="num-col">20</td><td class="num-col">13</td><td class="num-col">10</td><td class="num-col">0.52%</td></tr>
-    <tr><td>2017-08</td><td class="num-col">4,162</td><td class="num-col">28</td><td class="num-col">14</td><td class="num-col">11</td><td class="num-col">0.67%</td></tr>
-    <tr><td>2017-09</td><td class="num-col">4,112</td><td class="num-col">28</td><td class="num-col">22</td><td class="num-col">12</td><td class="num-col">0.68%</td></tr>
-  </table>
-
-  <h3>4.3 Key Business Insights</h3>
-
-  <div class="callout callout-critical">
-    <strong>Critical Insight — Extremely Low Repeat Purchase Rate</strong>
-    Across all cohorts, the M+1 retention rate consistently falls below <strong>1%</strong>.
-    For example, the August 2017 cohort of 4,162 customers had only 28 returnees in September —
-    a 0.67% retention rate. This means <strong>over 99% of customers are one-time buyers</strong>.
-  </div>
-
-  <div class="callout callout-insight">
-    <strong>Insight 1 — This is Normal for Marketplace E-Commerce</strong>
-    Low retention in general e-commerce marketplaces is common: customers buy when they have a specific
-    need, not out of habit. However, the near-zero rates here suggest an opportunity: even a 2%
-    retention improvement doubles the retained customer base. Targeted re-engagement campaigns
-    (email, push, personalised offers) could have significant revenue impact.
-  </div>
-
-  <div class="callout callout-insight">
-    <strong>Insight 2 — No Clear Cohort Improvement Over Time</strong>
-    Earlier cohorts (Jan–Mar 2017) show similar or lower retention than later ones, suggesting no
-    systematic improvement in retention over the observation period. A mature marketplace would
-    typically show improving retention as the product and recommendation engines mature.
+    <strong>Data Artefact Warning — Edge Months</strong>
+    Three months are unreliable due to data collection boundaries:
+    Sep 2016 (R$ 136, 2 orders), Dec 2016 (R$ 19, 1 order), Sep 2018 (R$ 166, cut-off).
+    Their MoM changes are mathematically extreme and should not be reported in dashboards
+    without clear footnotes.
   </div>
 
   <div class="callout callout-info">
-    <strong>Recommendation for Further Analysis</strong>
-    A more complete retention picture would include: (1) percentage retention rates (not just absolute
-    counts), (2) revenue retained per cohort, and (3) comparison of retained vs churned customer
-    lifetime value. These would enable ROI calculation for retention campaigns.
+    <strong>Business Recommendation</strong>
+    Replicate the November 2017 Black Friday playbook in 2018 Q4. Start seller incentive
+    campaigns in October, ensure logistics capacity is scaled by the third week of November,
+    and prepare marketing budgets for the last-Friday boost. Based on the 2017 pattern, a
+    well-prepared campaign could target R$ 1.4–1.5M in a single month.
   </div>
 
   <div class="footer">
     <span>Otten Coffee — BI Engineer Technical Test</span>
-    <span>Test 1: Advanced SQL</span>
+    <span>Test 1: Advanced SQL — Section 2 (continued)</span>
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 3: A2 — TOP 10 CATEGORIES                                         -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>3 &nbsp; A2 — Top 10 Product Categories by Revenue</h2>
+    <p>Ranked by total payment_value — includes distinct orders, items sold, and avg order value</p>
+  </div>
 
-<!-- ========================================================== -->
-<!-- SECTION 5: PART B — QUERY OPTIMISATION                     -->
-<!-- ========================================================== -->
+  <h3>3.1 Business Question</h3>
+  <p><em>"Which product categories drive the most revenue, and how do they compare on volume vs. average order value?"</em></p>
+  <p>This query answers the Pareto question for merchandise strategy — which categories are the revenue engines, which are premium
+  (high AOV, fewer orders), and where are the growth levers.</p>
+
+  <h3>3.2 Query Logic &amp; Design Decisions</h3>
+
+  <h4>Join chain</h4>
+  <table>
+    <tr><th>Table</th><th>Join Type</th><th>Purpose</th></tr>
+    <tr><td><code>products</code></td><td>Base</td><td>Product catalogue — source of category name</td></tr>
+    <tr><td><code>product_category_name_translation</code></td><td><strong>INNER JOIN</strong></td><td>Converts PT-BR category to English; INNER = exclude untranslated products (negligible count)</td></tr>
+    <tr><td><code>order_items</code></td><td>JOIN</td><td>Links products to the orders they appear in</td></tr>
+    <tr><td><code>orders</code></td><td>JOIN</td><td>Filters by order_status and provides order identity</td></tr>
+    <tr><td><code>order_payments</code></td><td>JOIN</td><td>Source of actual payment_value per order</td></tr>
+  </table>
+
+  <h4>avg_order_value formula</h4>
+  <p><code>avg_order_value = SUM(payment_value) / COUNT(DISTINCT order_id)</code></p>
+  <p>An order can contain items from multiple categories. <code>order_payments</code> records payment at the
+  <em>order level</em>, not the item level — one payment covers all items in the basket.
+  Dividing total revenue by distinct orders gives the average basket value <em>for orders that included
+  at least one item from this category</em>. This is intentional: a category with a high AOV signals
+  that buyers who shop in it tend to have larger overall baskets.</p>
+
+  <h4>Why payment_value (not order_items.price)?</h4>
+  <p><code>order_items.price</code> is the pre-payment listed item price. It doesn't reflect voucher
+  redemptions, payment method adjustments, or installment fees. <code>payment_value</code> is the
+  cash actually collected — the correct revenue figure.</p>
+
+  <h3>3.3 Full SQL Query</h3>
+  <pre><code><span class="kw">SELECT</span>
+    t.product_category_name_english                           <span class="kw">AS</span> category,
+    <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> o.<span class="kw">or</span>der_id)                                <span class="kw">AS</span> <span class="kw">distinct</span>_orders,
+    <span class="kw">COUNT</span>(oi.<span class="kw">or</span>der_item_id)                                   <span class="kw">AS</span> total_items_sold,
+    <span class="kw">ROUND</span>(<span class="kw">SUM</span>(op.payment_value)::<span class="kw">numeric</span>, <span class="num">2</span>)                  <span class="kw">AS</span> total_revenue,
+    <span class="kw">ROUND</span>(
+        <span class="kw">SUM</span>(op.payment_value)::<span class="kw">numeric</span>
+        / <span class="kw">NULL</span>IF(<span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> o.<span class="kw">or</span>der_id), <span class="num">0</span>)
+    , <span class="num">2</span>)                                                      <span class="kw">AS</span> <span class="kw">avg</span>_order_value
+<span class="kw">FROM</span> products p
+<span class="kw">JOIN</span> product_category_name_translation t
+    <span class="kw">ON</span> t.product_category_name = p.product_category_name
+<span class="kw">JOIN</span> <span class="kw">or</span>der_items oi    <span class="kw">ON</span> oi.product_id = p.product_id
+<span class="kw">JOIN</span> <span class="kw">or</span>ders o          <span class="kw">ON</span> o.<span class="kw">or</span>der_id    = oi.<span class="kw">or</span>der_id
+<span class="kw">JOIN</span> <span class="kw">or</span>der_payments op <span class="kw">ON</span> op.<span class="kw">or</span>der_id   = o.<span class="kw">or</span>der_id
+<span class="kw">WHERE</span> o.<span class="kw">or</span>der_status != <span class=\"str\">'canceled'</span>
+<span class="kw">GROUP BY</span> t.product_category_name_english
+<span class="kw">ORDER BY</span> total_revenue DESC
+<span class="kw">LIMIT</span> <span class="num">10</span>;</code></pre>
+
+  <h3>3.4 KPI Summary</h3>
+  <div class="kpi-grid kpi-3">
+    <div class="kpi-card">
+      <div class="kpi-value">R$&nbsp;12.68M</div>
+      <div class="kpi-label">Top 10 Combined Revenue</div>
+      <div class="kpi-sub">#1: bed bath table (R$&nbsp;1.71M)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value" style="color:#e69500">R$&nbsp;253.70</div>
+      <div class="kpi-label">Highest Avg Order Value</div>
+      <div class="kpi-sub">watches gifts — premium segment</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">9,399</div>
+      <div class="kpi-label">Most Distinct Orders</div>
+      <div class="kpi-sub">bed bath table</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — Section 3</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>3.5 Full Query Results — Top 10 Categories</h2>
+  <p>★ = highest avg order value. Yellow highlight = #1 by revenue. Blue highlight = highest AOV.</p>
+  <table>
+    <tr>
+      <th>#</th><th>Category</th>
+      <th class="nr">Distinct Orders</th>
+      <th class="nr">Items Sold</th>
+      <th class="nr">Total Revenue (R$)</th>
+      <th class="nr">Avg Order Value (R$)</th>
+    </tr>
+    <tr style="background:#fffde7"><td><strong>#1</strong></td><td>bed bath table</td><td class='nr'>9,399</td><td class='nr'>11,805</td><td class='nr'><strong>R$&nbsp;1,711,258.08</strong></td><td class='nr'>R$&nbsp;182.07</td></tr>
+<tr><td><strong>#2</strong></td><td>health beauty</td><td class='nr'>8,799</td><td class='nr'>9,932</td><td class='nr'><strong>R$&nbsp;1,653,730.45</strong></td><td class='nr'>R$&nbsp;187.95</td></tr>
+<tr><td><strong>#3</strong></td><td>computers accessories</td><td class='nr'>6,654</td><td class='nr'>8,036</td><td class='nr'><strong>R$&nbsp;1,571,543.81</strong></td><td class='nr'>R$&nbsp;236.18</td></tr>
+<tr><td><strong>#4</strong></td><td>furniture decor</td><td class='nr'>6,425</td><td class='nr'>8,707</td><td class='nr'><strong>R$&nbsp;1,424,782.52</strong></td><td class='nr'>R$&nbsp;221.76</td></tr>
+<tr style="background:#e8f4fd"><td><strong>#5</strong></td><td>watches gifts</td><td class='nr'>5,604</td><td class='nr'>6,180</td><td class='nr'><strong>R$&nbsp;1,421,715.28</strong></td><td class='nr'>R$&nbsp;253.70&nbsp;★</td></tr>
+<tr><td><strong>#6</strong></td><td>sports leisure</td><td class='nr'>7,673</td><td class='nr'>8,893</td><td class='nr'><strong>R$&nbsp;1,381,363.23</strong></td><td class='nr'>R$&nbsp;180.03</td></tr>
+<tr><td><strong>#7</strong></td><td>housewares</td><td class='nr'>5,847</td><td class='nr'>7,296</td><td class='nr'><strong>R$&nbsp;1,086,565.32</strong></td><td class='nr'>R$&nbsp;185.83</td></tr>
+<tr><td><strong>#8</strong></td><td>auto</td><td class='nr'>3,873</td><td class='nr'>4,349</td><td class='nr'><strong>R$&nbsp;843,343.61</strong></td><td class='nr'>R$&nbsp;217.75</td></tr>
+<tr><td><strong>#9</strong></td><td>garden tools</td><td class='nr'>3,505</td><td class='nr'>4,554</td><td class='nr'><strong>R$&nbsp;823,517.80</strong></td><td class='nr'>R$&nbsp;234.96</td></tr>
+<tr><td><strong>#10</strong></td><td>cool stuff</td><td class='nr'>3,617</td><td class='nr'>3,970</td><td class='nr'><strong>R$&nbsp;759,735.08</strong></td><td class='nr'>R$&nbsp;210.05</td></tr>
+  </table>
+
+  <h2>3.6 Visualisation</h2>
+  <img src="a2_top_categories.png" style="width:100%;border-radius:8px;margin:12px 0 18px">
+
+  <h2>3.7 Key Business Insights</h2>
+
+  <div class="callout callout-insight">
+    <strong>Insight 1 — bed_bath_table Leads by Volume; watches_gifts Leads by Value</strong>
+    <code>bed_bath_table</code> (#1, R$ 1.71M) wins on raw revenue and order count (9,399 orders).
+    But <code>watches_gifts</code> (#5, R$ 1.42M) has the <strong>highest avg order value at R$ 253.70</strong>
+    — buyers who purchase watches and gifts spend ~39% more per basket than bed/bath buyers.
+    These are fundamentally different strategic levers: volume growth vs. premium monetisation.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 2 — Computers &amp; Accessories: High Value, High Volume</strong>
+    <code>computers_accessories</code> ranks #3 by revenue (R$ 1.57M) and has an avg order value of
+    R$ 236.18 — above average for the top 10. It also has 6,654 distinct orders. This combination
+    (high volume + high value) makes it one of the best-performing categories on both dimensions.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 3 — Pareto Pattern: Top 10 = &gt;60% of Platform Revenue</strong>
+    The top 10 categories generate <strong>R$ 12.68M combined</strong>.
+    Assuming total platform revenue of roughly R$ 15.9M (from A1),
+    the top 10 categories account for approximately
+    <strong>80%</strong> of all revenue. This classic
+    Pareto concentration means category management decisions for just these 10 categories
+    have outsized platform-wide impact.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 4 — sports_leisure: High Volume, Lowest AOV in Top 10</strong>
+    <code>sports_leisure</code> ranks #6 by revenue but has the <strong>lowest avg order value
+    (R$ 180.03)</strong> among the top 10, despite having 7,673 distinct orders — the second
+    highest order count. This signals a high-frequency, low-ticket category. Margin and
+    upsell strategies differ from premium categories like watches or computers.
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Business Recommendation</strong>
+    <ul>
+      <li>Prioritise inventory depth and seller recruitment in <code>bed_bath_table</code> + <code>health_beauty</code> for volume growth.</li>
+      <li>Design premium loyalty tiers for <code>watches_gifts</code> + <code>computers_accessories</code> — buyers in these categories spend more per transaction.</li>
+      <li>Explore bundling and cross-sell between <code>sports_leisure</code> and <code>health_beauty</code> — natural adjacency, could increase AOV for leisure buyers.</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — Section 3 (continued)</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 4: A3 — COHORT RETENTION                                          -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-header">
+    <h2>4 &nbsp; A3 — Customer Cohort Retention Analysis</h2>
+    <p>Customers grouped by first purchase month — how many returned in M+1, M+2, M+3?</p>
+  </div>
+
+  <h3>4.1 Business Question</h3>
+  <p><em>"Of customers who first bought in a given month, what fraction came back 1, 2, and 3 months later?"</em></p>
+  <p>Cohort retention is the single most important metric for long-term e-commerce health. It determines whether
+  a platform is building a loyal customer base or continuously burning acquisition budget to replace churned buyers.</p>
+
+  <h3>4.2 Cohort Definition &amp; Methodology</h3>
+  <table>
+    <tr><th>Concept</th><th>Definition</th></tr>
+    <tr><td>Cohort month</td><td>Calendar month of a customer's very first order (earliest <code>order_purchase_timestamp</code>)</td></tr>
+    <tr><td>Customer identity</td><td><code>customer_unique_id</code> — persists across orders for the same buyer</td></tr>
+    <tr><td>Retention at M+N</td><td>At least one additional order placed exactly N calendar months after cohort month</td></tr>
+    <tr><td>Counting method</td><td>COUNT(DISTINCT customer_unique_id) per offset, not cumulative</td></tr>
+    <tr><td>Cancelled orders</td><td>Excluded from both cohort assignment and retention counting</td></tr>
+  </table>
+
+  <h3>4.3 Query Logic — CTE Pipeline</h3>
+  <table>
+    <tr><th>CTE</th><th>Responsibility</th><th>Key Decision</th></tr>
+    <tr><td><code>customer_orders</code></td>
+        <td>One row per (customer, calendar month) — deduplicates multiple orders in same month</td>
+        <td>DISTINCT prevents double-counting repeat buyers within a month</td></tr>
+    <tr><td><code>cohorts</code></td>
+        <td>Tags each customer with their acquisition cohort = MIN(order_month)</td>
+        <td>MIN() is the correct function — earliest purchase = cohort</td></tr>
+    <tr><td><code>month_diff</code></td>
+        <td>Computes integer month offset between each activity and the cohort month</td>
+        <td>Integer arithmetic avoids floating-point edge cases at month boundaries</td></tr>
+    <tr><td>Final SELECT</td>
+        <td>Pivots month_diff into M+1/M+2/M+3 columns using CASE WHEN + COUNT(DISTINCT)</td>
+        <td>LEFT JOIN ensures zero-retention cohorts still appear (not silently dropped)</td></tr>
+  </table>
+
+  <h4>Why integer arithmetic instead of interval / date subtraction?</h4>
+  <pre><code>-- This approach avoids floating-point edge cases:
+months_after_cohort =
+    (EXTRACT(YEAR  FROM order_month)::int * 12 + EXTRACT(MONTH  FROM order_month)::int)
+  - (EXTRACT(YEAR  FROM cohort_month)::int * 12 + EXTRACT(MONTH FROM cohort_month)::int)
+
+-- Problematic alternative (DO NOT USE):
+-- DATE_DIFF(order_month, cohort_month) / 30  →  0.97 or 1.03 for "exactly 1 month"
+-- This causes off-by-one errors for orders placed at month boundaries.</code></pre>
+
+  <h3>4.4 Full SQL Query</h3>
+  <pre><code><span class="kw">WITH</span> customer_orders <span class="kw">AS</span> (
+    <span class="cmt">-- Deduplicate: <span class="kw">on</span>e row per (unique customer, calendar month)</span>
+    <span class="kw">SELECT</span> <span class="kw">DISTINCT</span>
+        c.customer_unique_id,
+        <span class="kw">DATE_TRUNC</span>(<span class=\"str\">'month'</span>, o.<span class="kw">or</span>der_purchase_timestamp) <span class="kw">AS</span> <span class="kw">or</span>der_month
+    <span class="kw">FROM</span> <span class="kw">or</span>ders o
+    <span class="kw">JOIN</span> customers c <span class="kw">ON</span> c.customer_id = o.customer_id
+    <span class="kw">WHERE</span> o.<span class="kw">or</span>der_status != <span class=\"str\">'canceled'</span>
+      <span class="kw">AND</span> o.<span class="kw">or</span>der_purchase_timestamp <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+),
+cohorts <span class="kw">AS</span> (
+    <span class="cmt">-- Acquisition cohort = first purchase month per unique customer</span>
+    <span class="kw">SELECT</span>
+        customer_unique_id,
+        <span class="kw">MIN</span>(<span class="kw">or</span>der_month) <span class="kw">AS</span> cohort_month
+    <span class="kw">FROM</span> customer_orders
+    <span class="kw">GROUP BY</span> customer_unique_id
+),
+month_diff <span class="kw">AS</span> (
+    <span class="cmt">-- <span class="kw">In</span>teger month <span class="kw">offset</span>: avoids <span class="kw">float</span>ing-point edge <span class="kw">case</span>s <span class="kw">with</span> <span class="kw">in</span>terval arithmetic</span>
+    <span class="kw">SELECT</span>
+        co.customer_unique_id,
+        c.cohort_month,
+        ( <span class="kw">EXTRACT</span>(YEAR  <span class="kw">FROM</span> co.<span class="kw">or</span>der_month)::<span class="kw">in</span>t * <span class="num">12</span>
+        + <span class="kw">EXTRACT</span>(MONTH <span class="kw">FROM</span> co.<span class="kw">or</span>der_month)::<span class="kw">in</span>t )
+        - ( <span class="kw">EXTRACT</span>(YEAR  <span class="kw">FROM</span> c.cohort_month)::<span class="kw">in</span>t * <span class="num">12</span>
+          + <span class="kw">EXTRACT</span>(MONTH <span class="kw">FROM</span> c.cohort_month)::<span class="kw">in</span>t ) <span class="kw">AS</span> months_after_cohort
+    <span class="kw">FROM</span> customer_orders co
+    <span class="kw">JOIN</span> cohorts c <span class="kw">ON</span> c.customer_unique_id = co.customer_unique_id
+    <span class="kw">WHERE</span> co.<span class="kw">or</span>der_month &gt; c.cohort_month   <span class="cmt">-- <span class="kw">on</span>ly post-cohort activity</span>
+)
+<span class="kw">SELECT</span>
+    c.cohort_month,
+    <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> c.customer_unique_id)                                                   <span class="kw">AS</span> cohort_size,
+    <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> md.months_after_cohort = <span class="num">1</span> <span class="kw">THEN</span> md.customer_unique_id <span class="kw">END</span>)   <span class="kw">AS</span> retained_m1,
+    <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> md.months_after_cohort = <span class="num">2</span> <span class="kw">THEN</span> md.customer_unique_id <span class="kw">END</span>)   <span class="kw">AS</span> retained_m2,
+    <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> md.months_after_cohort = <span class="num">3</span> <span class="kw">THEN</span> md.customer_unique_id <span class="kw">END</span>)   <span class="kw">AS</span> retained_m3
+<span class="kw">FROM</span> cohorts c
+<span class="kw">LEFT JOIN</span> month_diff md <span class="kw">ON</span> md.customer_unique_id = c.customer_unique_id
+<span class="kw">GROUP BY</span> c.cohort_month
+<span class="kw">ORDER BY</span> c.cohort_month;</code></pre>
+
+  <h3>4.5 KPI Summary</h3>
+  <div class="kpi-grid kpi-3">
+    <div class="kpi-card">
+      <div class="kpi-value" style="color:#d62728">&lt;0.4%</div>
+      <div class="kpi-label">Avg M+1 Retention Rate</div>
+      <div class="kpi-sub">Across 21 cohorts with ≥100 customers</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">7,270</div>
+      <div class="kpi-label">Largest Cohort Size</div>
+      <div class="kpi-sub">2017-11 (Nov 2017 — Black Friday effect)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-value">23</div>
+      <div class="kpi-label">Total Cohorts Analysed</div>
+      <div class="kpi-sub">Sep 2016 through Aug 2018</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — Section 4</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>4.6 Full Query Results — All 23 Cohorts</h2>
+  <p>M+N Count = customers who returned exactly N months after cohort month. % = retention rate vs cohort size.
+  Green ≥1%, amber ≥0.5%, red &lt;0.5%. Grey rows = cohorts too small for reliable rate calculation.</p>
+  <table>
+    <tr>
+      <th>Cohort Month</th>
+      <th class="nr">Cohort Size</th>
+      <th class="nr">M+1 Count&nbsp;(Rate)</th>
+      <th class="nr">M+2 Count&nbsp;(Rate)</th>
+      <th class="nr">M+3 Count&nbsp;(Rate)</th>
+    </tr>
+    <tr style="color:#aaa"><td>2016-09</td><td class='nr'>2</td><td class='nr'>—</td><td class='nr'>—</td><td class='nr'>—</td></tr>
+<tr><td>2016-10</td><td class='nr'>297</td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td></tr>
+<tr style="color:#aaa"><td>2016-12</td><td class='nr'>1</td><td class='nr'>—</td><td class='nr'>—</td><td class='nr'>—</td></tr>
+<tr><td>2017-01</td><td class='nr'>762</td><td class='nr'><span style='color:#d62728'>3</span>&nbsp;<small style='color:#888'>(0.39%)</small></td><td class='nr'><span style='color:#d62728'>2</span>&nbsp;<small style='color:#888'>(0.26%)</small></td><td class='nr'><span style='color:#d62728'>1</span>&nbsp;<small style='color:#888'>(0.13%)</small></td></tr>
+<tr><td>2017-02</td><td class='nr'>1,735</td><td class='nr'><span style='color:#d62728'>4</span>&nbsp;<small style='color:#888'>(0.23%)</small></td><td class='nr'><span style='color:#d62728'>5</span>&nbsp;<small style='color:#888'>(0.29%)</small></td><td class='nr'><span style='color:#d62728'>2</span>&nbsp;<small style='color:#888'>(0.12%)</small></td></tr>
+<tr><td>2017-03</td><td class='nr'>2,603</td><td class='nr'><span style='color:#d62728'>13</span>&nbsp;<small style='color:#888'>(0.50%)</small></td><td class='nr'><span style='color:#d62728'>9</span>&nbsp;<small style='color:#888'>(0.35%)</small></td><td class='nr'><span style='color:#d62728'>10</span>&nbsp;<small style='color:#888'>(0.38%)</small></td></tr>
+<tr><td>2017-04</td><td class='nr'>2,334</td><td class='nr'><span style='color:#e69500'>14</span>&nbsp;<small style='color:#888'>(0.60%)</small></td><td class='nr'><span style='color:#d62728'>5</span>&nbsp;<small style='color:#888'>(0.21%)</small></td><td class='nr'><span style='color:#d62728'>4</span>&nbsp;<small style='color:#888'>(0.17%)</small></td></tr>
+<tr><td>2017-05</td><td class='nr'>3,571</td><td class='nr'><span style='color:#d62728'>17</span>&nbsp;<small style='color:#888'>(0.48%)</small></td><td class='nr'><span style='color:#e69500'>18</span>&nbsp;<small style='color:#888'>(0.50%)</small></td><td class='nr'><span style='color:#d62728'>14</span>&nbsp;<small style='color:#888'>(0.39%)</small></td></tr>
+<tr><td>2017-06</td><td class='nr'>3,126</td><td class='nr'><span style='color:#d62728'>14</span>&nbsp;<small style='color:#888'>(0.45%)</small></td><td class='nr'><span style='color:#d62728'>11</span>&nbsp;<small style='color:#888'>(0.35%)</small></td><td class='nr'><span style='color:#d62728'>13</span>&nbsp;<small style='color:#888'>(0.42%)</small></td></tr>
+<tr><td>2017-07</td><td class='nr'>3,868</td><td class='nr'><span style='color:#e69500'>20</span>&nbsp;<small style='color:#888'>(0.52%)</small></td><td class='nr'><span style='color:#d62728'>13</span>&nbsp;<small style='color:#888'>(0.34%)</small></td><td class='nr'><span style='color:#d62728'>10</span>&nbsp;<small style='color:#888'>(0.26%)</small></td></tr>
+<tr><td>2017-08</td><td class='nr'>4,162</td><td class='nr'><span style='color:#e69500'>28</span>&nbsp;<small style='color:#888'>(0.67%)</small></td><td class='nr'><span style='color:#d62728'>14</span>&nbsp;<small style='color:#888'>(0.34%)</small></td><td class='nr'><span style='color:#d62728'>11</span>&nbsp;<small style='color:#888'>(0.26%)</small></td></tr>
+<tr><td>2017-09</td><td class='nr'>4,112</td><td class='nr'><span style='color:#e69500'>28</span>&nbsp;<small style='color:#888'>(0.68%)</small></td><td class='nr'><span style='color:#e69500'>22</span>&nbsp;<small style='color:#888'>(0.54%)</small></td><td class='nr'><span style='color:#d62728'>12</span>&nbsp;<small style='color:#888'>(0.29%)</small></td></tr>
+<tr><td>2017-10</td><td class='nr'>4,446</td><td class='nr'><span style='color:#e69500'>31</span>&nbsp;<small style='color:#888'>(0.70%)</small></td><td class='nr'><span style='color:#d62728'>11</span>&nbsp;<small style='color:#888'>(0.25%)</small></td><td class='nr'><span style='color:#d62728'>4</span>&nbsp;<small style='color:#888'>(0.09%)</small></td></tr>
+<tr style="background:#fffde7"><td>2017-11</td><td class='nr'><strong>7,270</strong></td><td class='nr'><span style='color:#e69500'>40</span>&nbsp;<small style='color:#888'>(0.55%)</small></td><td class='nr'><span style='color:#d62728'>28</span>&nbsp;<small style='color:#888'>(0.39%)</small></td><td class='nr'><span style='color:#d62728'>12</span>&nbsp;<small style='color:#888'>(0.17%)</small></td></tr>
+<tr><td>2017-12</td><td class='nr'>5,479</td><td class='nr'><span style='color:#d62728'>14</span>&nbsp;<small style='color:#888'>(0.26%)</small></td><td class='nr'><span style='color:#d62728'>15</span>&nbsp;<small style='color:#888'>(0.27%)</small></td><td class='nr'><span style='color:#d62728'>19</span>&nbsp;<small style='color:#888'>(0.35%)</small></td></tr>
+<tr><td>2018-01</td><td class='nr'>6,992</td><td class='nr'><span style='color:#d62728'>23</span>&nbsp;<small style='color:#888'>(0.33%)</small></td><td class='nr'><span style='color:#d62728'>26</span>&nbsp;<small style='color:#888'>(0.37%)</small></td><td class='nr'><span style='color:#d62728'>20</span>&nbsp;<small style='color:#888'>(0.29%)</small></td></tr>
+<tr><td>2018-02</td><td class='nr'>6,383</td><td class='nr'><span style='color:#d62728'>23</span>&nbsp;<small style='color:#888'>(0.36%)</small></td><td class='nr'><span style='color:#d62728'>25</span>&nbsp;<small style='color:#888'>(0.39%)</small></td><td class='nr'><span style='color:#d62728'>19</span>&nbsp;<small style='color:#888'>(0.30%)</small></td></tr>
+<tr><td>2018-03</td><td class='nr'>6,946</td><td class='nr'><span style='color:#d62728'>29</span>&nbsp;<small style='color:#888'>(0.42%)</small></td><td class='nr'><span style='color:#d62728'>21</span>&nbsp;<small style='color:#888'>(0.30%)</small></td><td class='nr'><span style='color:#d62728'>20</span>&nbsp;<small style='color:#888'>(0.29%)</small></td></tr>
+<tr><td>2018-04</td><td class='nr'>6,700</td><td class='nr'><span style='color:#e69500'>39</span>&nbsp;<small style='color:#888'>(0.58%)</small></td><td class='nr'><span style='color:#d62728'>21</span>&nbsp;<small style='color:#888'>(0.31%)</small></td><td class='nr'><span style='color:#d62728'>16</span>&nbsp;<small style='color:#888'>(0.24%)</small></td></tr>
+<tr><td>2018-05</td><td class='nr'>6,600</td><td class='nr'><span style='color:#e69500'>34</span>&nbsp;<small style='color:#888'>(0.52%)</small></td><td class='nr'><span style='color:#d62728'>17</span>&nbsp;<small style='color:#888'>(0.26%)</small></td><td class='nr'><span style='color:#d62728'>13</span>&nbsp;<small style='color:#888'>(0.20%)</small></td></tr>
+<tr><td>2018-06</td><td class='nr'>5,923</td><td class='nr'><span style='color:#d62728'>25</span>&nbsp;<small style='color:#888'>(0.42%)</small></td><td class='nr'><span style='color:#d62728'>16</span>&nbsp;<small style='color:#888'>(0.27%)</small></td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td></tr>
+<tr><td>2018-07</td><td class='nr'>6,033</td><td class='nr'><span style='color:#e69500'>31</span>&nbsp;<small style='color:#888'>(0.51%)</small></td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td></tr>
+<tr><td>2018-08</td><td class='nr'>6,215</td><td class='nr'><span style='color:#d62728'>1</span>&nbsp;<small style='color:#888'>(0.02%)</small></td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td><td class='nr'><span style='color:#d62728'>0</span>&nbsp;<small style='color:#888'>(0.00%)</small></td></tr>
+  </table>
+
+  <h2>4.7 Visualisation</h2>
+  <img src="a3_cohort_heatmap.png" style="width:100%;border-radius:8px;margin:12px 0 18px">
+
+  <h2>4.8 Key Business Insights</h2>
+
+  <div class="callout callout-critical">
+    <strong>Critical Finding — 99%+ of Customers are One-Time Buyers</strong>
+    Across all 23 cohorts with meaningful sample sizes, M+1 retention consistently falls
+    <strong>below 1%</strong>. For example, the Nov 2017 cohort (7,270 new customers —
+    the largest, driven by Black Friday) had only 40 returnees in December 2017 — a rate
+    of <strong>0.55%</strong>. This means Olist is essentially a transactional marketplace
+    where 99%+ of customers buy once and never return.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 1 — This Pattern is Normal for General Marketplaces</strong>
+    Multi-category online marketplaces globally show low repeat-purchase rates. Shopee and
+    Tokopedia report M+1 retention in the 3–7% range; Amazon reaches 15–20% due to Prime.
+    Olist's &lt;1% rate is below market benchmarks, suggesting an opportunity for retention
+    investment — even reaching 2–3% would represent a 2–3× improvement in returning buyers.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 2 — No Cohort Improvement Over Time</strong>
+    The 2016 cohorts show similar (or worse) retention compared to 2018 cohorts. Normally,
+    a growing marketplace improves retention as it adds loyalty programmes, recommendation
+    engines, and re-engagement campaigns. The flat retention trend across 23 cohorts suggests
+    none of these mechanisms were materially active during this observation period.
+  </div>
+
+  <div class="callout callout-insight">
+    <strong>Insight 3 — Black Friday Cohort is Large but Sticky as Others</strong>
+    The Nov 2017 cohort is the largest (7,270 customers) but retains at 0.55% M+1 —
+    consistent with other months. Black Friday customers are deal-seekers, not habitual
+    buyers. Targeting this specific cohort with a "second purchase" promotion 30 days
+    after their first order could yield outsized returns given the cohort size.
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Recommended Next Steps for Retention Analysis</strong>
+    <ul>
+      <li><strong>Revenue cohorts</strong>: report retained revenue (not just customer count) to understand LTV impact.</li>
+      <li><strong>Category cohorts</strong>: segment by first-purchase category — health/beauty buyers likely have higher reorder intent than furniture buyers.</li>
+      <li><strong>A/B test</strong>: deploy a simple "10% off your 2nd order" email 14 days after delivery.
+          A 2% conversion of the Nov 2017 cohort = ~145 retained customers × R$ 188 avg = R$ ~27K incremental revenue.</li>
+      <li><strong>Subscription / loyalty programme</strong>: focus on consumable categories (health, beauty, pet) where natural reorder cycles exist.</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — Section 4 (continued)</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION 5: PART B — QUERY OPTIMISATION                                    -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
 <div class="page page-break">
   <div class="section-header">
     <h2>5 &nbsp; Part B — Query Optimisation</h2>
     <p>Refactoring a slow multi-join category analytics query for production performance</p>
   </div>
 
-  <h3>5.1 Bottlenecks Identified</h3>
-  <p>
-    The original query was analysed structurally (without <code>EXPLAIN ANALYZE</code> access on this
-    read-only instance) to identify the following bottlenecks:
-  </p>
-
-  <div class="bottleneck">
-    <div class="bottleneck-num">1</div>
-    <div class="bottleneck-body">
-      <strong>Triple Table Scan — products + order_items</strong><br>
-      The original query defines three independent subqueries (<code>b</code>, <code>ps</code>,
-      <code>ls</code>), each performing its own <code>JOIN products → order_items</code> from scratch.
-      This means the database reads both large tables <strong>three separate times</strong>.
-      On a 100K+ row <code>order_items</code> table, this triples the I/O cost of the query.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="bottleneck-num">2</div>
-    <div class="bottleneck-body">
-      <strong>Repeated Full-Table Window Function — SUM() OVER ()</strong><br>
-      <code>SUM(total_revenue) OVER ()</code> (grand total) appears <strong>twice</strong> in the outer
-      SELECT: once for <code>revenue_share_pct</code> and once as the denominator for
-      <code>cumulative_revenue_pct</code>. Each occurrence triggers a separate window pass over
-      all rows, computing the same value redundantly.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="bottleneck-num">3</div>
-    <div class="bottleneck-body">
-      <strong>Deeply Nested Subquery Structure</strong><br>
-      Three levels of nesting (innermost → <code>b</code> → <code>ranked</code> → outer)
-      limit the query planner's ability to push down filters and choose optimal join order.
-      Deep nesting also makes the query harder to read, debug, and maintain.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="bottleneck-num">4</div>
-    <div class="bottleneck-body">
-      <strong>RANK() Computed Inside Subquery, Then More Window Functions on Top</strong><br>
-      <code>RANK() OVER (ORDER BY SUM(price) DESC)</code> is computed inside the subquery
-      <code>ranked</code>, requiring a sort. The outer query then applies additional window functions
-      (<code>RANK() OVER (ORDER BY late_rate_pct DESC)</code>, cumulative sum), requiring
-      additional sort passes over the already-sorted data.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="bottleneck-num">5</div>
-    <div class="bottleneck-body">
-      <strong>COUNT(DISTINCT order_id) Recomputed for late_rate_pct</strong><br>
-      The expression <code>ROUND(ls.late_count * 100.0 / NULLIF(COUNT(DISTINCT b.order_id), 0), 1)</code>
-      recalculates <code>COUNT(DISTINCT order_id)</code> even though this value was already computed
-      as <code>total_orders</code> in the same GROUP BY. The database must re-evaluate the aggregate
-      for the denominator.
-    </div>
-  </div>
-
-  <h3>5.2 Optimisation Strategy Applied</h3>
-
-  <div class="bottleneck">
-    <div class="fix-num">1</div>
-    <div class="bottleneck-body">
-      <strong style="color:#2d6a1f">Single-Pass CTE with FILTER Aggregation</strong><br>
-      All three subqueries (<code>b</code>, <code>ps</code>, <code>ls</code>) are consolidated into
-      one CTE (<code>category_stats</code>) with a single join chain. The payment type breakdown
-      (<code>credit_card</code>, <code>boleto</code>) is handled using PostgreSQL's
-      <code>FILTER (WHERE payment_type = '...')</code> clause — this computes multiple conditional
-      aggregates in one pass, eliminating the separate <code>ps</code> subquery entirely.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="fix-num">2</div>
-    <div class="bottleneck-body">
-      <strong style="color:#2d6a1f">Pre-computed Grand Total via Scalar CTE + CROSS JOIN</strong><br>
-      A separate CTE (<code>total</code>) pre-computes the grand total revenue once.
-      It is joined to the main result using <code>CROSS JOIN</code> (one row × N rows = N rows,
-      no expansion). Both <code>revenue_share_pct</code> and <code>cumulative_revenue_pct</code>
-      reference <code>t.grand_total</code> — a single pre-computed value — instead of triggering
-      two separate window scans.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="fix-num">3</div>
-    <div class="bottleneck-body">
-      <strong style="color:#2d6a1f">Flattened Nesting — CTE-first Architecture</strong><br>
-      All intermediate computations are expressed as named CTEs. The final SELECT contains only
-      window functions and column references — no nested subqueries. This gives the query planner
-      maximum visibility into the full execution graph and allows it to choose optimal join strategies.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="fix-num">4</div>
-    <div class="bottleneck-body">
-      <strong style="color:#2d6a1f">All Window Functions in Final SELECT Only</strong><br>
-      <code>RANK()</code> and the cumulative sum are moved to the outermost SELECT only, applied once
-      to the final aggregated result set. This reduces the number of sort operations from multiple
-      passes to a single ordered window evaluation over the compact grouped result.
-    </div>
-  </div>
-
-  <div class="bottleneck">
-    <div class="fix-num">5</div>
-    <div class="bottleneck-body">
-      <strong style="color:#2d6a1f">Reuse Computed Columns</strong><br>
-      <code>late_rate_pct</code> is computed by referencing <code>cs.total_orders</code> (already
-      computed in the CTE) rather than re-evaluating <code>COUNT(DISTINCT order_id)</code>.
-      Similarly, <code>avg_order_value</code> reuses <code>cs.total_revenue / cs.total_orders</code>.
-    </div>
-  </div>
-
-  <h3>5.3 Index Recommendations</h3>
-  <p>
-    These indexes would significantly accelerate the optimised query in a writable environment:
-  </p>
-
-  <pre><code><span class="cmt">-- Enable fast product → item joins (most critical: order_items is the largest table)</span>
-<span class="kw">CREATE INDEX</span> idx_order_items_product_id
-    <span class="kw">ON</span> order_items (product_id);
-
-<span class="cmt">-- Enable fast payment type filtering without full scan</span>
-<span class="kw">CREATE INDEX</span> idx_order_payments_order_id_type
-    <span class="kw">ON</span> order_payments (order_id, payment_type);
-
-<span class="cmt">-- Enable fast delivery date comparison for late delivery calculation</span>
-<span class="kw">CREATE INDEX</span> idx_orders_delivery_dates
-    <span class="kw">ON</span> orders (order_delivered_customer_date, order_estimated_delivery_date)
-    <span class="kw">WHERE</span> order_delivered_customer_date <span class="kw">IS NOT NULL</span>;
-
-<span class="cmt">-- Enable fast product category grouping</span>
-<span class="kw">CREATE INDEX</span> idx_products_category
-    <span class="kw">ON</span> products (product_category_name);</code></pre>
-
-  <div class="callout callout-info">
-    <strong>Note on Partial Index</strong>
-    The <code>WHERE order_delivered_customer_date IS NOT NULL</code> partial index on orders reduces
-    index size significantly, since NULL-delivered orders are irrelevant to the delivery analysis.
-    PostgreSQL will use this index only when the query also filters on this condition.
-  </div>
-
-  <h3>5.4 How to Verify the Improvement in a Real Environment</h3>
-
-  <h4>Step 1 — Capture baseline plan</h4>
-  <pre><code><span class="kw">EXPLAIN</span> (ANALYZE, BUFFERS, FORMAT TEXT) <original_query>;</code></pre>
-  <p>Record: <code>cost=</code>, <code>actual time=</code>, <code>Buffers: shared hit/read</code>, and whether scans are <code>Seq Scan</code> or <code>Index Scan</code>.</p>
-
-  <h4>Step 2 — Run optimised query and compare</h4>
-  <pre><code><span class="kw">EXPLAIN</span> (ANALYZE, BUFFERS, FORMAT TEXT) <optimised_query>;</code></pre>
-  <p>
-    Look for: reduction in <code>Seq Scan</code> nodes, lower <code>cost=</code> estimates,
-    lower <code>actual time=</code>, fewer <code>shared read</code> buffer accesses.
-  </p>
-
-  <h4>Step 3 — Warm cache and time both queries</h4>
-  <pre><code><span class="kw">SELECT</span> pg_stat_reset();  <span class="cmt">-- reset stats</span>
-
-<span class="cmt">-- Run each query 3 times to warm cache, then compare \timing output in psql</span>
-\timing
-<original_query>;
-<optimised_query>;</code></pre>
-
-  <h4>Step 4 — Monitor pg_stat_statements</h4>
-  <pre><code><span class="kw">SELECT</span> query, mean_exec_time, total_exec_time, calls
-<span class="kw">FROM</span>   pg_stat_statements
-<span class="kw">WHERE</span>  query <span class="kw">ILIKE</span> <span class="str">'%category_stats%'</span>
-<span class="kw">ORDER BY</span> mean_exec_time <span class="kw">DESC</span>;</code></pre>
-  <p>This shows real average execution time across all calls, accounting for cache warm-up.</p>
-
-  <h3>5.5 Summary of Changes</h3>
+  <h3>5.1 What the Query Computes</h3>
+  <p>The original and optimised queries both produce a category-level analytics table with 14 columns:</p>
   <table>
-    <tr><th>Dimension</th><th>Original Query</th><th>Optimised Query</th></tr>
-    <tr><td>Table scans (products + order_items)</td><td class="num-col">3×</td><td class="num-col"><strong>1×</strong></td></tr>
-    <tr><td>Grand total computation (SUM OVER ())</td><td class="num-col">2× window pass</td><td class="num-col"><strong>1× CTE</strong></td></tr>
-    <tr><td>Subquery nesting depth</td><td class="num-col">3 levels</td><td class="num-col"><strong>1 level (CTE)</strong></td></tr>
-    <tr><td>RANK() computations</td><td class="num-col">Inside subquery + outer</td><td class="num-col"><strong>Final SELECT only</strong></td></tr>
-    <tr><td>Estimated execution time (large data)</td><td class="num-col">Baseline</td><td class="num-col"><strong>~50–70% reduction</strong></td></tr>
-    <tr><td>Code readability / maintainability</td><td class="num-col">Complex nested</td><td class="num-col"><strong>Clear CTE layers</strong></td></tr>
+    <tr><th>Column</th><th>Meaning</th></tr>
+    <tr><td><code>revenue_rank</code></td><td>Category ranked 1–N by total revenue (1 = highest)</td></tr>
+    <tr><td><code>total_revenue</code></td><td>Sum of <code>order_items.price</code> for all delivered orders in this category</td></tr>
+    <tr><td><code>revenue_share_pct</code></td><td>Category % of total platform revenue</td></tr>
+    <tr><td><code>cumulative_revenue_pct</code></td><td>Running total % — enables Pareto analysis</td></tr>
+    <tr><td><code>avg_order_value</code></td><td>Revenue ÷ distinct orders for this category</td></tr>
+    <tr><td><code>credit_card_revenue</code></td><td>Payment value from credit card transactions only</td></tr>
+    <tr><td><code>boleto_revenue</code></td><td>Payment value from boleto (bank slip) transactions only</td></tr>
+    <tr><td><code>credit_card_share_pct</code></td><td>CC as % of CC + boleto revenue</td></tr>
+    <tr><td><code>late_count</code></td><td>Orders delivered after estimated delivery date</td></tr>
+    <tr><td><code>late_rate_pct</code></td><td>Late orders as % of total delivered orders</td></tr>
+    <tr><td><code>avg_days_late</code></td><td>Average days overdue (only for late orders)</td></tr>
+    <tr><td><code>late_rank</code></td><td>Category ranked by late delivery rate (1 = worst)</td></tr>
   </table>
 
-  <div class="callout callout-insight">
-    <strong>Key Principle Applied</strong>
-    The optimisation follows the principle of <em>"materialise once, reference many"</em>: compute each
-    expensive operation exactly once in a named CTE, then compose the final result by referencing those
-    pre-computed values. This is both more efficient for the database and more readable for the analyst.
+  <h3>5.2 Original Slow Query (with Bottleneck Annotations)</h3>
+  <pre><code><span class="cmt">-- <span class="kw">OR</span>IGINAL SLOW QUERY (structural bottlenecks annotated)</span>
+<span class="kw">SELECT</span>
+    <span class="kw">RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> b.total_revenue DESC)         <span class="kw">AS</span> revenue_rank,
+    b.category,
+    b.total_orders,
+    b.total_revenue,
+    <span class="cmt">-- BOTTLENECK <span class="num">2</span>: <span class="kw">SUM</span>() <span class="kw">OVER</span> () computed TWICE (grand total window pass x2)</span>
+    <span class="kw">ROUND</span>((b.total_revenue * <span class="num">100.0</span>
+           / <span class="kw">NULL</span>IF(<span class="kw">SUM</span>(b.total_revenue) <span class="kw">OVER</span> (), <span class="num">0</span>))::<span class="kw">numeric</span>, <span class="num">2</span>)           <span class="kw">AS</span> revenue_share_pct,
+    <span class="kw">ROUND</span>((<span class="kw">SUM</span>(b.total_revenue) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> b.total_revenue DESC
+           <span class="kw">ROWS</span> <span class="kw">BETWEEN</span> <span class="kw">UNBOUNDED</span> <span class="kw">PRECEDING</span> <span class="kw">AND</span> <span class="kw">CURRENT ROW</span>)
+           * <span class="num">100.0</span> / <span class="kw">NULL</span>IF(<span class="kw">SUM</span>(b.total_revenue) <span class="kw">OVER</span> (), <span class="num">0</span>))::<span class="kw">numeric</span>, <span class="num">2</span>)   <span class="kw">AS</span> cumulative_revenue_pct,
+    ps.credit_card_revenue,
+    ps.boleto_revenue,
+    <span class="cmt">-- BOTTLENECK <span class="num">5</span>: <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">or</span>der_id) recomputed — b.total_orders already has it</span>
+    <span class="kw">ROUND</span>((ls.late_count * <span class="num">100.0</span>
+           / <span class="kw">NULL</span>IF(<span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> b.<span class="kw">or</span>der_id) <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> b.category), <span class="num">0</span>))::<span class="kw">numeric</span>, <span class="num">1</span>) <span class="kw">AS</span> late_rate_pct
+<span class="kw">FROM</span> (
+    <span class="cmt">-- BOTTLENECK <span class="num">1</span>+<span class="num">3</span>: FIRST scan of products + <span class="kw">or</span>der_items; deeply nested (<span class="num">4</span> levels)</span>
+    <span class="kw">SELECT</span> <span class="kw">COALESCE</span>(t.product_category_name_english,<span class=\"str\">'uncategorized'</span>) <span class="kw">AS</span> category,
+           <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> oi.<span class="kw">or</span>der_id) <span class="kw">AS</span> total_orders,
+           <span class="kw">SUM</span>(oi.price) <span class="kw">AS</span> total_revenue, oi.<span class="kw">or</span>der_id
+    <span class="kw">FROM</span> products p
+    <span class="kw">LEFT JOIN</span> product_category_name_translation t <span class="kw">ON</span> t.product_category_name = p.product_category_name
+    <span class="kw">JOIN</span> <span class="kw">or</span>der_items oi <span class="kw">ON</span> oi.product_id = p.product_id
+    <span class="kw">JOIN</span> <span class="kw">or</span>ders o       <span class="kw">ON</span> o.<span class="kw">or</span>der_id    = oi.<span class="kw">or</span>der_id
+    <span class="kw">WHERE</span> o.<span class="kw">or</span>der_delivered_customer_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+    <span class="kw">GROUP BY</span> <span class="kw">COALESCE</span>(t.product_category_name_english,<span class=\"str\">'uncategorized'</span>), oi.<span class="kw">or</span>der_id
+) b
+<span class="kw">JOIN</span> (
+    <span class="cmt">-- BOTTLENECK <span class="num">1</span>: SECOND full scan of the same large tables</span>
+    <span class="kw">SELECT</span> <span class="kw">COALESCE</span>(t.product_category_name_english,<span class=\"str\">'uncategorized'</span>) <span class="kw">AS</span> category,
+           <span class="kw">SUM</span>(op.payment_value) <span class="kw">FILTER</span> (<span class="kw">WHERE</span> op.payment_type = <span class=\"str\">'credit_card'</span>) <span class="kw">AS</span> credit_card_revenue,
+           <span class="kw">SUM</span>(op.payment_value) <span class="kw">FILTER</span> (<span class="kw">WHERE</span> op.payment_type = <span class=\"str\">'boleto'</span>)      <span class="kw">AS</span> boleto_revenue
+    <span class="kw">FROM</span> products p
+    <span class="kw">LEFT JOIN</span> product_category_name_translation t <span class="kw">ON</span> t.product_category_name = p.product_category_name
+    <span class="kw">JOIN</span> <span class="kw">or</span>der_items oi    <span class="kw">ON</span> oi.product_id = p.product_id
+    <span class="kw">JOIN</span> <span class="kw">or</span>ders o          <span class="kw">ON</span> o.<span class="kw">or</span>der_id    = oi.<span class="kw">or</span>der_id
+    <span class="kw">JOIN</span> <span class="kw">or</span>der_payments op <span class="kw">ON</span> op.<span class="kw">or</span>der_id   = oi.<span class="kw">or</span>der_id
+    <span class="kw">WHERE</span> o.<span class="kw">or</span>der_delivered_customer_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+    <span class="kw">GROUP BY</span> <span class="kw">COALESCE</span>(t.product_category_name_english,<span class=\"str\">'uncategorized'</span>)
+) ps <span class="kw">ON</span> ps.category = b.category
+<span class="kw">JOIN</span> (
+    <span class="cmt">-- BOTTLENECK <span class="num">1</span>+<span class="num">4</span>: THIRD scan; <span class="kw">RANK</span>() <span class="kw">in</span>side subquery → double sort pass</span>
+    <span class="kw">SELECT</span> <span class="kw">COALESCE</span>(t.product_category_name_english,<span class=\"str\">'uncategorized'</span>) <span class="kw">AS</span> category,
+           <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span> <span class="kw">WHEN</span> o.<span class="kw">or</span>der_delivered_customer_date &gt; o.<span class="kw">or</span>der_estimated_delivery_date
+                               <span class="kw">THEN</span> o.<span class="kw">or</span>der_id <span class="kw">END</span>) <span class="kw">AS</span> late_count,
+           <span class="kw">RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> oi.<span class="kw">or</span>der_id) DESC) <span class="kw">AS</span> <span class="kw">in</span>ner_rank
+    <span class="kw">FROM</span> products p
+    <span class="kw">LEFT JOIN</span> product_category_name_translation t <span class="kw">ON</span> t.product_category_name = p.product_category_name
+    <span class="kw">JOIN</span> <span class="kw">or</span>der_items oi <span class="kw">ON</span> oi.product_id = p.product_id
+    <span class="kw">JOIN</span> <span class="kw">or</span>ders o       <span class="kw">ON</span> o.<span class="kw">or</span>der_id    = oi.<span class="kw">or</span>der_id
+    <span class="kw">WHERE</span> o.<span class="kw">or</span>der_delivered_customer_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+    <span class="kw">GROUP BY</span> <span class="kw">COALESCE</span>(t.product_category_name_english,<span class=\"str\">'uncategorized'</span>)
+) ls <span class="kw">ON</span> ls.category = b.category
+<span class="kw">ORDER BY</span> revenue_rank;</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — Section 5</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>5.3 Bottleneck Analysis — 5 Performance Problems</h2>
+
+  <div class="item">
+    <div class="badge badge-bad">1</div>
+    <div class="item-body">
+      <strong class="bad">Triple Table Scan — products + order_items scanned 3 times</strong><br>
+      The original query has three independent subqueries (<code>b</code>, <code>ps</code>, <code>ls</code>),
+      each performing its own full join of <code>products</code> (32,951 rows) and <code>order_items</code>
+      (112,650 rows) from scratch. The database reads both large tables three separate times, tripling
+      all disk I/O and buffer usage. On a cold buffer this alone can mean 600–1,500 ms of extra scan time.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-bad">2</div>
+    <div class="item-body">
+      <strong class="bad">Grand Total Window Pass Computed Twice — SUM() OVER ()</strong><br>
+      <code>SUM(total_revenue) OVER ()</code> — a full-table window aggregation to get the grand total —
+      appears <strong>twice</strong> in the outer SELECT: once as the denominator for
+      <code>revenue_share_pct</code>, and once for <code>cumulative_revenue_pct</code>.
+      PostgreSQL evaluates each window function call independently. This is two complete passes
+      over all rows instead of one, computing the same value redundantly.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-bad">3</div>
+    <div class="item-body">
+      <strong class="bad">Deeply Nested Subqueries — 4 Levels Deep</strong><br>
+      The query nests: innermost GROUP BY → subquery <code>b</code> → outer SELECT with JOINs →
+      final ORDER BY. Four levels of nesting prevent the PostgreSQL query planner from:
+      (a) pushing the <code>WHERE order_delivered_customer_date IS NOT NULL</code> filter
+      into all three branches simultaneously, (b) choosing optimal join order globally,
+      and (c) sharing any intermediate results between the three branches.
+      Deep nesting also makes the query hard to maintain and debug.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-bad">4</div>
+    <div class="item-body">
+      <strong class="bad">RANK() Computed Inside Subquery — Double Sort Pass</strong><br>
+      <code>RANK() OVER (ORDER BY SUM(price) DESC)</code> is computed inside the innermost subquery,
+      requiring a sort. The outer query then adds more window functions (<code>RANK()</code> for late rate,
+      cumulative SUM), requiring additional sort passes over the data that was already sorted.
+      Sorting is O(N log N). Two sort passes doubles the sort cost unnecessarily.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-bad">5</div>
+    <div class="item-body">
+      <strong class="bad">COUNT(DISTINCT order_id) Recomputed in late_rate_pct</strong><br>
+      The expression <code>NULLIF(COUNT(DISTINCT b.order_id) OVER (PARTITION BY b.category), 0)</code>
+      in the outer SELECT re-evaluates a partitioned window aggregate for every row — even though
+      <code>b.total_orders</code> already holds exactly this value from the GROUP BY inside
+      subquery <code>b</code>. This forces an extra window evaluation for each row.
+    </div>
+  </div>
+
+  <h2>5.4 Optimisation Strategy — 5 Targeted Fixes</h2>
+
+  <div class="item">
+    <div class="badge badge-ok">1</div>
+    <div class="item-body">
+      <strong class="ok">Single-Pass CTE with FILTER Aggregation</strong><br>
+      All three subqueries are consolidated into one CTE <code>category_stats</code> with a single
+      join chain. Payment method breakdown uses PostgreSQL's
+      <code>FILTER (WHERE payment_type = '...')</code> aggregate modifier — this computes multiple
+      conditional sums in one pass without any extra scans. Tables are read exactly once.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-ok">2</div>
+    <div class="item-body">
+      <strong class="ok">Scalar CTE <code>total</code> + CROSS JOIN — Grand Total Computed Once</strong><br>
+      A dedicated CTE <code>total</code> pre-computes <code>SUM(total_revenue)</code> once.
+      It joins to the main result via <code>CROSS JOIN</code> (one-row × N-rows = N-rows, no row explosion).
+      Both <code>revenue_share_pct</code> and <code>cumulative_revenue_pct</code> reference
+      <code>t.grand_total</code> — a column reference, not a window computation.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-ok">3</div>
+    <div class="item-body">
+      <strong class="ok">Flat 2-Level Structure — CTE → Final SELECT</strong><br>
+      All intermediate logic is expressed as named CTEs. The final SELECT contains only
+      window functions and column references, with no nested subqueries. This gives the
+      planner full visibility into the execution graph, enabling optimal join order selection
+      and predicate pushdown across the entire query.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-ok">4</div>
+    <div class="item-body">
+      <strong class="ok">All Window Functions in Final SELECT Only</strong><br>
+      Both <code>RANK()</code> calls, the running sum, and all other window functions are placed
+      in the final <code>SELECT</code> only — applied once to the compact grouped result set.
+      This reduces the number of sort passes from multiple intermediate sorts to a single
+      ordered window evaluation.
+    </div>
+  </div>
+
+  <div class="item">
+    <div class="badge badge-ok">5</div>
+    <div class="item-body">
+      <strong class="ok">Reuse Computed Columns — <code>cs.total_orders</code></strong><br>
+      <code>late_rate_pct</code> divides <code>cs.late_count</code> by <code>cs.total_orders</code>
+      — a column already computed in the CTE — instead of re-invoking
+      <code>COUNT(DISTINCT order_id)</code>. Similarly, <code>avg_order_value</code> reuses
+      <code>cs.total_revenue / cs.total_orders</code>. Both eliminations remove redundant
+      aggregate evaluations at the row level.
+    </div>
   </div>
 
   <div class="footer">
     <span>Otten Coffee — BI Engineer Technical Test</span>
-    <span>Test 1: Advanced SQL &nbsp;|&nbsp; End of Document</span>
+    <span>Test 1: Advanced SQL — Section 5 (continued)</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>5.5 Optimised Query — Full SQL</h2>
+  <pre><code><span class="cmt">-- OPTIMISED QUERY</span>
+<span class="cmt">-- Fix <span class="num">1</span>: Single-pass CTE <span class="kw">with</span> <span class="kw">FILTER</span> — replaces <span class="num">3</span> separate subquery scans</span>
+<span class="cmt">-- Fix <span class="num">2</span>: Scalar CTE `total` + <span class="kw">CROSS JOIN</span> — grand total computed exactly <span class="kw">on</span>ce</span>
+<span class="cmt">-- Fix <span class="num">3</span>: Flat <span class="num">2</span>-level structure — full query plan visible to planner</span>
+<span class="cmt">-- Fix <span class="num">4</span>: <span class="kw">RANK</span>() <span class="kw">on</span>ly <span class="kw">in</span> final <span class="kw">SELECT</span> — <span class="kw">on</span>e sort pass <span class="kw">in</span>stead of two</span>
+<span class="cmt">-- Fix <span class="num">5</span>: Reuse cs.total_orders — eliminates redundant <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span>)</span>
+<span class="kw">WITH</span> category_stats <span class="kw">AS</span> (
+    <span class="kw">SELECT</span>
+        <span class="kw">COALESCE</span>(t.product_category_name_english, <span class=\"str\">'uncategorized'</span>) <span class="kw">AS</span> category,
+        <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> oi.<span class="kw">or</span>der_id)                                <span class="kw">AS</span> total_orders,
+        <span class="kw">SUM</span>(oi.price)                                              <span class="kw">AS</span> total_revenue,
+        <span class="kw">SUM</span>(op.payment_value)
+            <span class="kw">FILTER</span> (<span class="kw">WHERE</span> op.payment_type = <span class=\"str\">'credit_card'</span>)         <span class="kw">AS</span> credit_card_revenue,
+        <span class="kw">SUM</span>(op.payment_value)
+            <span class="kw">FILTER</span> (<span class="kw">WHERE</span> op.payment_type = <span class=\"str\">'boleto'</span>)              <span class="kw">AS</span> boleto_revenue,
+        <span class="kw">COUNT</span>(<span class="kw">DISTINCT</span> <span class="kw">CASE</span>
+            <span class="kw">WHEN</span> o.<span class="kw">or</span>der_delivered_customer_date &gt; o.<span class="kw">or</span>der_estimated_delivery_date
+            <span class="kw">THEN</span> o.<span class="kw">or</span>der_id <span class="kw">END</span>)                                   <span class="kw">AS</span> late_count,
+        <span class="kw">ROUND</span>(<span class="kw">AVG</span>(<span class="kw">CASE</span>
+            <span class="kw">WHEN</span> o.<span class="kw">or</span>der_delivered_customer_date &gt; o.<span class="kw">or</span>der_estimated_delivery_date
+            <span class="kw">THEN</span> <span class="kw">EXTRACT</span>(<span class="kw">EPOCH</span> <span class="kw">FROM</span>
+                    (o.<span class="kw">or</span>der_delivered_customer_date - o.<span class="kw">or</span>der_estimated_delivery_date)
+                ) / <span class="num">86400.0</span>
+            <span class="kw">END</span>)::<span class="kw">numeric</span>, <span class="num">1</span>)                                      <span class="kw">AS</span> <span class="kw">avg</span>_days_late
+    <span class="kw">FROM</span> products p
+    <span class="kw">LEFT JOIN</span> product_category_name_translation t
+        <span class="kw">ON</span> t.product_category_name = p.product_category_name
+    <span class="kw">JOIN</span> <span class="kw">or</span>der_items oi    <span class="kw">ON</span> oi.product_id  = p.product_id
+    <span class="kw">JOIN</span> <span class="kw">or</span>ders o          <span class="kw">ON</span> o.<span class="kw">or</span>der_id     = oi.<span class="kw">or</span>der_id
+    <span class="kw">JOIN</span> <span class="kw">or</span>der_payments op <span class="kw">ON</span> op.<span class="kw">or</span>der_id    = oi.<span class="kw">or</span>der_id
+    <span class="kw">WHERE</span> o.<span class="kw">or</span>der_delivered_customer_date <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span>
+    <span class="kw">GROUP BY</span> <span class="kw">COALESCE</span>(t.product_category_name_english, <span class=\"str\">'uncategorized'</span>)
+),
+total <span class="kw">AS</span> (
+    <span class="cmt">-- Grand total computed <span class="kw">on</span>ce; referenced everywhere via <span class="kw">CROSS JOIN</span></span>
+    <span class="kw">SELECT</span> <span class="kw">SUM</span>(total_revenue) <span class="kw">AS</span> grand_total <span class="kw">FROM</span> category_stats
+)
+<span class="kw">SELECT</span>
+    <span class="kw">RANK</span>() <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> cs.total_revenue DESC)                                         <span class="kw">AS</span> revenue_rank,
+    cs.category,
+    cs.total_orders,
+    <span class="kw">ROUND</span>(cs.total_revenue::<span class="kw">numeric</span>, <span class="num">2</span>)                                                  <span class="kw">AS</span> total_revenue,
+    <span class="kw">ROUND</span>((cs.total_revenue * <span class="num">100.0</span> / <span class="kw">NULL</span>IF(t.grand_total, <span class="num">0</span>))::<span class="kw">numeric</span>, <span class="num">2</span>)            <span class="kw">AS</span> revenue_share_pct,
+    <span class="kw">ROUND</span>((
+        <span class="kw">SUM</span>(cs.total_revenue) <span class="kw">OVER</span> (
+            <span class="kw">ORDER BY</span> cs.total_revenue DESC
+            <span class="kw">ROWS</span> <span class="kw">BETWEEN</span> <span class="kw">UNBOUNDED</span> <span class="kw">PRECEDING</span> <span class="kw">AND</span> <span class="kw">CURRENT ROW</span>
+        ) * <span class="num">100.0</span> / <span class="kw">NULL</span>IF(t.grand_total, <span class="num">0</span>)
+    )::<span class="kw">numeric</span>, <span class="num">2</span>)                                                                       <span class="kw">AS</span> cumulative_revenue_pct,
+    <span class="kw">ROUND</span>((cs.total_revenue / <span class="kw">NULL</span>IF(cs.total_orders, <span class="num">0</span>))::<span class="kw">numeric</span>, <span class="num">2</span>)                  <span class="kw">AS</span> <span class="kw">avg</span>_order_value,
+    <span class="kw">ROUND</span>(cs.credit_card_revenue::<span class="kw">numeric</span>, <span class="num">2</span>)                                            <span class="kw">AS</span> credit_card_revenue,
+    <span class="kw">ROUND</span>(cs.boleto_revenue::<span class="kw">numeric</span>, <span class="num">2</span>)                                                 <span class="kw">AS</span> boleto_revenue,
+    <span class="kw">ROUND</span>((cs.credit_card_revenue * <span class="num">100.0</span>
+        / <span class="kw">NULL</span>IF(cs.credit_card_revenue + cs.boleto_revenue, <span class="num">0</span>))::<span class="kw">numeric</span>, <span class="num">1</span>)           <span class="kw">AS</span> credit_card_share_pct,
+    cs.late_count,
+    <span class="kw">ROUND</span>((cs.late_count * <span class="num">100.0</span> / <span class="kw">NULL</span>IF(cs.total_orders, <span class="num">0</span>))::<span class="kw">numeric</span>, <span class="num">1</span>)             <span class="kw">AS</span> late_rate_pct,
+    cs.<span class="kw">avg</span>_days_late,
+    <span class="kw">RANK</span>() <span class="kw">OVER</span> (
+        <span class="kw">ORDER BY</span> <span class="kw">ROUND</span>((cs.late_count * <span class="num">100.0</span> / <span class="kw">NULL</span>IF(cs.total_orders,<span class="num">0</span>))::<span class="kw">numeric</span>,<span class="num">1</span>) DESC
+    )                                                                                    <span class="kw">AS</span> late_rank
+<span class="kw">FROM</span> category_stats cs
+<span class="kw">CROSS JOIN</span> total t
+<span class="kw">ORDER BY</span> revenue_rank;</code></pre>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — Section 5 (continued)</span>
+  </div>
+</div>
+
+<div class="page page-break">
+  <h2>5.6 Optimised Query Results — Top 20 Categories by Revenue</h2>
+  <p>Query runs against delivered orders only (<code>order_delivered_customer_date IS NOT NULL</code>).
+  Revenue is based on <code>order_items.price</code> (not payment_value) — differs from A2 which uses payment_value.
+  Yellow = #1 category. Late rate colour: green &lt;8%, amber 8–10%, red &gt;10%.</p>
+
+  <div style="overflow-x:auto">
+  <table style="font-size:11px">
+    <tr>
+      <th>Rank</th><th>Category</th><th class="nr">Orders</th>
+      <th class="nr">Revenue&nbsp;(R$)</th><th class="nr">Rev&nbsp;%</th>
+      <th class="nr">Cumul&nbsp;%</th><th class="nr">Avg&nbsp;OV&nbsp;(R$)</th>
+      <th class="nr">CC&nbsp;Rev&nbsp;(R$)</th><th class="nr">Boleto&nbsp;(R$)</th>
+      <th class="nr">CC&nbsp;%</th>
+      <th class="nr">Late&nbsp;Cnt</th><th class="nr">Late&nbsp;%</th>
+      <th class="nr">Avg&nbsp;Days</th><th class="nr">Late&nbsp;Rank</th>
+    </tr>
+    <tr style="background:#fffde7"><td class='nr'><strong>#1</strong></td><td>health beauty</td><td class='nr'>8,648</td><td class='nr'><strong>R$&nbsp;1,271,413.18</strong></td><td class='nr'>9.20%</td><td class='nr'>9.20%</td><td class='nr'>R$&nbsp;147.02</td><td class='nr'>R$&nbsp;1,297,876.65</td><td class='nr'>R$&nbsp;273,884.88</td><td class='nr'>82.6%</td><td class='nr'>775</td><td class='nr'><span style='color:#e69500'>9.0%</span></td><td class='nr'>8.8</td><td class='nr'>#15</td></tr>
+<tr><td class='nr'><strong>#2</strong></td><td>watches gifts</td><td class='nr'>5,493</td><td class='nr'><strong>R$&nbsp;1,213,162.80</strong></td><td class='nr'>8.78%</td><td class='nr'>17.99%</td><td class='nr'>R$&nbsp;220.86</td><td class='nr'>R$&nbsp;1,132,730.51</td><td class='nr'>R$&nbsp;203,631.27</td><td class='nr'>84.8%</td><td class='nr'>468</td><td class='nr'><span style='color:#e69500'>8.5%</span></td><td class='nr'>9.2</td><td class='nr'>#20</td></tr>
+<tr><td class='nr'><strong>#3</strong></td><td>bed bath table</td><td class='nr'>9,272</td><td class='nr'><strong>R$&nbsp;1,077,968.13</strong></td><td class='nr'>7.80%</td><td class='nr'>25.79%</td><td class='nr'>R$&nbsp;116.26</td><td class='nr'>R$&nbsp;1,369,480.82</td><td class='nr'>R$&nbsp;257,884.53</td><td class='nr'>84.2%</td><td class='nr'>811</td><td class='nr'><span style='color:#e69500'>8.7%</span></td><td class='nr'>9.8</td><td class='nr'>#17</td></tr>
+<tr><td class='nr'><strong>#4</strong></td><td>sports leisure</td><td class='nr'>7,530</td><td class='nr'><strong>R$&nbsp;990,486.72</strong></td><td class='nr'>7.17%</td><td class='nr'>32.96%</td><td class='nr'>R$&nbsp;131.54</td><td class='nr'>R$&nbsp;1,053,542.67</td><td class='nr'>R$&nbsp;246,842.80</td><td class='nr'>81.0%</td><td class='nr'>584</td><td class='nr'><span style='color:#2ca02c'>7.8%</span></td><td class='nr'>9.7</td><td class='nr'>#30</td></tr>
+<tr><td class='nr'><strong>#5</strong></td><td>computers accessories</td><td class='nr'>6,529</td><td class='nr'><strong>R$&nbsp;918,837.87</strong></td><td class='nr'>6.65%</td><td class='nr'>39.61%</td><td class='nr'>R$&nbsp;140.73</td><td class='nr'>R$&nbsp;955,849.83</td><td class='nr'>R$&nbsp;554,365.99</td><td class='nr'>63.3%</td><td class='nr'>503</td><td class='nr'><span style='color:#2ca02c'>7.7%</span></td><td class='nr'>9.4</td><td class='nr'>#33</td></tr>
+<tr><td class='nr'><strong>#6</strong></td><td>furniture decor</td><td class='nr'>6,307</td><td class='nr'><strong>R$&nbsp;746,183.40</strong></td><td class='nr'>5.40%</td><td class='nr'>45.02%</td><td class='nr'>R$&nbsp;118.31</td><td class='nr'>R$&nbsp;1,052,492.41</td><td class='nr'>R$&nbsp;298,682.23</td><td class='nr'>77.9%</td><td class='nr'>535</td><td class='nr'><span style='color:#e69500'>8.5%</span></td><td class='nr'>9.6</td><td class='nr'>#20</td></tr>
+<tr><td class='nr'><strong>#7</strong></td><td>housewares</td><td class='nr'>5,743</td><td class='nr'><strong>R$&nbsp;648,187.74</strong></td><td class='nr'>4.69%</td><td class='nr'>49.71%</td><td class='nr'>R$&nbsp;112.87</td><td class='nr'>R$&nbsp;797,360.17</td><td class='nr'>R$&nbsp;228,186.87</td><td class='nr'>77.7%</td><td class='nr'>399</td><td class='nr'><span style='color:#2ca02c'>6.9%</span></td><td class='nr'>9.6</td><td class='nr'>#41</td></tr>
+<tr><td class='nr'><strong>#8</strong></td><td>cool stuff</td><td class='nr'>3,559</td><td class='nr'><strong>R$&nbsp;634,403.75</strong></td><td class='nr'>4.59%</td><td class='nr'>54.30%</td><td class='nr'>R$&nbsp;178.25</td><td class='nr'>R$&nbsp;585,406.37</td><td class='nr'>R$&nbsp;137,658.96</td><td class='nr'>81.0%</td><td class='nr'>243</td><td class='nr'><span style='color:#2ca02c'>6.8%</span></td><td class='nr'>10.5</td><td class='nr'>#44</td></tr>
+<tr><td class='nr'><strong>#9</strong></td><td>auto</td><td class='nr'>3,809</td><td class='nr'><strong>R$&nbsp;602,881.75</strong></td><td class='nr'>4.36%</td><td class='nr'>58.66%</td><td class='nr'>R$&nbsp;158.28</td><td class='nr'>R$&nbsp;679,495.44</td><td class='nr'>R$&nbsp;129,258.66</td><td class='nr'>84.0%</td><td class='nr'>328</td><td class='nr'><span style='color:#e69500'>8.6%</span></td><td class='nr'>11.1</td><td class='nr'>#19</td></tr>
+<tr><td class='nr'><strong>#10</strong></td><td>garden tools</td><td class='nr'>3,448</td><td class='nr'><strong>R$&nbsp;492,390.08</strong></td><td class='nr'>3.56%</td><td class='nr'>62.23%</td><td class='nr'>R$&nbsp;142.80</td><td class='nr'>R$&nbsp;603,602.71</td><td class='nr'>R$&nbsp;181,969.42</td><td class='nr'>76.8%</td><td class='nr'>274</td><td class='nr'><span style='color:#2ca02c'>7.9%</span></td><td class='nr'>9.7</td><td class='nr'>#27</td></tr>
+<tr><td class='nr'><strong>#11</strong></td><td>toys</td><td class='nr'>3,804</td><td class='nr'><strong>R$&nbsp;487,327.07</strong></td><td class='nr'>3.53%</td><td class='nr'>65.76%</td><td class='nr'>R$&nbsp;128.11</td><td class='nr'>R$&nbsp;489,487.88</td><td class='nr'>R$&nbsp;97,229.12</td><td class='nr'>83.4%</td><td class='nr'>286</td><td class='nr'><span style='color:#2ca02c'>7.5%</span></td><td class='nr'>10.0</td><td class='nr'>#36</td></tr>
+<tr><td class='nr'><strong>#12</strong></td><td>baby</td><td class='nr'>2,809</td><td class='nr'><strong>R$&nbsp;422,236.57</strong></td><td class='nr'>3.06%</td><td class='nr'>68.81%</td><td class='nr'>R$&nbsp;150.32</td><td class='nr'>R$&nbsp;412,523.94</td><td class='nr'>R$&nbsp;95,074.89</td><td class='nr'>81.3%</td><td class='nr'>258</td><td class='nr'><span style='color:#e69500'>9.2%</span></td><td class='nr'>10.9</td><td class='nr'>#10</td></tr>
+<tr><td class='nr'><strong>#13</strong></td><td>perfumery</td><td class='nr'>3,088</td><td class='nr'><strong>R$&nbsp;403,716.69</strong></td><td class='nr'>2.92%</td><td class='nr'>71.74%</td><td class='nr'>R$&nbsp;130.74</td><td class='nr'>R$&nbsp;410,558.74</td><td class='nr'>R$&nbsp;68,486.32</td><td class='nr'>85.7%</td><td class='nr'>228</td><td class='nr'><span style='color:#2ca02c'>7.4%</span></td><td class='nr'>10.5</td><td class='nr'>#37</td></tr>
+<tr><td class='nr'><strong>#14</strong></td><td>telephony</td><td class='nr'>4,093</td><td class='nr'><strong>R$&nbsp;325,521.00</strong></td><td class='nr'>2.36%</td><td class='nr'>74.09%</td><td class='nr'>R$&nbsp;79.53</td><td class='nr'>R$&nbsp;358,034.87</td><td class='nr'>R$&nbsp;90,581.12</td><td class='nr'>79.8%</td><td class='nr'>349</td><td class='nr'><span style='color:#e69500'>8.5%</span></td><td class='nr'>8.2</td><td class='nr'>#20</td></tr>
+<tr><td class='nr'><strong>#15</strong></td><td>office furniture</td><td class='nr'>1,254</td><td class='nr'><strong>R$&nbsp;279,263.57</strong></td><td class='nr'>2.02%</td><td class='nr'>76.12%</td><td class='nr'>R$&nbsp;222.70</td><td class='nr'>R$&nbsp;461,286.82</td><td class='nr'>R$&nbsp;165,754.57</td><td class='nr'>73.6%</td><td class='nr'>115</td><td class='nr'><span style='color:#e69500'>9.2%</span></td><td class='nr'>11.7</td><td class='nr'>#10</td></tr>
+<tr><td class='nr'><strong>#16</strong></td><td>computers</td><td class='nr'>177</td><td class='nr'><strong>R$&nbsp;238,532.62</strong></td><td class='nr'>1.73%</td><td class='nr'>77.84%</td><td class='nr'>R$&nbsp;1,347.64</td><td class='nr'>R$&nbsp;225,278.82</td><td class='nr'>R$&nbsp;45,882.10</td><td class='nr'>83.1%</td><td class='nr'>13</td><td class='nr'><span style='color:#2ca02c'>7.3%</span></td><td class='nr'>10.1</td><td class='nr'>#38</td></tr>
+<tr><td class='nr'><strong>#17</strong></td><td>stationery</td><td class='nr'>2,264</td><td class='nr'><strong>R$&nbsp;231,754.65</strong></td><td class='nr'>1.68%</td><td class='nr'>79.52%</td><td class='nr'>R$&nbsp;102.37</td><td class='nr'>R$&nbsp;244,837.59</td><td class='nr'>R$&nbsp;53,244.85</td><td class='nr'>82.1%</td><td class='nr'>176</td><td class='nr'><span style='color:#2ca02c'>7.8%</span></td><td class='nr'>10.4</td><td class='nr'>#30</td></tr>
+<tr><td class='nr'><strong>#18</strong></td><td>pet shop</td><td class='nr'>1,688</td><td class='nr'><strong>R$&nbsp;220,312.53</strong></td><td class='nr'>1.59%</td><td class='nr'>81.11%</td><td class='nr'>R$&nbsp;130.52</td><td class='nr'>R$&nbsp;241,936.33</td><td class='nr'>R$&nbsp;54,446.82</td><td class='nr'>81.6%</td><td class='nr'>106</td><td class='nr'><span style='color:#2ca02c'>6.3%</span></td><td class='nr'>6.7</td><td class='nr'>#50</td></tr>
+<tr><td class='nr'><strong>#19</strong></td><td>musical instruments</td><td class='nr'>611</td><td class='nr'><strong>R$&nbsp;203,722.69</strong></td><td class='nr'>1.47%</td><td class='nr'>82.59%</td><td class='nr'>R$&nbsp;333.43</td><td class='nr'>R$&nbsp;172,572.06</td><td class='nr'>R$&nbsp;40,967.98</td><td class='nr'>80.8%</td><td class='nr'>54</td><td class='nr'><span style='color:#e69500'>8.8%</span></td><td class='nr'>11.0</td><td class='nr'>#16</td></tr>
+<tr><td class='nr'><strong>#20</strong></td><td>small appliances</td><td class='nr'>609</td><td class='nr'><strong>R$&nbsp;193,022.20</strong></td><td class='nr'>1.40%</td><td class='nr'>83.99%</td><td class='nr'>R$&nbsp;316.95</td><td class='nr'>R$&nbsp;174,855.57</td><td class='nr'>R$&nbsp;36,905.19</td><td class='nr'>82.6%</td><td class='nr'>38</td><td class='nr'><span style='color:#2ca02c'>6.2%</span></td><td class='nr'>7.5</td><td class='nr'>#53</td></tr>
+  </table>
+  </div>
+
+  <p><small style="color:#888">Showing top 20 of 72 total categories. CC Rev / Boleto Rev represent payments
+  from those methods across <em>all</em> orders touching the category (an order can be split across payment types).
+  Late Rate = orders delivered after <code>order_estimated_delivery_date</code> as % of total delivered orders.</small></p>
+
+  <h2>5.7 Visualisation</h2>
+  <img src="b_analytics.png" style="width:100%;border-radius:8px;margin:12px 0 18px">
+
+  <h2>5.8 Index Recommendations</h2>
+  <p>These indexes would further accelerate the optimised query in a writable environment.
+  They cannot be created on this read-only instance but are valid for production deployment.</p>
+
+  <pre><code>-- 1. Filter pushdown: order_delivered_customer_date IS NOT NULL (WHERE clause)
+--    Also enables late-delivery comparison without full orders scan
+<span class="kw">CREATE INDEX</span> idx_orders_delivery_dates
+    <span class="kw">ON</span> orders (order_delivered_customer_date, order_estimated_delivery_date)
+    <span class="kw">WHERE</span> order_delivered_customer_date <span class="kw">IS NOT NULL</span>;
+-- Partial index: only indexes delivered orders, reducing index size ~30%
+
+-- 2. Join: order_items.product_id → products.product_id (largest join in query)
+<span class="kw">CREATE INDEX</span> idx_order_items_product_id
+    <span class="kw">ON</span> order_items (product_id);
+-- Converts hash join of 112K rows to nested-loop index join
+
+-- 3. Join + FILTER aggregation: order_payments.order_id + payment_type
+<span class="kw">CREATE INDEX</span> idx_order_payments_order_type
+    <span class="kw">ON</span> order_payments (order_id, payment_type);
+-- Composite index covers both the JOIN condition and FILTER WHERE clause
+-- Enables index-only scan (no heap fetch needed)
+
+-- 4. Lookup: products.product_category_name → translation table
+<span class="kw">CREATE INDEX</span> idx_products_category_name
+    <span class="kw">ON</span> products (product_category_name);
+-- Makes the LEFT JOIN to category_name_translation an index lookup</code></pre>
+
+  <h2>5.9 Performance Summary — Before vs After</h2>
+  <table>
+    <tr><th>Dimension</th><th>Original Query</th><th>Optimised Query</th></tr>
+    <tr><td>Table scans (<code>products</code> + <code>order_items</code>)</td>
+        <td class="cmp-bad">3× each</td>
+        <td class="cmp-good">1× each</td></tr>
+    <tr><td>Grand total window computation <code>SUM() OVER ()</code></td>
+        <td class="cmp-bad">2× window passes</td>
+        <td class="cmp-good">1× scalar CTE aggregate</td></tr>
+    <tr><td>Subquery / CTE nesting depth</td>
+        <td class="cmp-bad">4 levels (nested subqueries)</td>
+        <td class="cmp-good">2 levels (CTEs + final SELECT)</td></tr>
+    <tr><td>RANK() sort operations</td>
+        <td class="cmp-bad">Inside subquery + outer = 2 sorts</td>
+        <td class="cmp-good">Final SELECT only = 1 sort</td></tr>
+    <tr><td>COUNT(DISTINCT) evaluations</td>
+        <td class="cmp-bad">Recomputed per row in outer SELECT</td>
+        <td class="cmp-good">Reused from CTE column</td></tr>
+    <tr><td>Query planner visibility</td>
+        <td class="cmp-bad">Cannot optimise across nested subqueries</td>
+        <td class="cmp-good">Full plan visible — optimal join selection</td></tr>
+    <tr><td>Code readability / maintainability</td>
+        <td class="cmp-bad">Deeply nested, hard to modify</td>
+        <td class="cmp-good">Named CTEs, each with one responsibility</td></tr>
+    <tr><td><strong>Estimated execution time reduction</strong></td>
+        <td class="cmp-bad">Baseline</td>
+        <td class="cmp-good"><strong>~50–70% faster</strong> (cold buffer)</td></tr>
+  </table>
+
+  <h2>5.10 Verification Guide — EXPLAIN ANALYZE</h2>
+  <h4>Step 1 — Capture baseline plan (original query)</h4>
+  <pre><code><span class="kw">EXPLAIN</span> (ANALYZE, BUFFERS, FORMAT TEXT)
+&lt;original_query&gt;;</code></pre>
+  <p>Record: <code>cost=</code> estimate, <code>actual time=</code>, <code>Buffers: shared read=</code>,
+  count of <code>Seq Scan</code> nodes in the plan output.</p>
+
+  <h4>Step 2 — Run optimised query and compare</h4>
+  <pre><code><span class="kw">EXPLAIN</span> (ANALYZE, BUFFERS, FORMAT TEXT)
+&lt;optimised_query&gt;;</code></pre>
+
+  <table>
+    <tr><th>Signal to look for</th><th>Original (bad)</th><th>Optimised (good)</th></tr>
+    <tr><td>Seq Scan nodes for products/order_items</td><td class="cmp-bad">3× each</td><td class="cmp-good">1× each</td></tr>
+    <tr><td>WindowAgg nodes in plan</td><td class="cmp-bad">2 WindowAgg + redundant Aggregate</td><td class="cmp-good">1 WindowAgg + 1 plain Aggregate</td></tr>
+    <tr><td>Sort nodes in plan</td><td class="cmp-bad">Multiple (inner + outer)</td><td class="cmp-good">One final sort</td></tr>
+    <tr><td><code>Buffers: shared hit=</code></td><td class="cmp-bad">Higher (more pages read)</td><td class="cmp-good">Lower (fewer buffer reads)</td></tr>
+    <tr><td><code>actual time=</code></td><td class="cmp-bad">Slower baseline</td><td class="cmp-good">~50–70% lower</td></tr>
+  </table>
+
+  <h4>Step 3 — Equivalence check</h4>
+  <pre><code>-- Both queries must produce the same row count and revenue totals:
+<span class="kw">SELECT</span> COUNT(*), SUM(total_revenue) <span class="kw">FROM</span> (&lt;original&gt;) orig;
+<span class="kw">SELECT</span> COUNT(*), SUM(total_revenue) <span class="kw">FROM</span> (&lt;optimised&gt;) opt;
+-- Results must match exactly before deploying the optimised version.</code></pre>
+
+  <div class="callout callout-insight">
+    <strong>Key Engineering Principle Applied</strong>
+    The optimisation follows <em>"materialise once, reference many"</em>: compute each expensive
+    operation (table join, grand total, aggregation) exactly once in a named CTE, then compose
+    the final result by referencing pre-computed values. This is simultaneously more efficient
+    for the database engine and more readable for future maintainers.
+  </div>
+
+  <div class="footer">
+    <span>Otten Coffee — BI Engineer Technical Test</span>
+    <span>Test 1: Advanced SQL — End of Document</span>
   </div>
 </div>
 
